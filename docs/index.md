@@ -18,6 +18,15 @@ For full documentation visit [mkdocs.org](https://www.mkdocs.org).
 
 I like to drink :beer: after I played :soccer:
 
+```mermaid
+graph LR
+  A[**Start**]-->B{Failure?};
+  B-->|Yes| C[Investigate...];
+  C-->D[Debug];
+  D-->B;
+  B---->|No| E[**Success**!];
+```
+
 ---
 
 :octicons-link-external-16: https://github.com/mkdocs/mkdocs
