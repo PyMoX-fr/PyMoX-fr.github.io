@@ -21,4 +21,4 @@ I like to drink :beer: after I played :soccer:
 ---
 
 :octicons-link-external-16: https://github.com/mkdocs/mkdocs
-:material-cellphone: Mobile
+[:material-cellphone: Mobile](https://github.com/mkdocs/mkdocs)
