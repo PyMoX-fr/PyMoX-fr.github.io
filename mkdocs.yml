@@ -1,1 +1,5 @@
-site_name: My Docs
+site_name: PyMoX
+
+nav:
+    - index.md  # The documentation homepage.
+    - about.md  # The about page.
