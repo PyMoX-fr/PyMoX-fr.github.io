@@ -1,5 +1,10 @@
-site_name: PyMoX
+site_name: PyMoX Mkdocs Material Doc
+site_url: https://pymox-fr.github.io/
+repo_url: https://github.com/PyMoX-fr.github.io
+
 nav:
     - index.md  # The documentation homepage.
     - about.md  # The about page.
-theme: readthedocs
+
+theme:
+    name: material
