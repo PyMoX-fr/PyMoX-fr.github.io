@@ -1,5 +1,0 @@
-site_name: PyMoX
-nav:
-    - index.md  # The documentation homepage.
-    - about.md  # The about page.
-# theme: readthedocs
