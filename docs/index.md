@@ -11,7 +11,14 @@ For full documentation visit [mkdocs.org](https://www.mkdocs.org).
 
 ## Project layout
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+* mkdocs.yml    # The configuration file.
+  docs/
+    index.md  # The documentation homepage.
+    ...       # Other markdown pages, images and other files.
+
+I like to drink :beer: after I played :soccer:
+
+---
+
+:octicons-link-external-16: https://github.com/mkdocs/mkdocs
+:material-cellphone: Mobile
