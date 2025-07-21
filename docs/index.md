@@ -20,11 +20,11 @@ I like to drink :beer: after I played :soccer:
 
 ```mermaid
 graph LR
-  A[**Start**]-->B{Failure?};
-  B-->|Yes| C[Investigate...];
-  C-->D[Debug];
+  A[**Début**]-->B{Plantage ?};
+  B-->|Oui| C[Investigations...];
+  C-->D[Debugage];
   D-->B;
-  B---->|No| E[**Success**!];
+  B---->|Non| E[**Succès**!];
 ```
 
 ---
