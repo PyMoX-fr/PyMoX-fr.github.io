@@ -1,0 +1,64 @@
+/*
+pyodide-mkdocs-theme
+Copyleft GNU GPLv3 🄯 2024 Frédéric Zinelli
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+.py_mk_vanish {
+    transition: all 1s;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+#header-hourglass-svg :not(.py_mk_vanish) {
+    --duration: 2s;
+
+    -webkit-transition-property: -webkit-transform;
+    -webkit-transform-origin: center;
+    -webkit-animation-duration: var(--duration);
+    -webkit-animation-name: rotate;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+
+    -moz-transition-property: -moz-transform;
+    -moz-transform-origin: center;
+    -moz-animation-name: rotate;
+    -moz-animation-duration: var(--duration);
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: ease-in-out;
+
+    transition-property: transform;
+    transform-origin: center;
+    animation-name: rotate;
+    animation-duration: var(--duration);
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+
+@-webkit-keyframes rotate {
+    0% {-webkit-transform: rotate(0deg);}
+    32% {-webkit-transform: rotate(125deg);}
+}
+@-moz-keyframes rotate {
+    0% {-moz-transform: rotate(0deg);}
+    32% {-moz-transform: rotate(125deg);}
+}
+@keyframes rotate {
+    0% {transform: rotate(0deg);}
+    32% {transform: rotate(125deg);}
+}

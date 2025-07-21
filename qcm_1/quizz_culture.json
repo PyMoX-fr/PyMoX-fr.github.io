@@ -1,0 +1,40 @@
+{
+  "questions": [
+    [
+      "Pendant la Seconde Guerre mondiale, un événement marquant a été l'invasion de la Normandie par les forces alliées le 6 juin 1944, connu sous le nom de Jour J, cruciale pour la libération de la France de l'occupation allemande. Quels étaient les noms de code des cinq plages où les troupes alliées ont débarqué ?",
+      [
+        "Sword Beach, Juno Beach, Gold Beach, Omaha Beach, Utah Beach",
+        "Sword Beach, Juno Beach, Omaha Beach, Utah Beach, Blue Beach",
+        "Gold Beach, Sword Beach, Omaha Beach, Red Beach, Utah Beach",
+        "Juno Beach, Gold Beach, Sword Beach, Green Beach, Utah Beach"
+      ],
+      [1]
+    ],
+    [
+      "Quelle planète est la plus grande du système solaire ?\n\n![planètes](images/planetes.jpg){ width=20% }",
+      [
+        "Mercure",
+        "Vénus",
+        "Jupiter",
+        "Neptune"
+      ],
+      [3]
+    ],
+    [
+      "$42=$",
+      [
+        "$\\int_0^{42} 1 dx = 42$",
+        "$6 \\times 7$",
+        "$101010$ écrit en binaire",
+        "$6^7$"
+      ],
+      [1,2,3],
+      {"multi":true}
+    ]
+  ],
+  "description": "QCM varié",
+  "shuffle": true,
+  "qcm_title": "Quizz culture"
+}
+
+  
