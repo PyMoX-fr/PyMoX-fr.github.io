@@ -1,33 +1,65 @@
-# Accueil
+---
+author: Votre nom
+title:  🏡 Accueil
+---
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+<div align="center">
+  <img src="assets/images/pymox_logo_01.png" alt="LOGO" width="150"/>
+  <h1>Bienvenue dans l'univers PyMoX 😊 !</h1>
+</div>
 
-## Commands
+## Qu'est-ce que PyMoX ?
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+PyMoX est un projet open-source qui vise à créer une communauté autour de la programmation avec Python, et tout ce qui gravite autour...
 
-## Project layout
+Site en contruction... En attendant, prépare-toi, et fait mumuse 😉&nbsp;...
 
-* mkdocs.yml    # The configuration file.
-  docs/
-    index.md  # The documentation homepage.
-    ...       # Other markdown pages, images and other files.
+Gabin disaisat dans l'un de ses films: "Je pense que le jour où l'on mettra les cons sur orbite, t'auras pas fini de tourner..."
 
-I like to drink :beer: after I played :soccer:
+
+## Prérequis: Comprendre la programmation
 
 ```mermaid
 graph LR
-  A[**Début**]-->B{Plantage ?};
-  B-->|Oui| C[Investigations...];
-  C-->D[Debugage];
+  A[**Objectif**]---->B{Plantage ?};
+  B---->|Oui| C[Investigations...];
+  C--->D[Debugage];
   D-->B;
-  B---->|Non| E[**Succès**!];
+  B------>|Non| E[Succès → Objectif atteint !];
 ```
 
----
+Donc, ouiais... Selon Gabin (Et pas que), faut sortir de la boucle !
 
-:octicons-link-external-16: https://github.com/mkdocs/mkdocs
-[:material-cellphone: Mobile](https://github.com/mkdocs/mkdocs)
+## Pour cela, joues avec les bases du langage Python
+
+=== "Un ch'ti bac à sable de Python pour patienter..."
+
+{{ IDE('sympy/scripts/construction_sandbox_graph_00.py_') }}
+
+... Et quand ça finira par te lasser, car, ça finira par te lasser..., alors, pour avoir un regain de motivation et en plus, l'aisance du ***Hot-reload*** [^1] dans la ***CLI*** [^2], il te faudra "**p't'être bien**" [^4] ["***forker*" ce projet**](https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork) [^3], pour un jour, peut-être, devenir capable de faire un '***PR***' [^5]...
+
+## Pour aller + loin
+
+??? "... Et pour les vrais codeurs..."
+
+    Pour voir vos modifications en ***Hot-reload*** [^1] dans la ***CLI*** [^2], et si vous avez donc déjà ["***fork"* ce projet**](https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork)[^3], alors, ouvrez une CLI, rendez-vous dans le dossier du projet et lancez la commande suivante:
+
+    ``` flet run .\docs\sympy\scripts\construction_sandbox_graph_77.py
+    ```
+    
+    Après, si ce que vous avez fait vous semble sympa, alors, committez votre travail et envoyez-le sur le dépôt officeil (Faites alors un ***P.R.*** [^5]).
+    
+    {{ IDE('sympy/scripts/construction_sandbox_graph_77.py_') }}
+      
+    [^1]: Hot-reload = Rafraîchissement automatique (On dit aussi "Live reload")
+    [^2]: CLI = La console (Console Line Interface)
+    [^3]: Fork = Copie d'un dépôt
+    [^4]: Référence <a href="https://fr.wikipedia.org/wiki/K-PAX_:_L'Homme_qui_vient_de_loin" title="Un super film à voir absolument... Si ce n'est pas d'jà fait, et si oui...: À revoir !" target='_blank'>K-PAX</a>... (Une des répliques de Jeff Bridges...)
+    [^5]: <b>P</b>ull-<b>R</b>equest = Demande de fusion de votre développement dans le dépôt officiel
+
+<div style="text-align: center;">
+  <a href="https://discord.com/channels/1395436334507626566/1395436335103213571" target="_blank" rel="noopener">
+    <img src="assets/images/discord_logo.jpg" alt="Invite Discord" width="24px" height="24px" style="vertical-align: middle;"/>
+    <span style="font-size: 1.1em;">Contactez-nous via notre Discord</span>
+  </a>
+</div>

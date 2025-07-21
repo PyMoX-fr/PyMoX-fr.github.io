@@ -1,0 +1,86 @@
+image: python:3.10-alpine
+
+stages:
+  - build
+  - review
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+cache:
+  paths:
+    - .cache/pip
+
+build:
+  stage: build
+  before_script:
+    - python -m venv .venv
+    - source .venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+  script:
+    - mkdocs build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_REF_NAME == 'main'
+  artifacts:
+    paths:
+      - site
+
+pages:review:
+  stage: review
+  before_script:
+    - apk add findutils
+  script:
+    - find site/ -type f -regextype egrep -iregex ".*\.(html)" -exec sed -i -r -e 's@<a href="../(.*)/"@<a href="../\1/index.html"@' -e 's@<a href="./"@<a href="./index.html"@' -e 's@<a href="../.."@<a href="../../index.html"@' -e 's/(href="[^http].*\/)"/\1index.html"/' "{}" +;
+    - mv site public
+  needs:
+    - job: build
+      artifacts: true
+  dependencies:
+    - build
+  artifacts:
+    paths:
+    - public
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+  environment:
+      name: review/$CI_COMMIT_REF_NAME
+      url: "https://$CI_PROJECT_ROOT_NAMESPACE.$CI_PAGES_DOMAIN/-/$CI_PROJECT_NAME/-/jobs/$CI_JOB_ID/artifacts/public/"
+      auto_stop_in: 1 week
+      on_stop: pages:review:stop
+
+pages:review:stop:
+  stage: review
+  environment:
+      name: review/$CI_COMMIT_REF_NAME
+      action: stop
+  script: echo "stop pages review"
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+  when:
+    manual
+  needs:
+    - job: pages:review
+  allow_failure: true
+
+pages:
+  stage: deploy
+  script:
+    - mv site public
+    - find public -type f -regex '.*.(htm|html|txt|text|js|css)$' -exec gzip -f -k {} +
+    - find public -type f -regex '.*.(htm|html|txt|text|js|css)$' -exec brotli -f -k {} +
+  needs:
+    - job: build
+      artifacts: true
+    - job: pages:review:stop
+      optional: true
+  dependencies:
+    - build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_MERGE_REQUEST_APPROVED && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    - if: $CI_COMMIT_REF_NAME == 'main'
+  artifacts:
+    paths:
+      - public

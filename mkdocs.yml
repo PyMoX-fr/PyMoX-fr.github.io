@@ -1,94 +1,168 @@
-site_name: PyMoX Mkdocs Material Doc
-site_url: https://pymox-fr.github.io/
-repo_url: https://github.com/PyMoX-fr.github.io
+# Modifier la ligne suivante avec la description de votre site
+site_description: Doc de PyMoX-fr
 
-# language: fr # * [ ] Set language
-# lang: fr # * [ ] Set language
-# locale: fr
+# Contenu généré depuis les paramètres de votre espace gitlab à ne pas modifier
+# site_name: !ENV [CI_PROJECT_TITLE, "Version locale du site"]
+# site_url: !ENV [CI_PAGES_URL, "http://127.0.0.1:8000/"]
+# site_author: !ENV [CI_PROJECT_ROOT_NAMESPACE, USERNAME]
+# repo_url: !ENV [CI_PROJECT_URL]  # pour avoir le lien vers le dépôt
 
-nav:
-  - index.md # The documentation homepage.
-  - about.md # The about page.
+site_name: PyMoX Doc
+site_url: https://PyMoX-fr.github.io/Doc
+repo_url: https://github.com/PyMoX-fr/PyMoX-fr.github.io
+
+# À modifier ci dessous : remplacer Nom d'auteur par votre nom
+# copyright: |
+#     Nom d'auteur
+#     <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>.
+#     </br><a href="https://aeif.fr">Design by AEIF</a><br/>
+copyright: | 
+  PyMoX | 
+  Copyright © 1 990 - 2 025 - Gr. COTE - Dijon - FRANCE
+
+docs_dir: docs
+
+#nav:  Inutile avec l'utilisation des fichiers .pages plus pratiques 
 
 theme:
-  name: material
-  # lang: fr # * [ ] Set language
-  # locale: fr
-  font:
-    text: Comic Neue
-    # text: Merriweather Sans
-    code: Red Hat Mono
-  # font-size: 24px
+    favicon: assets/images/animated_favicon.gif
+    # favicon: assets/images/favicon.ico
+    # icon:
+      # logo: material/cast-education
+    logo: assets/images/animated_favicon.gif
+    name: pyodide-mkdocs-theme
+    
+    # La palette de couleur est maintenant intégrée par défaut au thème. 
+    # Si vous souhaitez en changer, vous pouvez redéclarer la section entière 
+    # et vos réglages prendront le pas sur les valeurs par défaut.
+    # Mêmes choses pour la langue et la suppression des google-fonts (non RGPD).  
+    #font: false                     # RGPD ; pas de fonte Google
+    #language: fr                    # français
+    #palette:                        # Palettes de couleurs jour/nuit
+      #- media: "(prefers-color-scheme: light)"
+        #scheme: default
+        #primary: indigo
+        #accent: indigo
+        #toggle:
+            #icon: material/weather-sunny
+            #name: Passer au mode nuit
+      #- media: "(prefers-color-scheme: dark)"
+        #scheme: slate
+        #primary: blue
+        #accent: blue
+        #toggle:
+            #icon: material/weather-night
+            #name: Passer au mode jour
+    features:
+        #- navigation.instant  !! Obligatoire à supprimer
+        #- navigation.tabs   suppression pour avoir le menu vertical
+        - navigation.top
+        - toc.integrate
+        - header.autohide
+        - content.code.annotate   # Pour les annotations de code deroulantes avec +    
+        - content.code.copy  # Ajout après MAJ pour pouvoir copier du code
+    custom_dir: overrides
 
-  favicon: assets/images/favicon.ico
-  # favicon: assets/images/animated_favicon.gif
-
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.footer
-    - search.suggest
-    - content.code.copy
-  palette:
-    # scheme: slate
-    # # primary: orange
-    # # accent: cyan
-    # primary: cyan
-    # accent: orange
-    - scheme: slate
-      toggle:
-        icon: material/weather-sunny
-        name: Dark
-      primary: blue
-      # primary: slate
-      accent: orange
-
-    - scheme: default
-      toggle:
-        icon: material/weather-night
-        name: light Light
-      # primary: deep purple
-      primary: blue
-      # primary: blue
-      accent: deep orange
-
-      # primary: orange
-      # accent: cyan
-      # primary: cyan
-      # accent: orange
 
 markdown_extensions:
-  - markdown.extensions.admonition
-  - markdown.extensions.toc
-  - pymdownx.betterem
-  - pymdownx.caret
-  - pymdownx.inlinehilite
-  - pymdownx.magiclink
-  - pymdownx.mark
-  - pymdownx.smartsymbols
-  - pymdownx.tasklist:
-      custom_checkbox: true
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.tilde
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
-        # theme:
-        #     name: material
+    - md_in_html
+    - abbr
 
+    - def_list                      # Les listes de définition.
+    - attr_list                     # Un peu de CSS et des attributs HTML.
+    - footnotes                     # Notes[^1] de bas de page.  [^1]: ma note.
+    - admonition                    # Blocs colorés  !!! info "ma remarque"
+    - pymdownx.details              #   qui peuvent se plier/déplier.
+    - pymdownx.caret                # Passage ^^souligné^^ ou en ^exposant^.
+    - pymdownx.mark                 # Passage ==surligné==.
+    - pymdownx.tilde                # Passage ~~barré~~ ou en ~indice~.
+    - pymdownx.highlight:           # Coloration syntaxique du code
+        auto_title: true
+        anchor_linenums: true
+        line_spans: __span
+        pygments_lang_class: true
+    - pymdownx.inlinehilite         # pour  `#!python  <python en ligne>`
+    - pymdownx.snippets             # Inclusion de fichiers externe.
+    - pymdownx.tasklist:            # Cases à cocher  - [ ]  et - [x]
+        custom_checkbox:    false   #   avec cases d'origine
+        clickable_checkbox: true    #   et cliquables.
+    - pymdownx.tabbed:              # Volets glissants.  === "Mon volet"
+        alternate_style: true 
+
+    - pymdownx.keys:                # Touches du clavier.  ++ctrl+d++
+        separator: "\uff0b"
+    - pymdownx.emoji: # Émojis  :boom:
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+    - pymdownx.superfences:
+        custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
+
+    - pymdownx.arithmatex:
+        generic: true
+    - toc:
+        permalink: ⚓︎
+        toc_depth: 2
 
 extra:
-  social:
-    - icon: simple/discord
-      link: https://discord.com/channels/1395436334507626566/1395436335103213571
-  #  - icon: simple/youtube
-  #    link: https://discord.gg/R693578
-  #  - icon: simple/x
-  #    link: https://twitter.com/PyMoX_fr
+    social:
+        # - icon: fontawesome/solid/clipboard-question
+        #   link: https://forge.apps.education.fr/docs/modeles/site-web-cours-general/-/issues
+        #   name: Poser une question par ticket
 
-copyright: Copyright &copy; 2025 - Contributeurs <a href="https://PyMoX.fr" title=" Aller sur le Site Offciel ➚" target = "_blank"><b>PyMoX ➚"</b></a> & GrCOTE7
+        - icon: fontawesome/brands/wikipedia-w
+          link: https://fr.wikipedia.org
+          name: L'encyclopédie libre que chacun peut améliorer
 
+        # - icon: fontawesome/solid/discord
+        #   link: mailto:grcote7l@gmail.com
+        #   name: Écrire à l'auteur
+
+        # - icon: fontawesome/solid/discord
+        #   link: mailto:grcote7l@gmail.com
+        #   name: Écrire à l'auteur
+
+    citations_file: assets/divers/citations.json
+    macros_dir: xtra/macros
+
+plugins:
+  
+  - awesome-pages:
+      collapse_single_pages: true
+
+  - search
+  # - macros:
+      # module_name: docs/assets/macros/oneCitation
+      # module_name: docs/assets/macros/oneCitation
+      # module_name: macros.qcm_macros
+      # modules:
+        # - pyodide_macros.macros
+        # - docs/assets/macros/oneCitaton
+
+  - tags:
+      tags_file: tags.md
+  - pyodide_macros:
+      # Vous pouvez ajouter ici tout réglage que vous auriez ajouté concernant les macros:
+      on_error_fail: true     # Il est conseillé d'ajouter celui-ci si vous ne l'utilisez pas.
+      build:
+        python_libs:
+          - turtle
+        tab_to_spaces: 4
+  # - sqlite-console
+
+# En remplacement de mkdocs-exclude. Tous les fichiers correspondant aux patterns indiqués seront
+# exclu du site final et donc également de l'indexation de la recherche.
+# Nota: ne pas mettre de commentaires dans ces lignes !
+exclude_docs: |
+    **/*_REM.md
+    **/*.py
+
+
+extra_javascript:
+  - javascripts/removeTrashBtn.js
+
+extra_css:
+  - xtra/stylesheets/ajustements.css                      # ajustements

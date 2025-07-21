@@ -1,0 +1,14 @@
+<!--
+Pour indiquer le numéro de version en pied de page
+-->
+
+{% extends "base_pmt.html" %}
+
+{% block footer %}
+  {{ super() }}
+  <script>
+  $(".md-copyright_pyodide #pyodide-footer").prepend(
+    $(`<div>v.2.0.1</div>`).css({display:"flex", "justify-content":"right"})
+  )
+  </script>
+{% endblock %}
