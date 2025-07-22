@@ -35,10 +35,12 @@ theme:
   # logo: assets/images/animated_favicon.gif
   logo: assets/images/pymox_logo_tr_001.png
   name: pyodide-mkdocs-theme
+  # name: material  # 👀 pour la validation
+  # custom_dir: pyodide-mkdocs-theme  # 👈 ton vrai thème  # ✅ thème installé via pip, reconnu par mkdocs
+
   ## name: material
   ##   features:
   ##       - navigation.instant   # /!\ Cette option est incompatible avec le thème !
-  
 
   # palette:        # Palettes de couleurs jour/nuit
   #   - media: "(prefers-color-scheme: light)"
@@ -55,12 +57,11 @@ theme:
   #     toggle:
   #       icon: material/weather-night
   #       name: Passer au mode jour
-        
-        
+
   features:
     #- navigation.instant  !! Obligatoire à supprimer
     #- navigation.tabs   suppression pour avoir le menu vertical
-    - navigation.instant
+    # - navigation.instant
     - navigation.top
     - toc.integrate
     - header.autohide
@@ -92,9 +93,9 @@ markdown_extensions:
       clickable_checkbox: true #   et cliquables.
   - pymdownx.tabbed: # Volets glissants.  === "Mon volet"
       alternate_style: true
-      slugify: !!python/object/apply:pymdownx.slugs.slugify
-        kwds:
-          case: lower
+      # slugify: !!python/object/apply:pymdownx.slugs.slugify
+      #   kwds:
+      #     case: lower
 
   - pymdownx.keys: # Touches du clavier.  ++ctrl+d++
       separator: "\uff0b"
@@ -171,7 +172,7 @@ plugins:
         python_libs:
           - turtle
         tab_to_spaces: 4
-  - sqlite-console
+  # - sqlite-console
 
 # En remplacement de mkdocs-exclude. Tous les fichiers correspondant aux patterns indiqués seront
 # exclu du site final et donc également de l'indexation de la recherche.

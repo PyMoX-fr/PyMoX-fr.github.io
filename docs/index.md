@@ -31,9 +31,17 @@ Donc, ouiais... Selon Gabin (Et pas que), faut sortir de la boucle !
 
 ## Pour cela, joues avec les bases du langage Python
 
-=== "Un ch'ti bac à sable de Python pour patienter..."
+Pour démarrer, un simple **terminal** (*Idle*) cependant opérationnel, avec ici un script pré-enregistré, qui affiche 7 nombres aléatoires entre 1 et 10
+(Clique dedans + ENTRÉE, puis flèche du haut + ENTRÉE pour ré-itérer l'expérience... Mais tu peux aussi y modifier le code... 😊 !) :
 
-{{ IDE('sympy/scripts/construction_sandbox_graph_00.py_') }}
+{{ terminal(FILL=
+"import random as rd
+print(*[rd.randint(1,10) for _ in range(7)])"
+) }}
+
+=== "Un ch'ti bac à sable de Python pour patienter ?"
+
+{{ IDE('sympy/scripts/construction_sandbox_graph_00.py') }}
 
 ... Et quand ça finira par te lasser, car, ça finira par te lasser..., alors, pour avoir un regain de motivation et en plus, l'aisance du ***Hot-reload*** [^1] dans la ***CLI*** [^2], il te faudra "**p't'être bien**" [^4] ["***forker*" ce projet**](https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork) [^3], pour un jour, peut-être, devenir capable de faire un '***PR***' [^5]...
 
@@ -48,7 +56,7 @@ Donc, ouiais... Selon Gabin (Et pas que), faut sortir de la boucle !
     
     Après, si ce que vous avez fait vous semble sympa, alors, committez votre travail et envoyez-le sur le dépôt officeil (Faites alors un ***P.R.*** [^5]).
     
-    {{ IDE('sympy/scripts/construction_sandbox_graph_77.py_') }}
+    {{ IDE('sympy/scripts/construction_sandbox_graph_77.py') }}
       
     [^1]: Hot-reload = Rafraîchissement automatique (On dit aussi "Live reload")
     [^2]: CLI = La console (Console Line Interface)

@@ -5,7 +5,6 @@ import flet as ft
 # --- PYODIDE:code --- #
 # Ceci est basique, mais ne t'emêche pas de t'amuser ad'libitum en le modifiant 😊 !
 
-
 def multiples(n):
     """Les 10 premiers multiples de n
     """

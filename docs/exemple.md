@@ -9,7 +9,20 @@ tags:
   - mon tag 2
 ---
 
+###### _Version actuelle : {{ config.plugins.pyodide_macros.version }}_
+
 ## Hanc per
+
+{{ IDE('sympy/scripts/exo', ID=2) }}
+
+<br>
+
+Un simple terminal (opérationnel) avec une commande qui affiche des nombres aléatoires entre 1 et 10
+(Clique dedans + ENTRÉE, puis flèche du haut + ENTRÉE pour ré-itérer) :
+{{ terminal(FILL=
+"import random as rd
+print(*[rd.randint(1,10) for _ in range(10)])"
+) }}
 
 Lorem markdownum fuerat tauros, patefecit tecum, atque iussit. Neci et data
 totoque, ortu saxa annis radice vincat reppulit culpa, pulcherrimus nocte...
@@ -65,6 +78,6 @@ Lorem markdownum fuerat tauros, patefecit tecum, atque iussit. Neci et data toto
 
 <!-- commentaire -->
 
-{{ IDE('sympy/scripts/exo.py_') }}
+{{ IDE('sympy/scripts/exo.py', ID=1) }}
 
 :boom:

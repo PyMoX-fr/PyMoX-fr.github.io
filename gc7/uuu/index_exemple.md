@@ -1,6 +1,4 @@
 
-_Version actuelle : {{ config.plugins.pyodide_macros.version }}_
-
 <br>
 
 ---
@@ -26,13 +24,11 @@ _Version actuelle : {{ config.plugins.pyodide_macros.version }}_
 
 Une installation complète permet d'obtenir ce résultat, en ajoutant cette commande dans un fichier markdown :
 
-```markdown
-{% raw %}{{ IDE('exo') }}{% endraw %}
-```
+{{ section('exo', 'secrets') }}
 
 <br>
 
-{{ IDE('exo') }}
+<!-- {{ IDE('exo') }} -->
 
 
 
