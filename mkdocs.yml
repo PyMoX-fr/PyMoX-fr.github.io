@@ -61,7 +61,7 @@ theme:
   features:
     #- navigation.instant  !! Obligatoire à supprimer
     #- navigation.tabs   suppression pour avoir le menu vertical
-    - navigation.instant
+    # - navigation.instant
     - navigation.top
     - toc.integrate
     - header.autohide
