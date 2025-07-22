@@ -163,6 +163,11 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#quest-ce_que_pymox" class="md-skip">
+          Aller au contenu
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -352,6 +357,19 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    🏡 Accueil
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="." class="md-nav__link md-nav__link--active">
         
   
@@ -363,6 +381,92 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quest-ce_que_pymox" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qu'est-ce que PyMoX ?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequis_comprendre_la_programmation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prérequis: Comprendre la programmation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pour_cela_joues_avec_les_bases_du_langage_python" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pour cela, joues avec les bases du langage Python
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pour cela, joues avec les bases du langage Python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dans_un_terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dans un terminal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dans_un_ide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dans un IDE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pour_aller_loin" class="md-nav__link">
+    <span class="md-ellipsis">
+      → Pour aller + loin
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contacte-nous_via_notre_discord" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contacte-nous via notre Discord
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -406,10 +510,12 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
   B------&gt;|Non| E[Succès → Objectif atteint !];</code></pre>
 <p>Donc, ouiais... Selon Gabin (Et pas que), faut sortir de la boucle !</p>
 <h2 id="pour_cela_joues_avec_les_bases_du_langage_python">Pour cela, joues avec les bases du langage Python<a class="headerlink" href="#pour_cela_joues_avec_les_bases_du_langage_python" title="Permanent link">⚓︎</a></h2>
+<h3 id="dans_un_terminal">Dans un terminal<a class="headerlink" href="#dans_un_terminal" title="Permanent link">⚓︎</a></h3>
 <p>Pour démarrer, un simple <strong>terminal</strong> (<em>Idle</em>) cependant opérationnel, avec ici un script pré-enregistré, qui affiche 7 nombres aléatoires entre 1 et 10
 (Clique dedans + ENTRÉE, puis flèche du haut + ENTRÉE pour ré-itérer l'expérience... Mais tu peux aussi y modifier le code... 😊 !) :</p>
 <div style="--n-buttons:2" class="term_wrapper"><div style="line-height:24px;--n-lines:10;" id="term_only_356a192b7913b04c54574d18c28d46e6395428ab" class="py_mk_wrapper term_solo py_mk_terminal"></div><div class="term_btns_wrapper"><div class="twemoji stdout-ctrl tooltip"><svg viewBox="0 0 24 24" fill="none"     stroke="var(--md-default-fg-color)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"     xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"> <g>   <path d="M 4,21.4 V 2.6 C 4,2.3 4.3,2 4.6,2 h 11.65 c 0.16,0 0.31,0.06 0.42,0.18 l 3.15,3.15 C 19.94,5.44 20,5.59 20,5.75 V 21.4 C 20,21.73 19.73,22 19.4,22 H 4.6 C 4.3,22 4,21.73 4,21.4 Z" ></path>   <path d="M 16,5.4 V 2.35 C 16,2.16 16.16,2 16.35,2 c 0.09,0 0.18,0.03 0.25,0.10 l 3.29,3.29 C 19.96,5.46 20,5.55 20,5.65 20,5.84 19.84,6 19.65,6 H 16.6 C 16.27,6 16,5.73 16,5.4 Z" ></path>   <path d="m 8,9.25 h 8" ></path>   <path d="M 7.9,13.25 H 15.9"></path>   <path d="M 7.9,11.25 H 14.4" ></path>   <path d="M 7.9,19.25 H 14.4" ></path>   <path d="m 7.9,15.25 h 8" ></path>   <path d="M 7.9,17.25 H 11.9" ></path>   <path d="m 8,5.25 h 4" ></path>   <path d="m 8,7.25 h 4" ></path> </g> <g><path class="stdout-x-ray-svg" d="M 3,11.4 v 6 L 21,13.8 V 7.7 Z" style="fill:var(--md-default-bg-color);stroke-width:0;" ></path></g> </svg><span style="--tool_shift: 97%;width:19em;" class="tooltiptext bottom">Tronquer ou non le feedback dans les terminaux (sortie standard & stacktrace / relancer le code pour appliquer)</span></div><div class="stdout-wraps-btn tooltip svg-switch-btn twemoji deactivated"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path d="M7 21H5V3h2v18m7-18h-2v6h2V3m0 12h-2v6h2v-6m5-3-3-3v2H9v2h7v2l3-3Z"> </path></svg><span style="--tool_shift: 97%;width:19em;" class="tooltiptext bottom">Si activé, le texte copié dans le terminal est joint sur une seule ligne avant d'être copié dans le presse-papier</span></div></div></div>
 
+<h3 id="dans_un_ide">Dans un IDE<a class="headerlink" href="#dans_un_ide" title="Permanent link">⚓︎</a></h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:1"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Un ch'ti bac à sable de Python pour patienter ?</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
@@ -419,7 +525,7 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
 
 <div class="py_mk_hidden" id="solution_editor_16dba51328b57b9211e8d914a8007f66e4ec6f5d"></div>
 <p>... Et quand ça finira par te lasser, car, ça finira par te lasser..., alors, pour avoir un regain de motivation et en plus, l'aisance du <strong><em>Hot-reload</em></strong> <sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> dans la <strong><em>CLI</em></strong> <sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>, il te faudra "<strong>p't'être bien</strong>" <sup id="fnref:4"><a class="footnote-ref" href="#fn:4">4</a></sup> <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork">"<strong><em>forker</em>" ce projet</strong></a> <sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>, pour un jour, peut-être, devenir capable de faire un '<strong><em>PR</em></strong>' <sup id="fnref:5"><a class="footnote-ref" href="#fn:5">5</a></sup>...</p>
-<h2 id="pour_aller_loin">Pour aller + loin<a class="headerlink" href="#pour_aller_loin" title="Permanent link">⚓︎</a></h2>
+<h3 id="pour_aller_loin">→ Pour aller + loin<a class="headerlink" href="#pour_aller_loin" title="Permanent link">⚓︎</a></h3>
 <details>
 <summary>... Et pour les vrais codeurs...</summary>
 <p>Pour voir vos modifications en <strong><em>Hot-reload</em></strong> <sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup> dans la <strong><em>CLI</em></strong> <sup id="fnref2:2"><a class="footnote-ref" href="#fn:2">2</a></sup>, et si vous avez donc déjà <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork">"<strong><em>fork"</em> ce projet</strong></a><sup id="fnref2:3"><a class="footnote-ref" href="#fn:3">3</a></sup>, alors, ouvrez une CLI, rendez-vous dans le dossier du projet et lancez la commande suivante:</p>
@@ -429,13 +535,10 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
 <div markdown="1" id="solution_editor_2a4cab825f800a91137b04d4bb32fdcb4f3d5730"      class="py_mk_hidden" data-search-exclude >
 </div>
 </details>
-<div style="text-align: center;">
-  <a href="https://discord.com/channels/1395436334507626566/1395436335103213571" target="_blank" rel="noopener">
-    <img src="assets/images/discord_logo.jpg" alt="Invite Discord" width="24px" height="24px" style="vertical-align: middle;"/>
-    <span style="font-size: 1.1em;">Contactez-nous via notre Discord</span>
-  </a>
+<h2 id="contacte-nous_via_notre_discord"><div style="text-align:center">Contacte-nous <a href="https://discord.com/channels/1395436334507626566/1395436335103213571" target="_blank" rel="noopener"><span style="font-size: 1.1em;">via notre Discord <img src="assets/images/discord_logo.jpg" alt="Invite Discord" width="24px" height="24px" style="vertical-align: middle;"/><a class="headerlink" href="#contacte-nous_via_notre_discord" title="Permanent link">⚓︎</a></h2>
+<p></a>
+</span></p>
 </div>
-
 <div class="footnote">
 <hr />
 <ol>
@@ -457,8 +560,8 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
 </ol>
 </div><script type="text/javascript">
 CONFIG.needMermaid = false;
-CONFIG.overlordClasses = ["GlobalRunnersManager", "Ide", "Terminal"];
-globalThis.PAGE_IDES_CONFIG = '.\x1e=kR7ruA2(IL-gt{M[x5)3l90fq4, P_1!wCb:vj8s}ah*ep%yim6d]c+.no\x1e0o010n0T0e0Y0E0*0)0v0W0E0u0s0Z0Q0F0w0h0J0d0w0F0u0J0x0A0$0s0A0s0d0A0!0F0N0$0h0N0!0A0Z0T0Z0u0w1a1j0Q0J010K0C0+0U0^0)0Q0Y0T1w0C010f0)0b0)0*0H0)0(1A010B1H0T0)0L0E0$0=0-0)0n1G011S1U1W0E0-0/1Y1!1V1%1x1)1T1I0O0.1:1$1=1(1*011Z0e0e1}1#1?1H210U0f0J0v0X0$1-0T0O0n0O201_1{0$0e0T0n2h2j2l1@2a0*2j2h1/1Z1~1$2m1H0U2y2s2C272F010T0r0$0v0f0!0T0!1G0q0#1_2O2Q2S2U0E1E0n0R0*0!2v0C2X2Z2P2R2T0!0E0b0H2.2:2G0W2*0=0E2e0J2|0,0f0e0n0v1F2Y2~0U0X0E0H0R0X0-1G0)0f0v0v1_2q2g2e0Y3j1G0l0F1_3h3j0T320X2j2W3c010Q0f0n0*0E0e1J1G0y0Q0v1{3q1J0E0m0e0*0f0U1G0x1_0*0e2T250X0)3X3Z3#1G3y1H1{0z3N3P2w1_0U2q0y0X3o2A0Y1(0X0Y2H380C0e0Q0)0!0*0Y0C0Q0O4b0!090)3 3.0n0i0S0q3+0(4c4e4q0i3y0F0x0t0C0y3*0C0E0C3.4b4d0m0T0i0d0t0#0t212j4f3K1Y4Y0*0y0y1G0h0x3(1H0$4Y0y0T2U0J0Q0$0b1G0n3O0T0P2Z0!3j3*0E0F0Z0!4=0s141j0J1c0J0 0F0F0T1k130A0Q0N4*0d0y0Z1n0A0T0$0Z0y0s2V1x1z1B1D1F1@2C2j3O0$0n0X310O4d550*0r3:0Q0U0R0E4*1Q0W211V1X2K1 1@0y3Z4h1J3j0-2j4K483*0n4b2i3n0n4n47495=0y3a5=4j4F1%2Z1,1.0:5#2E3}1H0f1{25682801030C0I5s0X0C2i5=4=0O0X0z0f0T1T0Y0Q3E0C0)0T0C0n000T0Y090f4*0T4?0R6C0U612T6D001D6c0.4i0!00333j0f4h1V0C3a0C0Y2,0X414d5=6I0!0N0u4m2$0x0Q0C0G4n4n2T0y6+5^0X0U3a0O0i0)0t0K4n0C7e0C09017h7h0k2i0C4C0C3 6G0X0.4k0Y74767m6R0)7d7f7j7i7i0)7f6+4k0a2/0#7B7e4G0e4K4K7G4x4O4A0F7b7N7H7I0(5R0U1V0!0i0y7h0o0X0S0)0K040u0P7h0t7Z2q0n377G0y000l1y0)0P0K001T0S0Y0O6 7A1W7J0C0h1T0u7e6i0D0Q7Q2O6G7x1T0Q0M3!0-4K0$6m0M6c8w870C0s004n6i4p1$0i7h0p7w770C6R7c017`4o0e4z008N0v5I7x4k8R008U7P0C0L7S8,0O7c7G7f8J4r898O2i0i0L0t4U1_236e1;69293~2c2e2g5-2k2M2o7|2t9b6a012H2z66265$952G2I9m941^1U2=2$5x7L2;2#2@2(2r2+2-3G9z2?2%2`2|3H1A303/33357}383a019M0W3e3g3i3k1x3m3o3q5s3D3u283x3z9!3C2e3F1x2}3I3K3M3O0)3Q3S3U1H9|3:3!3$1x3@013*3,0E3.a33=a62n0T3`9|2M3 4#425C9o3I0n0-482k320T0y6g0j0)410)3j5X1_3J3L320*0m0E4j6d284`6u903*252q8a2(4j4^1x4+010R4j1Y6N4@0E0J0n9}1x3R3T6v1Ha$0O1:24a+a-9~a;1_a@3N0T0L6L0va{a.4F9 a=a#a%1Z1J1.a}a0013E0E1V2p9X0-9xaPbabjb338bgba6x5P0X2T3D6B2.0ua!3u3/bz9;3.2i1G0u1_2T2p6L1{aLar8qau316V92bA3R4237ao2N4 3L0e212T4?5I0L0Q0-0E4W8v0E7Pb@5s7|2.bq2n2+0H0;0?0^aM0.5I310.3Z0ea^b{9d2r2.a:bh0O0e2ga@0R1(0T0h0h1n0T0~0u10cr5n0Q0y0u1o5w1rct0N0Z0J0h0w0N0Q0w1q0scN0}0Q0h2U0d111o180d0xbE0FcR0ZcN1m4V0n2^0b0T5X9h0n0H3M1Z3Tbv2;5|c|3^c.b_4-2s4#4%1x4)a!d3b`4:554?aY6D4{4}1Ub*510h0Q181u0N0h0s0y5l6{1314cX171l0J0Jcx0y0!0$0J0AcC0!1cbE1G5z0E1C1E1(5EaP5H5J3/5L4e0J5O5Q5S0E0d0d5W5Y1,6f465:4a5~2r4i4kaxd,1X9ld.9hbY9r6g6i6k8y6A6F5.6t001J0C0R6$2d6C8p486*6R1Z6RbG473S3E0-0(er8H0C0g7v1{0l3L6m0Q6Y6!7}4h6I6K0x6)6C6,4 416W6=6@6_2T6{6}8c8@8L8=7eeX7!7f0v1D0J0!6|7;4F7k7m0o847paU7scd738!758P8R096 7Fe#7e0%7g7ie 0(8u3.e!f17H7,01820o0r0P0C1x7h0Cf3fl7hf70*f9fd7.7=7@fl8+6m4L7U4P3@0r0C0S6Afm7n4E6.7R0V0CfE0a7K4D7Zfb8+fE4L0i8h0C0u4E6i0g0!0!8x6m8P1M0Y0J2q8%1!6D0f8,0T0ffE8P7ve`8$0C0i2O0(1x8D8F8Ufbg87f0t4A4D0C6i0c8qe%0$6C7G6P7Q6*f.f:6Cel8`0C6t6C7}f_f{0C0*a,1V0X0e4n8 4,aSe0ak972f9f2.9t01cg2s9agQ2x9k0.67936ggX2Jg#2M2!9I9x9^g+9w9C309F9@3Hg/9B9K9G2~9O3D342W369T3b3~9X3f3A9#6A3n3pa19*3t3v1x9.1Hh8bJ9?9y1HaG9{3|b8a~a13W3Ya44(3)3+1|achwae7nagaihrgRal419U9hb=as0Uau3ad_1@azaBaD21hpaIaKc7bu1xc0gJa`aUa^6x0Odfa!b00$a)0bb6c bba^91h_a/b9a a%2qb33Sh~hsbhh=3!1~b,h htbia^bl0ebn2U4_4{1_bsc8h`bxabbA2ebCbMbFacbIbBbL1xbN1HbP2q4j3ChObVa^bX6d1:b!6y2R2qcqdkb,bO6LdVb;b?b^4.51gTb im3^c2c40@aL0OaNdWbk243*cei%b}chh`clcn4jcp1@5udKcN0u5kdn0Q57dH0N3R0A0FdF0x0ycK0s0T0xj30x0w0$cDcC5n6LdC0w0dct0s170hjf0d0~0xcV4Cc-c/c;2Mc@c_0*c{idbh2Oc~jQbai#2J4!4$4(4*904.dc4=4@il6u0P0P.'
+CONFIG.overlordClasses = ["Ide", "Terminal", "GlobalRunnersManager"];
+globalThis.PAGE_IDES_CONFIG = '.\x1ek_ pL!lPjr-q+ayo8t2.[7g9i)u43A]%ms0}cdMv*C=1x5(nbR,fe{hw:6I\x1e0#010r0!0j0G0b0p0V0g0o0b0C0T0)0n0R0x0s0W0v0x0R0C0W0I0B0K0T0B0T0v0B0L0R0q0K0s0q0L0B0)0!0)0C0x1a1j0n0W010(0c0+0d0^0V0n0G0!1w0c010A0V0a0V0p0%0V0t1A010Y1H0!0V0N0b0K0=0-0V0r1G011S1U1W0b0-0/1Y1!1V1%1x1)1T1I0H0.1:1$1=1(1*011Z0j0j1}1#1?1H210d0A0W0g0y0K1-0!0H0r0H201_1{0K0j0!0r2h2j2l1@2a0p2j2h1/1Z1~1$2m1H0d2y2s2C272F010!0S0K0g0A0L0!0L1G0u0E1_2O2Q2S2U0b1E0r0$0p0L2v0c2X2Z2P2R2T0L0b0a0%2.2:2G0o2*0=0b2e0W2|0,0A0j0r0g1F2Y2~0d0y0b0%0$0y0-1G0V0A0g0g1_2q2g2e0G3j1G0k0R1_3h3j0!320y2j2W3c010n0A0r0p0b0j1J1G0Z0n0g1{3q1J0b0w0j0p0A0d1G0I1_0p0j2T250y0V3X3Z3#1G3y1H1{0l3N3P2w1_0d2q0Z0y3o2A0G1(0y0G2H380c0j0n0V0L0p0G0c0n0H4b0L090V3 3.0r0U0O0u3+0t4c4e4q0U3y0R0I0z0c0Z3*0c0b0c3.4b4d0w0!0U0v0z0E0z212j4f3K1Y4Y0p0Z0Z1G0s0I3(1H0K4Y0Z0!2U0W0n0K0a1G0r3O0!0J2Z0L3j3*0b0R0)0L4=0T141j0W1c0W0 0R0R0!1k130B0n0q4*0v0Z0)1n0B0!0K0)0Z0T2V1x1z1B1D1F1@2C2j3O0K0r0y310H4d550p0S3:0n0d0$0b4*1Q0o211V1X2K1 1@0Z3Z4h1J3j0-2j4K483*0r4b2i3n0r4n47495=0Z3a5=4j4F1%2Z1,1.0:5#2E3}1H0A1{25682801030c0P5s0y0c2i5=4=0H0y0l0A0!1T0G0n3E0c0V0!0c0r000!0G090A4*0!4?0$6C0d612T6D001D6c0.4i0L00333j0A4h1V0c3a0c0G2,0y414d5=6I0L0q0C4m2$0I0n0c0f4n4n2T0Z6+5^0y0d3a0H0U0V0z0(4n0c7e0c09017h7h0e2i0c4C0c3 6G0y0.4k0G74767m6R0V7d7f7j7i7i0V7f6+4k0Q2/0E7B7e4G0j4K4K7G4x4O4A0R7b7N7H7I0t5R0d1V0L0U0Z7h0#0y0O0V0(040C0J7h0z7Z2q0r377G0Z000k1y0V0J0(001T0O0G0H6 7A1W7J0c0s1T0C7e6i0h0n7Q2O6G7x1T0n0i3!0-4K0K6m0i6c8w870c0T004n6i4p1$0U7h0M7w770c6R7c017`4o0j4z008N0g5I7x4k8R008U7P0c0N7S8,0H7c7G7f8J4r898O2i0U0N0z4U1_236e1;69293~2c2e2g5-2k2M2o7|2t9b6a012H2z66265$952G2I9m941^1U2=2$5x7L2;2#2@2(2r2+2-3G9z2?2%2`2|3H1A303/33357}383a019M0o3e3g3i3k1x3m3o3q5s3D3u283x3z9!3C2e3F1x2}3I3K3M3O0V3Q3S3U1H9|3:3!3$1x3@013*3,0b3.a33=a62n0!3`9|2M3 4#425C9o3I0r0-482k320!0Z6g0*0V410V3j5X1_3J3L320p0w0b4j6d284`6u903*252q8a2(4j4^1x4+010$4j1Y6N4@0b0W0r9}1x3R3T6v1Ha$0H1:24a+a-9~a;1_a@3N0!0N6L0ga{a.4F9 a=a#a%1Z1J1.a}a0013E0b1V2p9X0-9xaPbabjb338bgba6x5P0y2T3D6B2.0Ca!3u3/bz9;3.2i1G0C1_2T2p6L1{aLar8qau316V92bA3R4237ao2N4 3L0j212T4?5I0N0n0-0b4W8v0b7Pb@5s7|2.bq2n2+0%0;0?0^aM0.5I310.3Z0ja^b{9d2r2.a:bh0H0j2ga@0$1(0!0s0s1n0!0~0C10cr5n0n0Z0C1o5w1rct0q0)0W0s0x0q0n0x1q0TcN0}0n0s2U0v111o180v0IbE0RcR0)cN1m4V0r2^0a0!5X9h0r0%3M1Z3Tbv2;5|c|3^c.b_4-2s4#4%1x4)a!d3b`4:554?aY6D4{4}1Ub*510s0n181u0q0s0T0Z5l6{1314cX171l0W0Wcx0Z0L0K0W0BcC0L1cbE1G5z0b1C1E1(5EaP5H5J3/5L4e0W5O5Q5S0b0v0v5W5Y1,6f465:4a5~2r4i4kaxd,1X9ld.9hbY9r6g6i6k8y6A6F5.6t001J0c0$6$2d6C8p486*6R1Z6RbG473S3E0-0ter8H0c0D7v1{0k3L6m0n6Y6!7}4h6I6K0I6)6C6,4 416W6=6@6_2T6{6}8c8@8L8=7eeX7!7f0g1D0W0L6|7;4F7k7m0#847paU7scd738!758P8R096 7Fe#7e0m7g7ie 0t8u3.e!f17H7,01820#0S0J0c1x7h0cf3fl7hf70pf9fd7.7=7@fl8+6m4L7U4P3@0S0c0O6Afm7n4E6.7R0F0cfE0Q7K4D7Zfb8+fE4L0U8h0c0C4E6i0D0L0L8x6m8P1M0G0W2q8%1!6D0A8,0!0AfE8P7ve`8$0c0U2O0t1x8D8F8Ufbg87f0z4A4D0c6i0X8qe%0K6C7G6P7Q6*f.f:6Cel8`0c6t6C7}f_f{0c0pa,1V0y0j4n8 4,aSe0ak972f9f2.9t01cg2s9agQ2x9k0.67936ggX2Jg#2M2!9I9x9^g+9w9C309F9@3Hg/9B9K9G2~9O3D342W369T3b3~9X3f3A9#6A3n3pa19*3t3v1x9.1Hh8bJ9?9y1HaG9{3|b8a~a13W3Ya44(3)3+1|achwae7nagaihrgRal419U9hb=as0dau3ad_1@azaBaD21hpaIaKc7bu1xc0gJa`aUa^6x0Hdfa!b00Ka)0ab6c bba^91h_a/b9a a%2qb33Sh~hsbhh=3!1~b,h htbia^bl0jbn2U4_4{1_bsc8h`bxabbA2ebCbMbFacbIbBbL1xbN1HbP2q4j3ChObVa^bX6d1:b!6y2R2qcqdkb,bO6LdVb;b?b^4.51gTb im3^c2c40@aL0HaNdWbk243*cei%b}chh`clcn4jcp1@5udKcN0C5kdn0n57dH0q3R0B0RdF0I0ZcK0T0!0Ij30I0x0KcDcC5n6LdC0x0vct0T170sjf0v0~0IcV4Cc-c/c;2Mc@c_0pc{idbh2Oc~jQbai#2J4!4$4(4*904.dc4=4@il6u0J0J.'
 </script><script src="./js-per-pages/0-generic-python-snippets-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
 
 <script src="./js-per-pages/1-error_logs-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
