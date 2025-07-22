@@ -2,25 +2,23 @@
 site/
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
-
-# Environnement virtuel
-.venv/
+**/__pycache__
+**/.pytest_cache
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # virtual envs
-.venv/
+**/.venv/
 
 # VSCode
-.vscode/
+**/.vscode/
 
 # Coverage
-.coverage
+**/.coverage
 
 # truc bizarre
-.DS_Store
+**/.DS_Store
 
 # site construit
 public/

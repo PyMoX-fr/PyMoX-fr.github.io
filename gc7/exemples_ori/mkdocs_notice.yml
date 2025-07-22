@@ -1,0 +1,122 @@
+# Voici un exemple presque complet de configuration pour un fichier
+# mkdocs.yml utilisant pyodide-mkdocs-theme.
+
+site_url: "{>> L'adresse de votre site web ici <<}"
+site_name: "{>> Titre pour votre site <<}"
+# site_description: "(optionnel)"
+# repo_url: "(optionnel)"
+# edit_uri_template: "(optionnel)"
+
+# Copyright "CC BY-NC-SA"
+copyright: |
+  <p xmlns:cc="http://creativecommons.org/ns#"
+  xmlns:dct="http://purl.org/dc/terms/">Partage ou adaptation possible selon les conditions de la
+  licence <a
+  href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1"
+  target="_blank" rel="license noopener noreferrer"
+  style="display:inline-block;"> CC BY-NC-SA 4.0 <img
+  style="height:22px!important;margin-left:3px;vertical-align:text-bottom;"
+  src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img
+  style="height:22px!important;margin-left:3px;vertical-align:text-bottom;"
+  src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img
+  style="height:22px!important;margin-left:3px;vertical-align:text-bottom;"
+  src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img
+  style="height:22px!important;margin-left:3px;vertical-align:text-bottom;"
+  src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"></a></p>
+
+
+docs_dir: docs
+
+nav:
+  - "Accueil": index.md
+# - ...
+
+# Pour supprimer certains fichiers markdown de la navigation (pattern shell):
+# not_in_nav: |
+#   */**/*.md
+
+
+# exclude_docs: Nécessite mkdocs 1.6+ pour fonctionner correctement. Sinon, vous pouvez
+# utiliser le plugin mkdocs-exclude à la place.
+# Ne surtout pas mettre de commentaires sur la ligne d'exclusion des fichiers python... !
+# (exclure les fichiers python n'affecte pas les "python_libs")
+exclude_docs: |
+  **/*_REM.md
+  **/*.py
+
+
+# Configuration du thème:
+theme:
+  name: pyodide-mkdocs-theme
+  
+# features:
+#   - navigation.instant    # Ne surtout pas activer cette option !
+
+
+
+# Configuration minimale pour les plugins
+plugins:
+  - awesome-pages:          # Pas indispensable, mais... (pip install mkdocs-awesome-pages-plugin)
+      collapse_single_pages: true
+
+  - search
+
+  - pyodide_macros:         # !!REQUIS!!
+      on_error_fail: true   # Fortement conseillé...
+
+# - exclude-search:         # APRÈS le plugin search (pip install mkdocs-exclude-search)
+#     exclude:              # Pour les fichiers inclus dans le build, que la recherche ne doit pas indexer
+#       - bac_a_sable.md
+
+
+markdown_extensions:
+
+  # Extensions indispensables pour le thème:
+  - md_in_html              # !!REQUIS!!
+  - admonition              # !!REQUIS!! Blocs colorés:  !!! info "ma remarque"
+  - attr_list               # !!REQUIS!! Un peu de CSS et des attributs HTML, ex: { #id .class style="display:none" }
+  - pymdownx.details        # !!REQUIS!! Admonition: ??? -> peuvent se déplier ; ???+ -> peuvent se replier.
+  - pymdownx.emoji:         # !!REQUIS!! Émojis:  :boom: (utilisé dans les terminaux)
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight      # !!REQUIS!! Coloration syntaxique du code
+  - pymdownx.inlinehilite   # !!REQUIS!! Coloration syntaxique pour les "code spans": `#!python  code_python`
+  - pymdownx.snippets:      # !!REQUIS!! Inclusion de fichiers externe.
+      check_paths: true     # Fortement conseillé !
+  - pymdownx.superfences:   # !!REQUIS!!
+      custom_fences:        # (custom_fences: uniquement si vous comptez utiliser mermaid)
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:    # !!REQUIS!! Pour LaTex
+      generic: true
+  - pymdownx.striphtml:
+      strip_js_on_attributes: false     # !!REQUIS!!
+      strip_attributes: ""              # !!REQUIS!!
+
+  # Extensions conseillées:
+  - abbr
+  - def_list                # Les listes de définition.
+  - footnotes               # Notes[^1] de bas de page.  [^1]: ma note.
+  - pymdownx.caret          # Passage ^^souligné^^ ou en ^exposant^.
+  - pymdownx.mark           # Passage ==surligné==.
+  - pymdownx.tilde          # Passage ~~barré~~ ou en ~indice~.
+  - pymdownx.keys           # Touches du clavier:  ++ctrl+d++
+  - pymdownx.tasklist:      # Cases à cocher  - [ ]  et - [x]
+      custom_checkbox: false
+      clickable_checkbox: true
+  - pymdownx.tabbed:        # Volets glissants:  === "Mon volet"
+      alternate_style: true # Meilleure compatibilité pour mobiles
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  # - toc:
+  #     toc_depth: 0        # Si vous voulez supprimer la ToC (table of content) des pages
+
+
+
+# Si mkdocs est lancé en mode strict (mkdocs ... --strict), les warnings lèveront une erreur
+# en utilisant ces réglages :
+validation:
+  omitted_files: warn
+  unrecognized_links: warn
