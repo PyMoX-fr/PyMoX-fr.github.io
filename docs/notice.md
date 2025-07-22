@@ -1,36 +1,16 @@
 ---
-title: Page Exemple
+title: Notice Mkdocs
 # author: GrCOTE7
-Summary: Juste un exemple de page about
-date: '2023-04-18'
+Summary: Rapide notice de mkdocs
+date: '2025-07-23'
 draft: false
 tags:
   - mon tag 1
-  - mon tag 2
 ---
 
-###### _Version actuelle : {{ config.plugins.pyodide_macros.version }}_
+## _Version actuelle : {{ config.plugins.pyodide_macros.version }}_
 
-## Hanc per
-
-{{ IDE('sympy/scripts/exo', ID=2) }}
-
-<br>
-
-Un simple terminal (opérationnel) avec une commande qui affiche des nombres aléatoires entre 1 et 10
-(Clique dedans + ENTRÉE, puis flèche du haut + ENTRÉE pour ré-itérer) :
-{{ terminal(FILL=
-"import random as rd
-print(*[rd.randint(1,10) for _ in range(10)])"
-) }}
-
-Lorem markdownum fuerat tauros, patefecit tecum, atque iussit. Neci et data
-totoque, ortu saxa annis radice vincat reppulit culpa, pulcherrimus nocte...
-
-| First Header | Second Header | Third Header |
-|:-------------|:-------------:|-------------:|
-| Left         |    Center     |        Right |
-| Content Cell | Content Cell  | Content Cell |
+## Code
 
 ```python
 def hello_world():
@@ -49,7 +29,15 @@ start and end fence lines to delimit the
 code block.
 ```
 
-## mkdocs
+## Table
+
+| First Header | Second Header | Third Header |
+|:-------------|:-------------:|-------------:|
+| Left         |    Center     |        Right |
+| Content Cell | Content Cell  | Content Cell |
+
+
+## Install mkdocs
 
 !!! info "Informations: Pour installer le thème"
 
@@ -78,6 +66,6 @@ Lorem markdownum fuerat tauros, patefecit tecum, atque iussit. Neci et data toto
 
 <!-- commentaire -->
 
-{{ IDE('sympy/scripts/exo.py', ID=1) }}
+{{ IDE('sympy/scripts/exo.py', ID=10) }}
 
 :boom:

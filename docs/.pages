@@ -1,6 +1,7 @@
 nav:
     - index.md
-    # - exemple.md
+    - notice.md
+    - example.md
     # - chapitre01
     # - chapitre_plusieurs_pages
     # - qcm_1
