@@ -16,7 +16,6 @@ Site en contruction... En attendant, prépare-toi, et fait mumuse 😉&nbsp;...
 
 Gabin disaisat dans l'un de ses films: "Je pense que le jour où l'on mettra les cons sur orbite, t'auras pas fini de tourner..."
 
-
 ## Prérequis: Comprendre la programmation
 
 ```mermaid
