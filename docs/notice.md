@@ -59,6 +59,10 @@ python -m pyodide_mkdocs_theme --yml
     ```bash
     python -m pyodide_mkdocs_theme --yml --file "mkdocs_.yml"
     ```
+    
+    ```bash
+    mkdocs serve --dev-addr=127.0.0.1:8002
+    ```
 
 ## Regem erat quoque
 

@@ -49,7 +49,7 @@ print(*[rd.randint(1,10) for _ in range(7)])"
 
 ... Et quand ça finira par te lasser, car, ça finira par te lasser..., alors, pour avoir un regain de motivation et en plus, l'aisance du ***Hot-reload*** [^1] dans la ***CLI*** [^2], il te faudra "**p't'être bien**" [^4] ["***forker*" ce projet**](https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork) [^3], pour un jour, peut-être, devenir capable de faire un '***PR***' [^5]...
 
-### → Pour aller + loin
+### :boom: Pour aller + loin
 
 ??? "... Et pour les vrais codeurs..."
 
@@ -68,8 +68,4 @@ print(*[rd.randint(1,10) for _ in range(7)])"
     [^4]: Référence <a href="https://fr.wikipedia.org/wiki/K-PAX_:_L'Homme_qui_vient_de_loin" title="Un super film à voir absolument... Si ce n'est pas d'jà fait, et si oui...: À revoir !" target='_blank'>K-PAX</a>... (Une des répliques de Jeff Bridges...)
     [^5]: <b>P</b>ull-<b>R</b>equest = Demande de fusion de votre développement dans le dépôt officiel
 
-## <div style="text-align:center">Contacte-nous <a href="https://discord.com/channels/1395436334507626566/1395436335103213571" target="_blank" rel="noopener"><span style="font-size: 1.1em;">via notre Discord <img src="assets/images/discord_logo.jpg" alt="Invite Discord" width="24px" height="24px" style="vertical-align: middle;"/>
-  </a>
-</span>
-
-</div>
+## → <span style="text-align:center"> Contacte-nous <a href="https://discord.com/channels/1395436334507626566/1395436335103213571" target="_blank" rel="noopener"><span style="font-size: 1.1em;">via notre Discord <img src="assets/images/discord_logo.jpg" alt="Invite Discord" width="24px" height="24px" style="vertical-align: middle;"/></span></a></span>
