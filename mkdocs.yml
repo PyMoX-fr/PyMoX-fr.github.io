@@ -1,5 +1,6 @@
-# Modifier la ligne suivante avec la description de votre site
+site_name: PyMoX Doc
 site_description: Doc de PyMoX-fr
+site_author: Communauté PyMoX
 
 # Contenu généré depuis les paramètres de votre espace gitlab à ne pas modifier
 # site_name: !ENV [CI_PROJECT_TITLE, "Version locale du site"]
@@ -7,7 +8,6 @@ site_description: Doc de PyMoX-fr
 # site_author: !ENV [CI_PROJECT_ROOT_NAMESPACE, USERNAME]
 # repo_url: !ENV [CI_PROJECT_URL]  # pour avoir le lien vers le dépôt
 
-site_name: PyMoX Doc
 site_url: https://PyMoX-fr.github.io/Doc
 repo_url: https://github.com/PyMoX-fr/PyMoX-fr.github.io
 
@@ -25,12 +25,14 @@ docs_dir: docs
 #nav:  Inutile avec l'utilisation des fichiers .pages plus pratiques 
 
 theme:
-    favicon: assets/images/animated_favicon.gif
-    # favicon: assets/images/favicon.ico
+    # favicon: assets/images/animated_favicon.gif
+    favicon: assets/images/favicon.ico
     # icon:
       # logo: material/cast-education
-    logo: assets/images/animated_favicon.gif
+    # logo: assets/images/animated_favicon.gif
+    logo: assets/images/pymox_logo_tr_001.png
     name: pyodide-mkdocs-theme
+    # name: material
     
     # La palette de couleur est maintenant intégrée par défaut au thème. 
     # Si vous souhaitez en changer, vous pouvez redéclarer la section entière 
@@ -121,7 +123,7 @@ extra:
         #   link: mailto:grcote7l@gmail.com
         #   name: Écrire à l'auteur
 
-        # - icon: fontawesome/solid/discord
+        # - icon: fontawesome/solid/
         #   link: mailto:grcote7l@gmail.com
         #   name: Écrire à l'auteur
 

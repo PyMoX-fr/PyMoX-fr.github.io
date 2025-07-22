@@ -1,5 +1,6 @@
 nav:
     - index.md
+    # - about.md
     # - chapitre01
     # - chapitre_plusieurs_pages
     # - qcm_1
@@ -9,3 +10,5 @@ nav:
     # - tags.md
     # - credits.md
 
+
+    # - testsgc7
