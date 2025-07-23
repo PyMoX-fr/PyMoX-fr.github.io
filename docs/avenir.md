@@ -20,8 +20,11 @@ tags:
 
 ## Priorités (RoadMap)
 
-* [ ] Mise en place de l'App de **PyMoX** - v0.0.1
-* [ ] Mise en place du site web [**PyMoX.fr**](www.PyMoX.fr)
+* [x] Réservation Nom de Domaine **PyMoX.fr**
+* [x] Mise en place des dépôts GitHub de **PyMoX**
+* [x] Mise en place du canal Discord de **PyMoX**
+* [ ] Mise en place de l'App de **PyMoX** - v 0.0.1
+* [ ] Mise en place du site web [**PyMoX.fr**](www.PyMoX.fr)- v 0.0.1
 * [ ] Mettre en place ce genre de test
 <!-- IDE('exemple/exo', EXPORT=1) -->
 {{ IDE('exemple/exo') }}
