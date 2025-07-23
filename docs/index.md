@@ -14,7 +14,7 @@ PyMoX est un projet open-source qui vise à créer une communauté autour de la 
 
 **Site en contruction...** En attendant, prépare-toi, et fait mumuse 😉&nbsp;...
 
-Gabin disaisat dans l'un de ses films: "Je pense que le jour où l'on mettra les cons sur orbite, t'auras pas fini de tourner..."
+Gabin disait dans l'un de ses films: "Je pense que le jour où l'on mettra les cons sur orbite, t'auras pas fini de tourner..."
 
 ## Prérequis: Comprendre la programmation
 
@@ -58,14 +58,18 @@ print(*[rd.randint(1,10) for _ in range(7)])"
     ``` flet run .\docs\sympy\scripts\construction_sandbox_graph_77.py
     ```
     
-    Après, si ce que vous avez fait vous semble sympa, alors, committez votre travail et envoyez-le sur le dépôt officeil (Faites alors un ***P.R.*** [^5]).
+    Après, si ce que vous avez fait vous semble sympa, alors, committez votre travail et envoyez-le sur le dépôt officiel (Faites alors un ***P.R.*** [^5]  😊).
     
     {{ IDE('sympy/scripts/construction_sandbox_graph_77.py') }}
-      
-    [^1]: Hot-reload = Rafraîchissement automatique (On dit aussi "Live reload")
-    [^2]: CLI = La console (Console Line Interface)
-    [^3]: Fork = Copie d'un dépôt
-    [^4]: Référence <a href="https://fr.wikipedia.org/wiki/K-PAX_:_L'Homme_qui_vient_de_loin" title="Un super film à voir absolument... Si ce n'est pas d'jà fait, et si oui...: À revoir !" target='_blank'>K-PAX</a>... (Une des répliques de Jeff Bridges...)
-    [^5]: <b>P</b>ull-<b>R</b>equest = Demande de fusion de votre développement dans le dépôt officiel
+    
+    ... Et quand de cela lassé tu es aussi, utilises le lien ci-dessous pour rester *On line*<sup>*</sup> (Et du coup, plus jamais ainsi dans la boucle tu seras 😉 !)
+    
+    \* En ligne
+    
+[^1]: Hot-reload = Rafraîchissement automatique (On dit aussi "Live reload")
+[^2]: CLI = La console (Console Line Interface)
+[^3]: Fork = Copie d'un dépôt
+[^4]: Référence <a href="https://fr.wikipedia.org/wiki/K-PAX_:_L'Homme_qui_vient_de_loin" title="Un super film à voir absolument... Si ce n'est pas d'jà fait, et si oui...: À revoir !" target='_blank'>K-PAX</a>... (Une des répliques de Jeff Bridges...)
+[^5]: <b>P</b>ull-<b>R</b>equest = Demande de fusion de votre développement dans le dépôt officiel
 
 ## → <span style="text-align:center"> Contacte-nous <a href="https://discord.com/channels/1395436334507626566/1395436335103213571" target="_blank" rel="noopener"><span style="font-size: 1.1em;">via notre Discord <img src="assets/images/discord_logo.jpg" alt="Invite Discord" width="24px" height="24px" style="vertical-align: middle;"/></span></a></span>
