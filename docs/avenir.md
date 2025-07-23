@@ -12,8 +12,6 @@ tags:
 
 * {{ config.repo_url }}
 
-## styles
-
 !!! danger inline end w40 margin-top-h4
 
     Considérez bien que tout ceci est en construction...
@@ -24,7 +22,7 @@ tags:
 * [x] Mise en place des dépôts GitHub de **PyMoX**
 * [x] Mise en place du canal Discord de **PyMoX**
 * [ ] Mise en place de l'App de **PyMoX** - v 0.0.1
-* [ ] Mise en place du site web [**PyMoX.fr**](www.PyMoX.fr)- v 0.0.1
+* [ ] Mise en place du site web [**PyMoX.fr**](http://www.PyMoX.fr)- v 0.0.1
 * [ ] Mettre en place ce genre de test
 <!-- IDE('exemple/exo', EXPORT=1) -->
 {{ IDE('exemple/exo') }}
