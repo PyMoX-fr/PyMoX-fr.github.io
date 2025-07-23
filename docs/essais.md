@@ -1,19 +1,36 @@
 # Prêt ?
 
-<div style="text-align: center;">
 ```mermaid
-  flowchart BT
-    subgraph PX[PyMoX]
-      direction LR
-      A((Départ
-       💻))--->B([Étapes
- 🔧])--->C(Arrivée
-😁)
-    end
-    PX-.->E[(↑ Souvenirs)]
-    PX==>D[(↑ **Expérience**)]
+mindmap
+  root((mindmap))
+    Origins
+      Long history
+      ::icon(fa fa-book)
+      Popularisation
+        British popular psychology author Tony Buzan
+    Research
+      On effectiveness<br/>and features
+      On Automatic creation
+        Uses
+            Creative techniques
+            Strategic planning
+            Argument mapping
+    Tools
+      Pen and paper
+      Mermaid
 ```
-</div>
+
+---
+
+
+
+|     Code     |      Icône |
+|:------------:|-----------:|
+| `:computer:` | :computer: |
+| `:keyboard:` | :keyboard: |
+|  `:wrench:`  |   :wrench: |
+
+---
 
 <style>
   td.big-droite {
