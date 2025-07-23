@@ -76,6 +76,14 @@ If not, see <https://www.gnu.org/licenses/>.
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" rel="stylesheet"/>
 
+<script src="https://cdn.jsdelivr.net/npm/jquery.terminal@2.43.1/js/jquery.terminal.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="text/javascript"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.min.js" integrity="sha512-GQpIYSKNIPIC763JKTNALj+t18/nfLdzw5gITgFGa31aK/4NmjyPKsfqrjh7CuzpJaG3nqEleeVcWUhHad9Axg==" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="text/javascript"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ext-language_tools.min.js" integrity="sha512-iK7yTkCkv7MbFwTqRgHTbmIqoiiLq6BsyNjymnFyB5a7pEQwYThj9QIgqBy9+XPPwj7+hAEHyR2npOHL1bz4Qg==" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="text/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="text/javascript"></script>
+
 <script src="../js-libs/0-config.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -158,7 +166,7 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
     <div data-md-component="skip">
       
         
-        <a href="#priorites_roadmap" class="md-skip">
+        <a href="#version_actuelle_453" class="md-skip">
           Aller au contenu
         </a>
       
@@ -412,6 +420,33 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#version_actuelle_453" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version actuelle : 4.5.3
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#styles" class="md-nav__link">
+    <span class="md-ellipsis">
+      styles
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#structure_des_dossiers_et_fichiers_de_base" class="md-nav__link">
+    <span class="md-ellipsis">
+      Structure des dossiers et fichiers de base
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#priorites_roadmap" class="md-nav__link">
     <span class="md-ellipsis">
       Priorités (RoadMap)
@@ -463,15 +498,73 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
 
   <h1>Avenir</h1>
 
-<h2 id="priorites_roadmap">Priorités (<em>RoadMap</em>)<a class="headerlink" href="#priorites_roadmap" title="Permanent link">⚓︎</a></h2>
+<h2 id="version_actuelle_453"><em>Version actuelle : 4.5.3</em><a class="headerlink" href="#version_actuelle_453" title="Permanent link">⚓︎</a></h2>
+<ul>
+<li>https://github.com/PyMoX-fr/PyMoX-fr.github.io</li>
+</ul>
+<h2 id="styles">styles<a class="headerlink" href="#styles" title="Permanent link">⚓︎</a></h2>
+<div class="admonition danger inline end w40 margin-top-h4">
+<p class="admonition-title">Danger</p>
+<p>Si l'argument <code>--file</code> ou <code>-F</code> pointe vers un fichier existant, ce fichier sera écrasé sans demande de confirmation préalable.</p>
+</div>
+<h2 id="structure_des_dossiers_et_fichiers_de_base">Structure des dossiers et fichiers de base<a class="headerlink" href="#structure_des_dossiers_et_fichiers_de_base" title="Permanent link">⚓︎</a></h2>
+<p>Cette commande, exécutée dans un terminal, crée un nouveau dossier nommé <code>PROJECT_NAME</code> dans le répertoire en cours, et y ajoute les fichiers de base pour démarrer un projet avec le thème :</p>
+<div class="admonition quote inline end w30">
+<p class="admonition-title">Fichiers &amp; dossiers créés</p>
+<div class="language-text highlight"><span class="filename">Text Only</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>...
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── PROJECT_NAME
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── docs
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    │   ├── index.md
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    │   └── exo.py
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ├── .gitignore
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    ├── main.py
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    ├── mkdocs.yml
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    └── requirements.txt
+</span></code></pre></div>
+</div>
+<ul>
+<li><code>mkdocs.yml</code>, avec une configuration minimale nécessaire pour le thème. Ne pas oublier d'y modifier ensuite les champs <code>site_name</code> et <code>site_url</code>.</li>
+<li><code>requirements.txt</code>, qui contient toutes les dépendances du projet.</li>
+<li><code>.gitignore</code>, avec des réglages génériques pour un projet de documentation avec python.</li>
+<li><code>main.py</code>, avec la logistique pour modifier certains messages du thème en place. Ce fichier est optionnel et peut être supprimé ou modifié (ajout de macros personnalisées).</li>
+<li><code>docs/index.md</code> et <code>docs/exo.py</code>, qui donnent des exemples d'utilisation des macros du thème.</li>
+</ul>
+<h2 id="priorites_roadmap">Priorités (RoadMap)<a class="headerlink" href="#priorites_roadmap" title="Permanent link">⚓︎</a></h2>
 <ul class="task-list">
-<li class="task-list-item"><input type="checkbox"/> Mise en place de l'App de www.PyMoX.fr v0.0.1</li>
-<li class="task-list-item"><input type="checkbox"/> Mise en place du site web www.PyMoX.fr</li>
-</ul><script type="text/javascript">
+<li class="task-list-item"><input type="checkbox"/> Mise en place de l'App de <strong>PyMoX</strong> - v0.0.1</li>
+<li class="task-list-item"><input type="checkbox"/> Mise en place du site web <a href="www.PyMoX.fr"><strong>PyMoX.fr</strong></a></li>
+<li class="task-list-item"><input type="checkbox"/> Mettre en place ce genre de test</li>
+</ul>
+<div id="global_editor_cf4d8c96390dcc31c787e7635db3b262703068c4" class="py_mk_ide"><div class="py_mk_wrapper md-typeset"><div class="comment_py_mk_wrapper"><div is_v="false" mode="" id="editor_cf4d8c96390dcc31c787e7635db3b262703068c4"></div><span id="comment_editor_cf4d8c96390dcc31c787e7635db3b262703068c4" class="comment tooltip">###<span style="--tool_shift: 95%;width:17em;" class="tooltiptext bottom">(Dés-)Active le code après la ligne <code># Tests</code> (insensible à la casse)<br>(<kbd>Ctrl</kbd>+<kbd>I</kbd>)</span></span><div class="ide-split-screen tooltip svg-switch-btn twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">   <path d="M3,3H11V5H3V3M13,3H21V5H13V3M3,7H11V9H3V7M13,7H21V9H13V7M3,11H11V13H3V11M13,11H21V13H13V11M3,15H11V17H3V15M13,15H21V17H13V15M3,19H11V21H3V19M13,19H21V21H13V19Z" /> </svg><span style="--tool_shift: 95%;width:23em;" class="tooltiptext bottom">Entrer ou sortir du mode "deux colonnes"<br>(<kbd>Alt+:</kbd> ; <kbd>Ctrl</kbd> pour inverser les colonnes)</span></div><div class="ide-full-screen tooltip svg-switch-btn twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">   <path d="M17 4H20C21.1 4 22 4.9 22 6V8H20V6H17V4M4 8V6H7V4H4C2.9 4 2 4.9 2 6V8H4M20 16V18H17V20H20C21.1 20 22 19.1 22 18V16H20M7 18H4V16H2V18C2 19.1 2.9 20 4 20H7V18M18 8H6V16H18V8Z" /> </svg><span style="--tool_shift: 95%;width:10em;" class="tooltiptext bottom">Entrer ou sortir du mode "plein écran"<br>(<kbd>Esc</kbd>)</span></div></div><div style="--n-buttons:2" class="term_wrapper"><div is_v="False" style="line-height:24px;--n-lines:10;" id="term_editor_cf4d8c96390dcc31c787e7635db3b262703068c4" class="term_editor py_mk_terminal"></div><div class="term_btns_wrapper"><div class="twemoji stdout-ctrl tooltip"><svg viewBox="0 0 24 24" fill="none"     stroke="var(--md-default-fg-color)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"     xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"> <g>   <path d="M 4,21.4 V 2.6 C 4,2.3 4.3,2 4.6,2 h 11.65 c 0.16,0 0.31,0.06 0.42,0.18 l 3.15,3.15 C 19.94,5.44 20,5.59 20,5.75 V 21.4 C 20,21.73 19.73,22 19.4,22 H 4.6 C 4.3,22 4,21.73 4,21.4 Z" ></path>   <path d="M 16,5.4 V 2.35 C 16,2.16 16.16,2 16.35,2 c 0.09,0 0.18,0.03 0.25,0.10 l 3.29,3.29 C 19.96,5.46 20,5.55 20,5.65 20,5.84 19.84,6 19.65,6 H 16.6 C 16.27,6 16,5.73 16,5.4 Z" ></path>   <path d="m 8,9.25 h 8" ></path>   <path d="M 7.9,13.25 H 15.9"></path>   <path d="M 7.9,11.25 H 14.4" ></path>   <path d="M 7.9,19.25 H 14.4" ></path>   <path d="m 7.9,15.25 h 8" ></path>   <path d="M 7.9,17.25 H 11.9" ></path>   <path d="m 8,5.25 h 4" ></path>   <path d="m 8,7.25 h 4" ></path> </g> <g><path class="stdout-x-ray-svg" d="M 3,11.4 v 6 L 21,13.8 V 7.7 Z" style="fill:var(--md-default-bg-color);stroke-width:0;" ></path></g> </svg><span style="--tool_shift: 97%;width:19em;" class="tooltiptext bottom">Tronquer ou non le feedback dans les terminaux (sortie standard & stacktrace / relancer le code pour appliquer)</span></div><div class="stdout-wraps-btn tooltip svg-switch-btn twemoji deactivated"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path d="M7 21H5V3h2v18m7-18h-2v6h2V3m0 12h-2v6h2v-6m5-3-3-3v2H9v2h7v2l3-3Z"> </path></svg><span style="--tool_shift: 97%;width:19em;" class="tooltiptext bottom">Si activé, le texte copié dans le terminal est joint sur une seule ligne avant d'être copié dans le presse-papier</span></div></div></div></div><div class="ide_buttons_div_wrapper"><div class="ide_buttons_div"><button type="button" btn_kind="play" style="margin-left:0.2em; margin-right:0.2em;" class="tooltip "><img src="..\assets\images\icons8-play-64.png" class="skip_light_box" /><span style="--tool_shift: 50%;width:9em;" class="tooltiptext bottom">Exécuter le code<br>(<kbd>Ctrl</kbd>+<kbd>S</kbd>)</span></button><button type="button" btn_kind="check" style="margin-left:0.2em; margin-right:0.2em;" class="tooltip "><img src="..\assets\images\icons8-check-64.png" class="skip_light_box" /><span style="--tool_shift: 50%;width:9em;" class="tooltiptext bottom">Valider<br><kbd>Ctrl</kbd>+<kbd>Enter</kbd><br>(Clic droit pour l'historique)</span></button><button type="button" btn_kind="download" style="margin-left:1em; margin-right:0.2em;" class="tooltip "><img src="..\assets\images\icons8-download-64.png" class="skip_light_box" /><span style="--tool_shift: 50%;" class="tooltiptext bottom">Télécharger</span></button><button type="button" btn_kind="upload" style="margin-left:0.2em; margin-right:1em;" class="tooltip "><img src="..\assets\images\icons8-upload-64.png" class="skip_light_box" /><span style="--tool_shift: 50%;" class="tooltiptext bottom">Téléverser</span></button><button type="button" btn_kind="restart" style="margin-left:0.2em; margin-right:0.2em;" class="tooltip "><img src="..\assets\images\icons8-restart-64.png" class="skip_light_box" /><span style="--tool_shift: 50%;" class="tooltiptext bottom">Réinitialiser l'éditeur</span></button><button type="button" btn_kind="save" style="margin-left:0.2em; margin-right:0.2em;" class="tooltip "><img src="..\assets\images\icons8-save-64.png" class="skip_light_box" /><span style="--tool_shift: 50%;" class="tooltiptext bottom">Sauvegarder dans le navigateur</span></button></div><div class="compteur_wrapper"><div class="compteur"><span class="compteur_txt">Évaluations restantes : </span><span id="compteur_editor_cf4d8c96390dcc31c787e7635db3b262703068c4">5</span>/<span id="compteur_editor_cf4d8c96390dcc31c787e7635db3b262703068c4-low">5</span></div></div></div></div>
+
+<div class="py_mk_hidden" id="solution_editor_cf4d8c96390dcc31c787e7635db3b262703068c4">
+.1280139R4cn/.kF qwt3=vP2bèl-mérygo()s:%5;heu_pSdif61a050Q0L0n0V0R0v0F0k0e0v0V0F0F0p010n0R0O010406050F0M0x0x0V0z0A040P0C0v0M0:0C0f050g0`0|0~100^0O04051g191j0g1g0^0Q0R0q0(0*0,0.0*0f0B0M0V0B0L0w0O0A0n0K170k0K0R0B0K0v1L0K0n0?050Z0t0v0L1s0+0-011K1M1O1M0n1U1W1S0n0z1h1G0(130F0O0V0f0.0s011Y1u010S0#0L0f0V0x0L1S1@1_1~1!211W24260?0a0k0r0z0C0O0C0F0R160f0k0X1=0z0z0L0e2r19290f1h0g1G2E1.1:1/1T0Q2b1v0R0f232o1S1p1r0)1Z2O2Q0f0C2U1S0O2x1h2C2E2+0_1^2s2W1 2!0z0}0v1S0V1J2x0S0.030N0N0e2#0L1O2Z0C0w0U390?0U190V2,2/0@2.2a2;1!2?2^2`2|0L2~01303234362R390w1|040s3e3g1_3i2C2N013n0V2_1h2{0K2}2 31330X3x2!3z0o0?0o3E2B3h0^3I3l0.3L3N053P3R3t3T3w2P3y3a0d0?0d3$1a3(3j2:1t3m0C2@3M3p3Q3r3S3v3V3^3X3a0I0?0I3~2+3)2/3J3-483;3u3U354e383a0T0?0T4k3h1k2)192U2H0Q1:2M3+014t2T1q1h2(0L2*4C3 3G054t4T2a0R0Q0.312C3z0U3p4#4%4c4u374*1}2f0L4.4t3W4w3b2E3f413J0i0?0X0S3%4W3*430.0m0?0k562D504L0f0S0?0L0F0n0N1^0R0z5e4Z422X010=040D5s5g593K0?184V5f585v5x0E0G5s0^5G5t0k4-014(2/3z3B3/5R4$5T4/4{5W4?254^5#4`4v5(4~040k5=5d5I1 52042x0n0M0z5F2+5@4n4L0C5b042!0n5s623k5C0f5E6a5B5v0C0?0H6g5^1!0x0R0?3D5P5O2-3I5S5U1_3Y4,5!3?4d4;3a3Z0k4@4_3@6F0w3Z5:6u4C6w6C0N4)3`6B6K6E3_0w3{6I5*6Y4:6!3{6P5A6S4.6V0w4h3O5Z6)5%4g5)266_5.6{5:6h2=0?0S0!0v6m635C6j040p786c5v0i0e0?0j3M0F0L6a6b5u1 0e4+04030k0c2y0K0~1B0z0k0*0k1^1B0k0Y1=0v1W7C0e1X4t2t1_0%0v02030o0b0J0y1p0n0L5~7F0C7(0q0C5q5N6.4n6x6U5V4x6X5,6L6!4y6%6}7`6Z4f0w4y716n0.7s0?7v7O0k0l0M7V7X0J0#0k7m7F1Z1X8d1_2M1W0%7$5m0%1^0,230n0k0V0q2y8j0M0e0e0u0F0h8K7/5P194Y4D4S4F4P190n4I8U2K2F0V1V8R0g4G5O0X0Z0#0F04.
+</div><script type="text/javascript">
 CONFIG.needMermaid = false;
-CONFIG.overlordClasses = [];
-globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
-</script>
+CONFIG.overlordClasses = ["Terminal", "GlobalRunnersManager", "Ide"];
+globalThis.PAGE_IDES_CONFIG = '.\x1e9RU4cn.Fk {qwt3=vE20bl-mry,o8()g:s%5[heV}]T_xpu7dif61La\x1e0k010M0W0X0n0B0y0R0e0Y0d0W0C0e0a0Z0o0a0t0W0e0e0o0!0e0V0C0V0M0V0`0J0W0u0o0u0s0Z0s0V0t0o0t0Z0@0d010G0j0%0T0z0R0f0$0x0M1p0j010$0q0M0f0X0y0w0M0S0B0g1t010A1B1F0q0/0B0f0n1F0n1A010Y0$0X0v0j0p0j0Q0y0U1z1Q0(0f1T1X0y0x1U1W1Y1!1P1B0U0H0M0.0e1V1X1W1!0W0M0Y0j0M0H0n0R0T1%0y0D0f0E0G090f0j2r0j030j090U0t0t0^0e0y1H0M0j0e0X0w2a0H0H0B212F2E0l1/0j0W0B0+0j0y0M0,0U0y0f230j0v0$0j0Y1V0e0n0X1V2p2s0j0g2^1 01250y24261}1q012a2c2e2g2i1H2l2n2=2s2X0n2!2q0f0B0n0j2q0I0j0s2p3p0f1$1(1*0j0h0$0v222r2u0b0M0e0L0$0y0F2%2)0j2i3I2d3j250v0v2%0e2E252a2S0$0f0H2(002w2y0M0a0*1X2!3L2M0y0j0q2U0y2p2u3U0j2Q003t3z2i2K2P0U3Z0W2(2e0j1X2f3#41221W0j1D3D0j0H0U0 3(0t0M0C0H2^0g2`0T0U0u0v0X0e0R4a0n0H1!2u0#484C4c4w4y0e3#2L4f2)0f0e4n3*3#0q0X2*3S0j0u2M0,2q09010T2)0z4*3_0j0D2Y473#4J4j3D3d0H1Q4h0e474#4%1V2S2E0q3x0X0W0$2/1V0E0j2o0f0T2C1W0D4*4_4v4x4z0H1q4*0E3q571)1+352h2j0D0s5u1w420y3j5l2q2s5w0j0X3#1-1/2p0E1Q0Y4/014*5z372k5D1q0k4$0B0v0D5w0E0O550q0y1%3j4U5b2X1,1.0M3p5X5 2p0$5G3j5Z5B0o5e5O3v3x224:0D0c2q1y2K0$3N0T0M0U0n0w5^0n5`0$0Y0Y4z0L4U0a3/3.3S4^353#6y3E2M6y0H0E2`222B2Y4B6E1!62225H2d2f5A380d5D5N5P5|4:0X2c3s0v5g2u2?5=5O2E0N3x1/0r2}0-5J6/2?2s5Y6X5!0D6!5e2*6y0n6y4g0T6l0v6y2E2a4v693K5w595b2:0f1Q0x1%3#0v006t6v3E6j2E0f00353L623=5O0X4x7g3Z7t2*253!5*5}5X0f6~2r5E4:3d3f3k3i3k0j3m0s6 2u0W6G0B0x1y1|3;0T3:3=3@3$232X6B0-3#3X7k585a5c0f4u0B6X1^1`7O271Z31866X8b301B2`1K0e0v0U2a0W1A0K0P1;8l8n8p0R1y0n0L0B0W4E1q8s8u0S8m8o0)0R0i0m8E0j8G1B1t8A1V0R4y0u8P0K013e5H3S018t8S0z0T0X0R0m0L0+1z1q0f0U3R1;2X4A4y0x0+1A0w0!1;8:8=8W5O8d8Q8*1C6n0B0R1.851q1$3y0M8{0U0f0R0F0y2M0T1A0t1;0-2a0.0X9o9q9s1A931B220l9f9n1~1;5i0B6v8(8e1;5b1X0x0T4D8W2b990J9S9d8W0B0F0R6T23996r1/1;2|0.2X0x0H8y620i9E1;3F9_3E3D0i0R0u0n9h495|9~621U2}a4a61A9j22aa9_2X1E3xaea7ah9l1B9 1U9n1^1A9/ar015O0R1F2B8,1X8q1qay1;aB1E5Hag6baz7r0S0R590M972$8P1k1;8 9oaUaW2e1A0o1;2a6O62aV9T0M9V9X8V21231U2a0R6,2!8?1R3,0-2`2a0$2.0X571X0R2f2T6na}0-bb4{2Y8PaJ9G8B0m0R1V0v1u9,5H7oaC6{0y9_2,0.6N4|aO9k1;0H0y4A9 0L1!0e0u0Y0V0:0W6u0W0W0o0Z0W0J0a0Y0Z0a0u0Vb%0}0u0ZbP0)bW0YbV0e0d0!0o0$0MbZ0a0!0$0}0e0!0V0Y0!1f0u0J0Y3+0a0d0J6M0n0W8M0M0z9L1B0n0m9e3Q8Paq8H7?aN9iaPbGcf4%0/be9O0Y1A0s2y9;be0Y0M0)0ub69|aI5|0O0O.'
+</script><script src="../js-per-pages/0-generic-python-snippets-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/1-error_logs-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/1-packagesInstaller-install-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/1-runtimeManager-runtime-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/2-0-runnersManager-runners.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/2-pyodideSectionsRunner-runner-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/3-terminalRunner-term.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/4-0-idesManager-ide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/4-ideLogistic-ide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/4-ideRunner-ide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../js-per-pages/start-pyodide.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
 
 
 
