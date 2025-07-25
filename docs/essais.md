@@ -1,65 +1,35 @@
-# Prêt ?
+---
+author: GC7
+title: Essais
+---
+
+
+term
+: definition
+
+~~The world is flat.~~
+
+This is ==THE DEFINITION== of the first term.
+
+H~2~O & x^2^
+
+Second Term
+: This is one definition of the second term.
+: This is another definition of the second term.
+
+| Syntax    | Description |   Test Text |
+|:----------|:-----------:|------------:|
+| Header    |    Title    | Here's this |
+| Paragraph |    Text     |    And more |
 
 ```mermaid
 mindmap
   root((mindmap))
-    Origins
-      Long history
-      ::icon(fa fa-book)
-      Popularisation
-        British popular psychology author Tony Buzan
-    Research
-      On effectiveness<br/>and features
-      On Automatic creation
-        Uses
-            Creative techniques
-            Strategic planning
-            Argument mapping
-    Tools
-      Pen and paper
-      Mermaid
+    B
+        A
+      D
+      C
+    Mermaid
 ```
 
 ---
-
-
-
-|     Code     |      Icône |
-|:------------:|-----------:|
-| `:computer:` | :computer: |
-| `:keyboard:` | :keyboard: |
-|  `:wrench:`  |   :wrench: |
-
----
-
-<style>
-  td.big-droite {
-    text-align: right!important;
-    font-size: 18px;
-  }
-</style>
-<div style="text-align: right;">
-  <table>
-    <thead>
-      <tr>
-        <th>Code</th>
-        <th>Icône</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>:computer:</code></td>
-        <td class="big-droite">💻</td>
-      </tr>
-      <tr>
-        <td><code>:keyboard:</code></td>
-        <td style="font-size:18px; text-align:left">⌨️</td>
-      </tr>
-      <tr>
-        <td><code>:wrench:</code></td>
-        <td class="big-droite">🔧</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
