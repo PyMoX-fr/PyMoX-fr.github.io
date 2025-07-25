@@ -434,16 +434,52 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
 
 
 <h1 id="pret">Prêt ?<a class="headerlink" href="#pret" title="Permanent link">⚓︎</a></h1>
+<div style="text-align: center;">
 <pre class="mermaid"><code>  flowchart BT
     subgraph PX[PyMoX]
       direction LR
-      A((Départ))------&gt;B([Étapes])------&gt;C(Arrivée)
+      A((Départ
+       💻))---&gt;B([Étapes
+ 🔧])---&gt;C(Arrivée
+😁)
     end
     PX-.-&gt;E[(↑ Souvenirs)]
-    PX==&gt;D[(↑ **Expérience**)]</code></pre><script type="text/javascript">
+    PX==&gt;D[(↑ **Expérience**)]</code></pre>
+</div>
+
+<style>
+  td.big-droite {
+    text-align: right!important;
+    font-size: 18px;
+  }
+</style>
+<div style="text-align: right;">
+  <table>
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Icône</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>:computer:</code></td>
+        <td class="big-droite">💻</td>
+      </tr>
+      <tr>
+        <td><code>:keyboard:</code></td>
+        <td style="font-size:18px; text-align:left">⌨️</td>
+      </tr>
+      <tr>
+        <td><code>:wrench:</code></td>
+        <td class="big-droite">🔧</td>
+      </tr>
+    </tbody>
+  </table>
+</div><script type="text/javascript">
 CONFIG.needMermaid = false;
 CONFIG.overlordClasses = [];
-globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
+globalThis.PAGE_IDES_CONFIG = '.\x1e{}\x1e0a0b.'
 </script>
 
 
