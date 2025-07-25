@@ -8,8 +8,9 @@ site_author: "Communauté PyMoX"
 # site_author: !ENV [CI_PROJECT_ROOT_NAMESPACE, USERNAME]
 # repo_url: !ENV [CI_PROJECT_URL]  # pour avoir le lien vers le dépôt
 
-site_url: "https://PyMoX-fr.github.io/Doc"
+site_url: "https://PyMoX-fr.github.io"
 repo_url: "https://github.com/PyMoX-fr/PyMoX-fr.github.io"
+edit_uri: "edit/main/docs/"
 
 # À modifier ci dessous : remplacer Nom d'auteur par votre nom
 # copyright: |
@@ -30,8 +31,6 @@ theme:
   # logo: assets/images/logo.svg
   # favicon: assets/images/animated_favicon.gif
   favicon: assets/images/favicon.ico
-  # icon:
-  # logo: material/cast-education
   # logo: assets/images/animated_favicon.gif
   logo: assets/images/pymox_logo_tr_001.png
   name: pyodide-mkdocs-theme
@@ -64,6 +63,7 @@ theme:
     # - navigation.instant
     - navigation.top
     - toc.integrate
+    # - content.action.edit
     - header.autohide
     - content.code.annotate # Pour les annotations de code deroulantes avec +
     - content.code.copy # Ajout après MAJ pour pouvoir copier du code
