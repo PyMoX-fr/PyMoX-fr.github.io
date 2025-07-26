@@ -1,7 +1,9 @@
 nav:
-    - index.md
-    - avenir.md
-    - ready.md
+    - a
+    # - index.md
+    # - avenir.md
+    # - ready.md
+
 
     # - notice.md
     # - example.md

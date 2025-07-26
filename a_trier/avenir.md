@@ -25,7 +25,7 @@ tags:
 * [ ] Mise en place du site web [**PyMoX.fr**](http://www.PyMoX.fr)- v 0.0.1
 * [ ] Mettre en place ce genre de test
 <!-- IDE('exemple/exo', EXPORT=1) -->
-{{ IDE('exemple/exo') }}
+{{ IDE('chapitre_plusieurs_pages/exemple/exo') }}
 
 ## Structure des dossiers et fichiers de base
 
