@@ -172,6 +172,7 @@ plugins:
         python_libs:
           - turtle
         tab_to_spaces: 4
+  # - git-revision-date-localized # * [ ] à tester
   # - sqlite-console
 
 # En remplacement de mkdocs-exclude. Tous les fichiers correspondant aux patterns indiqués seront
