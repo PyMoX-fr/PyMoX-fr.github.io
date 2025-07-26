@@ -18,8 +18,7 @@ edit_uri: "edit/main/docs/"
 #     <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>.
 #     </br><a href="https://aeif.fr">Design by AEIF</a><br/>
 copyright: |
-  <b>PyMoX</b> | 
-  Copyright © 1 990 - 2 025 - <b>Communauté PyMoX - FRANCE</b>
+  <b>PyMoX</b> | Copyright © 1 990 - 2 025 - <b>Communauté PyMoX - FRANCE</b>
 
 docs_dir: docs
 
@@ -146,7 +145,6 @@ extra:
     #   link: mailto:grcote7l@gmail.com
     #   name: Écrire à l'auteur
 
-  citations_file: assets/divers/citations.json
   macros_dir: xtra/macros
 
 plugins:
@@ -155,12 +153,11 @@ plugins:
 
   - search
   - macros:
-      module_name: macros/onecitation
+      module_name: docs/xtra/macros/onecitation
   # module_name: docs/assets/macros/oneCitation
   # module_name: macros.qcm_macros
   # modules:
   # - pyodide_macros.macros
-  # - docs/assets/macros/oneCitaton
 
   # - exclude-search
   #   ...
@@ -190,3 +187,4 @@ extra_javascript:
 
 extra_css:
   - xtra/stylesheets/ajustements.css # ajustements
+

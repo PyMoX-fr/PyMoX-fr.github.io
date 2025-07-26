@@ -5,7 +5,7 @@ from datetime import datetime
 def define_env(env):
     @env.macro
     def citation_random():
-        with open("macros/citations.json", encoding="utf-8") as f:
+        with open("docs/xtra/macros/citations.json", encoding="utf-8") as f:
             data = json.load(f)
 
         citations = data["citations"]
