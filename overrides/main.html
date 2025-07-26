@@ -1,6 +1,6 @@
 {% extends "base_pmt.html" %}
 <!--
-Pour indiquer le numéro de version en pied de page
+# * [ ] Comprendre: Pour indiquer le numéro de version en pied de page
 -->
 
 <!-- Pour éditer la page dans un autre onglet -->
@@ -21,12 +21,20 @@ Pour indiquer le numéro de version en pied de page
     {{ super() }}
 {% endblock %}
 
-
 {% block footer %}
   {{ super() }}
   <script>
-  $(".md-copyright_pyodide #pyodide-footer").prepend(
-    $(`<div>v.2.0.1</div>`).css({display:"flex", "justify-content":"right"})
-  )
+    fetch("/versions.json")
+      .then(response => response.json())
+      .then(data => {
+        const version = data.version || "inconnue";
+        $(".md-copyright_pyodide #pyodide-footer").prepend(
+          $(`<div>${version}</div>`).css({
+            display: "flex",
+            justifyContent: "right",
+            fontWeight: "bold"
+          })
+        );
+      });
   </script>
 {% endblock %}

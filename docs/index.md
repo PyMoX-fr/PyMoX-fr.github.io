@@ -8,13 +8,15 @@ title:  🏡 Accueil
   <h1>Bienvenue dans l'univers PyMoX 😊 !</h1>
 </div>
 
-## Qu'est-ce que PyMoX ?
+<div>{{ citation_random() }}</div>
+
+## Qu'est-ce que PyMoX ? 12
 
 PyMoX est un projet open-source qui vise à créer une communauté autour de la programmation avec Python, et tout ce qui gravite autour...
 
 **Site en contruction...** En attendant, prépare-toi, et fait mumuse 😉&nbsp;...
 
-Gabin disait dans l'un de ses films: "Je pense que le jour où l'on mettra les cons sur orbite, t'auras pas fini de tourner..."
+Gabin disait dans l'un de ses films: "Quand on mettra les cons sur orbite, t’as pas fini de tourner."
 
 ## Prérequis: Comprendre la programmation
 
@@ -36,7 +38,7 @@ Donc, ouiais... Selon Gabin (Et pas que), faut sortir de la boucle !
 Pour démarrer, un simple **terminal** (*Idle*) cependant opérationnel, avec ici un script pré-enregistré, qui affiche 7 nombres aléatoires entre 1 et 10
 (Clique dedans + ENTRÉE, puis flèche du haut + ENTRÉE pour ré-itérer l'expérience... Mais tu peux aussi y modifier le code... 😊 !) :
 
-{{ terminal(FILL=
+{ { terminal(FILL=
 "import random as rd
 print(*[rd.randint(1,10) for _ in range(7)])"
 ) }}
@@ -45,7 +47,7 @@ print(*[rd.randint(1,10) for _ in range(7)])"
 
 === "Un ch'ti bac à sable de Python pour patienter ?"
 
-{{ IDE('includes/sympy/scripts/construction_sandbox_graph_00.py') }}
+{ { IDE('includes/sympy/scripts/construction_sandbox_graph_00.py') }}
 
 ... Et quand ça finira par te lasser, car, ça finira par te lasser..., alors, pour avoir un regain de motivation et en plus, l'aisance du ***Hot-reload*** [^1] dans la ***CLI*** [^2], il te faudra "**p't'être bien**" [^4] ["***forker*" ce projet**](https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork) [^3], pour un jour, peut-être, devenir capable de faire un '***PR***' [^5]...
 
@@ -60,7 +62,7 @@ print(*[rd.randint(1,10) for _ in range(7)])"
     
     Après, si ce que vous avez fait vous semble sympa, alors, committez votre travail et envoyez-le sur le dépôt officiel (Faites alors un ***P.R.*** [^5]  😊).
     
-    {{ IDE('includes/sympy/scripts/construction_sandbox_graph_77.py') }}
+    { { IDE('includes/sympy/scripts/construction_sandbox_graph_77.py') }}
     
     ... Et quand de cela lassé tu es aussi, utilises le lien ci-dessous pour rester *On line*<sup>*</sup> (Et du coup, plus jamais ainsi dans la boucle tu seras 😉 !)
     

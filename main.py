@@ -1,4 +1,3 @@
-
 from pyodide_mkdocs_theme.pyodide_macros import (
     PyodideMacrosPlugin,
     Msg, MsgPlural, TestsToken, Tip,
@@ -37,6 +36,11 @@ def define_env(env:PyodideMacrosPlugin):
         TestsToken(token_str:str)
         ```
     """
+    import json
+    
+    with open("docs/versions.json", encoding="utf-8") as f:
+        data = json.load(f)
+        env.variables["version"] = data.get("version", "inconnue")
 
     env.lang.overload({
 

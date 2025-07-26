@@ -124,6 +124,7 @@ markdown_extensions:
 extra:
   version:
     provider: mike
+    default: latest
   author: Communauté PyMoX
   description: Documentation de PyMoX-fr
   keywords: Python, Programmation, Tutoriel, Didacticiel, Formation, Apprentissage, Cours, Exercices, Jeux, Vidéo-jeux, JEU DE ROLLE, RPG, Role Playing Game, Jeu de rôle, Jeu de rôles, Jeu de rôle, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles
@@ -153,8 +154,8 @@ plugins:
       collapse_single_pages: true
 
   - search
-  # - macros:
-  # module_name: docs/assets/macros/oneCitation
+  - macros:
+      module_name: macros/onecitation
   # module_name: docs/assets/macros/oneCitation
   # module_name: macros.qcm_macros
   # modules:
@@ -163,14 +164,14 @@ plugins:
 
   # - exclude-search
   #   ...
-  - tags:
-      tags_file: tags.md
+  # - tags:
+  #     tags_file: tags.md # Déprécié
   - pyodide_macros:
       # Vous pouvez ajouter ici tout réglage que vous auriez ajouté concernant les macros:
       on_error_fail: true # Il est conseillé d'ajouter celui-ci si vous ne l'utilisez pas.
       build:
-        python_libs:
-          - turtle
+        # python_libs:
+        #   - turtle
         tab_to_spaces: 4
   # - git-revision-date-localized # * [ ] à tester
   # - sqlite-console
