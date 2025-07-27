@@ -8,7 +8,7 @@ title:  🏡 Accueil
   <h1>Bienvenue dans l'univers PyMoX 😊 !</h1>
 </div>
 
-<div>{ { citation_random() }}</div>
+<div>{{ one_citation_a_day() }}</div>
 
 ## Qu'est-ce que PyMoX ? 12
 

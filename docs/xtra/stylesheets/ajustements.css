@@ -79,12 +79,15 @@ blockquote {
   background: rgba(0,0,0,0.1);
   border-left: 6px solid #777;
   padding: .5em .7em;
+  line-height:.7em;
   font-style: italic;
   color: #444;
   max-width: 600px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   border-radius: 12px;
   margin: auto!important;
+  margin-top: -2em!important;
+  margin-bottom: -2em!important;
 }
 
 blockquote footer {

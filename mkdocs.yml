@@ -140,20 +140,16 @@ extra:
     #   link: mailto:grcote7l@gmail.com
     #   name: Écrire à l'auteur
 
-  macros_dir: xtra/macros
+  # macros_dir: docs/xtra/macros
 
 plugins:
   - awesome-pages:
       collapse_single_pages: true
 
   - search
-  - macros:
-      module_name: docs/xtra/macros/onecitation
-  # module_name: docs/assets/macros/oneCitation
   # module_name: macros.qcm_macros
   # modules:
   # - pyodide_macros.macros
-
   # - exclude-search
   #   ...
   # - tags:
@@ -165,8 +161,11 @@ plugins:
         # python_libs:
         #   - turtle
         tab_to_spaces: 4
-  # - git-revision-date-localized # * [ ] à tester
-  # - sqlite-console
+        # - git-revision-date-localized # * [ ] à tester
+      # - sqlite-console
+      module_name: macros_pymox/one_citation_a_day
+
+  # - macros:
 
 # En remplacement de mkdocs-exclude. Tous les fichiers correspondant aux patterns indiqués seront
 # exclu du site final et donc également de l'indexation de la recherche.
@@ -177,7 +176,7 @@ exclude_docs: |
   - gc7/
 
 extra_javascript:
-  - javascripts/removeTrashBtn.js
+  - xtra/javascripts/removeTrashBtn.js
   # - javascripts/essai.js
 
 extra_css:

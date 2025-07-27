@@ -1,4 +1,5 @@
 # Resources
 
+{{ one_citation_a_day() }}
 
-> {{ citation_random() }}
+{{ terminal(FILL='print("Hello World!")') }}
