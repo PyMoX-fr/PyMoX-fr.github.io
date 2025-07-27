@@ -12,7 +12,7 @@ site/
 **/.venv/
 
 # GitHub
-.github/
+**/.github/
 
 # VSCode
 **/.vscode/
@@ -27,4 +27,3 @@ site/
 public/
 site/
 _build/
-PyMoX-fr.github.io.code-workspace
