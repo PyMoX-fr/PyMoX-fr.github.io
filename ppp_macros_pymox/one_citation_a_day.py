@@ -13,7 +13,7 @@ def define_env(env):
         citations = data["citations"]
         # On utilise la date du jour comme point de départ
         index = datetime.now().timetuple().tm_yday % len(citations)
-        index = n or 12
+        # index = n or 12 # Pour tester une citation précisée là
         citation_obj = citations[index]
         texte = citation_obj.get("texte", "Citation manquante")
         contexte = citation_obj.get("contexte", "Citation célèbre")
