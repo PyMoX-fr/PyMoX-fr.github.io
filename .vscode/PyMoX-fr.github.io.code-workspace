@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "D:/PyMoX_GC7"
+		}
+	],
+	"settings": {
+		"yaml.schemas": {
+			"./mkdocs-schema.json": "mkdocs.yml",
+			"https://squidfunk.github.io/mkdocs-material/schema.json": [
+				"mkdocs.yml"
+			],
+			"file:///c%3A/PyMoX/Doc/PyMoX-fr.github.io/mkdocs-schema.json": "file:///c%3A/PyMoX/Doc/PyMoX-fr.github.io/mkdocs.yml"
+		}
+	}
+}

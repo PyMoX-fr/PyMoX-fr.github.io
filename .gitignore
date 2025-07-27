@@ -12,7 +12,7 @@ site/
 **/.venv/
 
 # VSCode
-**/.vscode/
+# **/.vscode/ # Commenté, tant qu'il n'y a pas de codes sensibles dedans...
 
 # Coverage
 **/.coverage

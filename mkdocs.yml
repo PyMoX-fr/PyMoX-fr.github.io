@@ -61,7 +61,7 @@ theme:
     - header.autohide
     - content.code.annotate # Pour les annotations de code deroulantes avec +
     - content.code.copy # Ajout après MAJ pour pouvoir copier du code
-  custom_dir: overrides
+  custom_dir: includes/overrides
 
 markdown_extensions:
   - md_in_html

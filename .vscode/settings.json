@@ -1,0 +1,5 @@
+{
+  "yaml.schemas": {
+    "https://gitlab.com/frederic-zinelli/pyodide-mkdocs-theme/-/raw/main/yaml_schemas/schema.json": "mkdocs.yml"
+  }
+}
