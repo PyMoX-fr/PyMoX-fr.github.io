@@ -1,5 +1,17 @@
 # Resources
 
-{{ one_citation_a_day() }}
+## La citation du jour
 
-{{ terminal(FILL='print("Hello World!")') }}
+<div style="display: flex; justify-content: flex-end; margin-right:10%">
+  {{ one_citation_a_day() }}
+</div>
+
+<hr>
+
+## Toutes les citations
+
+<div style="display: flex; justify-content: flex-end; margin-right:10%">
+  <div>
+    {{ all_citations() }}
+  </div>
+</div>

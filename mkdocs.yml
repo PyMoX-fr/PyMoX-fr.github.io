@@ -163,7 +163,13 @@ plugins:
         tab_to_spaces: 4
         # - git-revision-date-localized # * [ ] à tester
       # - sqlite-console
-      module_name: macros_pymox/one_citation_a_day
+      # module_name: macros_pymox/one_citation_a_day
+      module_name: macros_pymox
+        # - macros_pymox/one_citation_a_day
+        # - macros_pymox.all_citations
+      # modules:
+      #   - ./macros_pymox/one_citation_a_day
+        # - macros_pymox.all_citations
 
   # - macros:
 

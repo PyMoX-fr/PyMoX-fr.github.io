@@ -123,11 +123,11 @@
             "auteur": "Terry Pratchett"
         },
         {
-            "texte": "🧼 Les gens disent souvent que la motivation ne dure pas. Eh bien, le bain non plus — c’est pourquoi nous le recommandons quotidiennement.",
+            "texte": "🧼 Les gens disent souvent que la motivation ne dure pas.<br>Eh bien, le bain non plus, c’est pourquoi nous le recommandons quotidiennement.",
             "auteur": "Zig Ziglar"
         },
         {
-            "texte": "🎯 Pour réussir dans la vie, vous avez besoin de trois choses : un triangle, une colonne vertébrale et un drôle d’os.",
+            "texte": "🎯 Pour réussir dans la vie, vous avez besoin de trois choses :<br>un triangle, une colonne vertébrale et un drôle d’os.",
             "auteur": "Reba McEntire"
         },
         {
@@ -155,7 +155,7 @@
             "auteur": "Marie von Ebner-Eschenbach"
         },
         {
-            "texte": "🧠 Si un bureau encombré est le signe d’un esprit encombré, de quoi, alors, un bureau vide est-il un signe ?",
+            "texte": "🧠 Si un bureau encombré est le signe d’un esprit encombré...<br>De quoi, alors, un bureau vide est-il un signe ?",
             "auteur": "Albert Einstein"
         },
         {
@@ -167,7 +167,103 @@
             "auteur": "Frank Zappa"
         },
         {
-            "texte": "🧁 La vie est trop courte pour être sérieux tout le temps. Donc, si vous ne pouvez pas rire de vous-même, appelez-moi… je me moquerai de vous.",
+            "texte": "🧠 Le cerveau est un organe merveilleux. Il commence à fonctionner dès que vous vous levez le matin et ne s’arrête que quand vous arrivez au bureau.",
+            "contexte": "Citation humoristique sur le travail",
+            "auteur": "Robert Frost"
+        },
+        {
+            "texte": "📅 Ne remets pas à demain ce que tu peux remettre à après-demain.",
+            "contexte": "La procrastination",
+            "auteur": "Mark Twain"
+        },
+        {
+            "texte": "🧠 Si vous pensez que vous êtes trop petit pour changer quelque chose, essayez de dormir avec un moustique.",
+            "contexte": "L’impact individuel",
+            "auteur": "Dalai Lama"
+        },
+        {
+            "texte": "🧠 Le succès, c’est d’aller d’échec en échec sans perdre son enthousiasme.",
+            "contexte": "La persévérance",
+            "auteur": "Winston Churchill"
+        },
+        {
+            "texte": "🧠 Je ne suis pas bizarre, je suis une édition limitée.",
+            "contexte": "L’originalité",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🧃 Si la vie te donne des citrons, ajoute de la tequila et du sel.",
+            "contexte": "Variante festive d'un proverbe classique",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🧠 Je ne suis pas paresseux, je suis en mode économie d’énergie.",
+            "contexte": "La flemme",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🧼 Le ménage ne tue pas… mais pourquoi prendre le risque ?",
+            "contexte": "Humour domestique",
+            "auteur": "Phyllis Diller"
+        },
+        {
+            "texte": "📚 L’expérience est ce que vous obtenez quand vous ne recevez pas ce que vous voulez.",
+            "contexte": "Dernier cours à Carnegie Mellon",
+            "auteur": "Randy Pausch"
+        },
+        {
+            "texte": "🎯 Le succès, c’est tomber sept fois et se relever huit.",
+            "contexte": "Résilience et persévérance",
+            "auteur": "Proverbe japonais"
+        },
+        {
+            "texte": "🧠 Le travail d’équipe est essentiel. Ça vous permet de blâmer quelqu’un d’autre.",
+            "contexte": "Humour de bureau",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🧠 Si vous ne pouvez pas convaincre, semez le doute.",
+            "contexte": "La rhétorique politique",
+            "auteur": "Harry S. Truman"
+        },
+        {
+            "texte": "🧠 Le monde appartient à ceux qui se lèvent tôt…<br>mais il est fait par ceux qui veillent tard.",
+            "contexte": "Les rythmes de vie",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🧠 Je suis multitâche : je peux écouter, ignorer et oublier en même temps.",
+            "contexte": "Humour sur la concentration",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🧠 Je suis indécis… Enfin je crois.",
+            "contexte": "L’indécision",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🧠 Je suis sur un régime fruits de mer : Je vois de la nourriture, je la mange.",
+            "contexte": "Humour alimentaire",
+            "auteur": "Anonyme"
+        },
+        {
+            "texte": "🎓 Soyez gentil avec les nerds. Vous pourriez finir par travailler pour eux.",
+            "contexte": "Guide pour lycéens",
+            "auteur": "Charles J. Sykes"
+        },
+        {
+            "texte": "🧠 Même une horloge arrêtée a raison deux fois par jour.",
+            "contexte": "Les erreurs et la relativité",
+            "auteur": "Marie von Ebner-Eschenbach"
+        },
+        {
+            "texte": "🧠 Un esprit est comme un parachute. Il ne fonctionne pas s’il n’est pas ouvert.",
+            "contexte": "L’ouverture d’esprit",
+            "auteur": "Frank Zappa"
+        },
+        {
+            "texte": "🧁 La vie est trop courte pour être sérieux tout le temps.<br>Donc, si vous ne pouvez pas rire de vous-même, appelez-moi…&nbsp:Je me moquerai de vous&nbsp;!",
+            "contexte": "George Bernard Shaw - Humour sur l’autodérision",
             "auteur": "George Bernard Shaw"
         }
     ]

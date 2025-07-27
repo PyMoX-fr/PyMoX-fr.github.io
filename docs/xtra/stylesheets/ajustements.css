@@ -75,19 +75,19 @@ body[data-md-color-scheme^="slate"] img.autolight {
 }
 
 blockquote {
-  text-align: right!important;
-  background: rgba(0,0,0,0.1);
+  text-align: right !important;
+  background: rgba(0, 0, 0, 0.1);
   border-left: 6px solid #777;
   padding: .5em .7em;
-  line-height:.7em;
+  line-height: 1.2em;
   font-style: italic;
   color: #444;
-  max-width: 600px;
+  max-width: 700px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   border-radius: 12px;
   /* margin: auto!important; */
-  margin-top: -2em!important;
-  margin-bottom: -2em!important;
+  margin-top: -1em!important; 
+  margin-bottom: -1em !important;
 }
 
 blockquote footer {

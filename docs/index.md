@@ -12,6 +12,7 @@ title:  🏡 Accueil
   {{ one_citation_a_day() }}
 </div>
 
+<div style="margin-bottom:-2em"></div>  
 
 ## Qu'est-ce que PyMoX ?
 
