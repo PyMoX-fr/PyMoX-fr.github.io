@@ -9,5 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: pip install mkdocs mkdocs-material pyodide-mkdocs-theme
+      - run: pip install awesome-pages mkdocs mkdocs-material pyodide-mkdocs-theme
       - run: mkdocs gh-deploy --force
