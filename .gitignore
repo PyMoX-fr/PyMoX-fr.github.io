@@ -11,8 +11,11 @@ site/
 # virtual envs
 **/.venv/
 
+# GitHub
+.github/
+
 # VSCode
-# **/.vscode/ # Commenté, tant qu'il n'y a pas de codes sensibles dedans...
+**/.vscode/
 
 # Coverage
 **/.coverage
@@ -24,3 +27,4 @@ site/
 public/
 site/
 _build/
+PyMoX-fr.github.io.code-workspace
