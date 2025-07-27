@@ -49,7 +49,7 @@ Pour faciliter leur gestion, deux scripts sont fournis :
 Juste après avoir cloné ce dépôt central, exécuter dans le dossier **PyMox/** :
 
 ```bash
-sh ./init-submodules.sh
+sh ./t/init-submodules.sh
 ```
 
 📦 Ce script initialise tous les sous-modules et télécharge leur contenu localement.
@@ -63,7 +63,7 @@ sh ./init-submodules.sh
 À exécuter régulièrement pour **synchroniser les sous-modules** avec leurs dernières versions distantes :
 
 ```bash
-sh ./update-submodules.sh
+sh ./t/update-submodules.sh
 ```
 
 🔄 Ce script met à jour les références des sous-modules vers les derniers commits disponibles dans leurs dépôts respectifs.
@@ -73,7 +73,7 @@ sh ./update-submodules.sh
 Avant de pouvoir exécuter les scripts, si sous **Linux**, assurez-vous qu’ils soient bien exécutables:
 
 ```bash
-chmod +x init-submodules.sh update-submodules.sh
+chmod +x t/init-submodules.sh t/update-submodules.sh
 ```
 
 ## 🔍 Objectifs
@@ -87,8 +87,6 @@ chmod +x init-submodules.sh update-submodules.sh
 ## 🤝 Contributions
 
 Chaque dépôt est ouvert aux suggestions, améliorations et retours. N’hésite pas à ouvrir une issue ou proposer une pull request dans le dépôt concerné.
-
-
 
 ---
 
