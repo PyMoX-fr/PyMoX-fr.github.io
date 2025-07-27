@@ -1,13 +1,6 @@
 site_name: "PyMoX Doc"
-site_url: "https://PyMoX-fr.github.io"
 site_description: "Doc de PyMoX-fr"
-repo_name: "PyMoX-fr"
-repo_url: "https://github.com/PyMoX-fr/PyMoX-fr.github.io"
-# edit_uri_template: "edit/main/docs/"
-edit_uri: "edit/main/docs/"
 site_author: "Communauté PyMoX"
-copyright: |
-  <b>PyMoX</b> | Copyright © 1 990 - 2 025 - <b>Communauté PyMoX - FRANCE</b>
 
 # Contenu généré depuis les paramètres de votre espace gitlab à ne pas modifier
 # site_name: !ENV [CI_PROJECT_TITLE, "Version locale du site"]
@@ -15,7 +8,19 @@ copyright: |
 # site_author: !ENV [CI_PROJECT_ROOT_NAMESPACE, USERNAME]
 # repo_url: !ENV [CI_PROJECT_URL]  # pour avoir le lien vers le dépôt
 
-# docs_dir: docs
+site_url: "https://PyMoX-fr.github.io"
+repo_url: "https://github.com/PyMoX-fr/PyMoX-fr.github.io"
+edit_uri: "edit/main/docs/"
+
+# À modifier ci dessous : remplacer Nom d'auteur par votre nom
+# copyright: |
+#     Nom d'auteur
+#     <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>.
+#     </br><a href="https://aeif.fr">Design by AEIF</a><br/>
+copyright: |
+  <b>PyMoX</b> | Copyright © 1 990 - 2 025 - <b>Communauté PyMoX - FRANCE</b>
+
+docs_dir: docs
 
 #nav:  Inutile avec l'utilisation des fichiers .pages plus pratiques
 
@@ -57,7 +62,7 @@ theme:
     # - navigation.instant
     - navigation.top
     - toc.integrate
-    # - content.action.edit # Bouton edit page orinin
+    # - content.action.edit
     - header.autohide
     - content.code.annotate # Pour les annotations de code deroulantes avec +
     - content.code.copy # Ajout après MAJ pour pouvoir copier du code
@@ -118,7 +123,6 @@ markdown_extensions:
 extra:
   version:
     provider: mike
-    default: latest
   author: Communauté PyMoX
   description: Documentation de PyMoX-fr
   keywords: Python, Programmation, Tutoriel, Didacticiel, Formation, Apprentissage, Cours, Exercices, Jeux, Vidéo-jeux, JEU DE ROLLE, RPG, Role Playing Game, Jeu de rôle, Jeu de rôles, Jeu de rôle, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles
@@ -140,6 +144,7 @@ extra:
     #   link: mailto:grcote7l@gmail.com
     #   name: Écrire à l'auteur
 
+  citations_file: assets/divers/citations.json
   macros_dir: xtra/macros
 
 plugins:
@@ -147,23 +152,24 @@ plugins:
       collapse_single_pages: true
 
   - search
-  - macros:
-      module_name: docs/xtra/macros/onecitation
+  # - macros:
+  # module_name: docs/assets/macros/oneCitation
   # module_name: docs/assets/macros/oneCitation
   # module_name: macros.qcm_macros
   # modules:
   # - pyodide_macros.macros
+  # - docs/assets/macros/oneCitaton
 
   # - exclude-search
   #   ...
-  # - tags:
-  #     tags_file: tags.md # Déprécié
+  - tags:
+      tags_file: tags.md
   - pyodide_macros:
       # Vous pouvez ajouter ici tout réglage que vous auriez ajouté concernant les macros:
       on_error_fail: true # Il est conseillé d'ajouter celui-ci si vous ne l'utilisez pas.
       build:
-        # python_libs:
-        #   - turtle
+        python_libs:
+          - turtle
         tab_to_spaces: 4
   # - git-revision-date-localized # * [ ] à tester
   # - sqlite-console
@@ -182,4 +188,3 @@ extra_javascript:
 
 extra_css:
   - xtra/stylesheets/ajustements.css # ajustements
-

@@ -8,7 +8,7 @@ title:  🏡 Accueil
   <h1>Bienvenue dans l'univers PyMoX 😊 !</h1>
 </div>
 
-<div>{{ citation_random() }}</div>
+<div>{ { citation_random() }}</div>
 
 ## Qu'est-ce que PyMoX ? 12
 
@@ -38,7 +38,7 @@ Donc, ouiais... Selon Gabin (Et pas que), faut sortir de la boucle !
 Pour démarrer, un simple **terminal** (*Idle*) cependant opérationnel, avec ici un script pré-enregistré, qui affiche 7 nombres aléatoires entre 1 et 10
 (Clique dedans + ENTRÉE, puis flèche du haut + ENTRÉE pour ré-itérer l'expérience... Mais tu peux aussi y modifier le code... 😊 !) :
 
-{ { terminal(FILL=
+{{ terminal(FILL=
 "import random as rd
 print(*[rd.randint(1,10) for _ in range(7)])"
 ) }}
