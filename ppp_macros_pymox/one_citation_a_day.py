@@ -19,4 +19,4 @@ def define_env(env):
         texte = citation_obj.get("texte", "Citation manquante")
         contexte = citation_obj.get("contexte", "Citation célèbre")
         auteur = citation_obj.get("auteur", "Auteur inconnu")
-        return f"""<blockquote><i>"{texte}"</i><footer>{contexte} < {auteur}</footer></blockquote>"""
+        return f"""<blockquote>{index} : <i>"{texte}"</i><footer>{contexte} < {auteur}</footer></blockquote>"""
