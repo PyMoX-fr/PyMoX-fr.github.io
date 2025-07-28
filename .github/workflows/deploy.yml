@@ -31,7 +31,7 @@ jobs:
           AUTEUR="$(git log -1 --pretty=%an)"
           DATE="$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')"
 
-          echo "# 🛠️ Déploiement MkDocs" >> docs/deploy_info.md
+          echo "# 🛠️ Déploiement MkDocs" > docs/deploy_info.md
           echo "" >> docs/deploy_info.md
           echo "**Dernier build :** $DATE" >> docs/deploy_info.md
           echo "**Commit SHA :** \`$SHA\`" >> docs/deploy_info.md
@@ -43,17 +43,23 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           DATETIME=$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')
-          echo "Dernier rebuild : $DATETIME" >> build-log.txt # > = remplace, >> = ajoute
-          # git config --global user.email "action@github.com"
-          # git config --global user.name "GitHub Action"
-          # git add build-log.txt
-          # # git commit -m "⏱️ Rebuild automatique CRON ($(date -u))"
-          # git commit -m "⏱️ Rebuild automatique CRON ($DATETIME)"
-          # git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-          # git push
           
-          
-          
+          # Vérifie si le dernier commit est un commit automatique
+          LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+
+          if [[ "$LAST_COMMIT_MSG" == ⏱️* ]]; then
+            echo "Dernier rebuild (COMMIT AUTO): $DATETIME" >> build-log.txt
+          else
+            echo "Dernier rebuild ($LAST_COMMIT_MSG): $DATETIME" >> build-log.txt
+          fi
+
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add build-log.txt
+          git commit -m "⏱️ Rebuild automatique CRON ($DATETIME)"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+          git push
+                
           mkdocs gh-deploy --force
 # jobs:
 #   build-deploy:
