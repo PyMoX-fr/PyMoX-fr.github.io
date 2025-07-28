@@ -6,7 +6,8 @@ on:
   schedule:
     # - cron: '0 3 * * *' # Tous les jours à 3 H (AM)
     # - cron: '0 * * * *' # Toutes les heures
-    - cron: '*/5 * * * *' # Toutes les 5 minutes
+    # - cron: '*/5 * * * *' # Toutes les 5 minutes
+    - cron: '*/15 * * * *' # Toutes les 15 minutes
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
