@@ -12,7 +12,7 @@ site/
 **/.venv/
 
 # GitHub
-**/.github/
+# **/.github/
 
 # VSCode
 **/.vscode/
