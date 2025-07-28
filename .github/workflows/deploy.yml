@@ -12,62 +12,50 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v3
-      - run: pip install --upgrade pip mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
-      
-      - name: Afficher le commit déclencheur
-        run: |
-          echo "🚀 Déploiement déclenché par le commit suivant :"
-          echo "🔢 SHA       : ${{ github.sha }}"
-          echo "🗒️ Message   : $(git log -1 --pretty=%B)"
-          echo "👤 Auteur    : $(git log -1 --pretty=%an)"
-          echo "📅 Date      : $(git log -1 --pretty=%cd)"
 
-      - name: Générer une page d'infos de déploiement
+      - name: 🛠️ Installer les dépendances MkDocs
         run: |
-          SHA=${{ github.sha }}
-          MESSAGE="$(git log -1 --pretty=%B)"
-          AUTEUR="$(git log -1 --pretty=%an)"
-          DATE="$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')"
+          pip install --upgrade pip
+          pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
 
-          echo "# 🛠️ Déploiement MkDocs" > docs/deploy_info.md
-          echo "" >> docs/deploy_info.md
-          echo "**Dernier build :** $DATE" >> docs/deploy_info.md
-          echo "**Commit SHA :** \`$SHA\`" >> docs/deploy_info.md
-          echo "**Message :** $MESSAGE" >> docs/deploy_info.md
-          echo "**Auteur :** $AUTEUR" >> docs/deploy_info.md
-     
-      - name: Ajouter une marque temporelle de build
+      - name: 📋 Push si CRON, mets à jour deploy_info.md et build-log.txt
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DATETIME=$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')
+          DATE="$(TZ='Europe/Paris' date '+%d/%m/%Y - %H:%M:%S')"
+          MSG="$(git log -1 --pretty=%B)"
+          AUTOR="$(git log -1 --pretty=%an)"
+          SHA="${{ github.sha }}"
           
-          # Vérifie si le dernier commit est un commit automatique
-          LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
-          LAST_COMMIT_AUTOR=$(git log -1 --pretty=%an)
+          echo "🚀 Déploiement déclenché par le commit suivant :"
+          echo "📅 Date      : $DATA
+          echo "🗒️ Message   : $MSG
+          echo "👤 Auteur    : $AUTOR
+          echo "🔢 SHA       : $SHA
+          
+          # Pour deploy-info (- et non _ car fichier AUTO)
+          echo "# 🛠️ Déploiement MkDocs" >> docs/deploy-info.md
+          echo "" >> docs/deploy-info.md
+          echo "**Dernier build :** $DATE" >> docs/deploy-info.md
+          echo "**Commit SHA :** \`$SHA\`" >> docs/deploy-info.md
+          echo "**Message :** $MESSAGE" >> docs/deploy-info.md
+          echo "**Auteur :** $AUTEUR" >> docs/deploy-info.md
 
-          if [[ "$LAST_COMMIT_MSG" == ⏱️* ]]; then
-            echo "Dernier rebuild (COMMIT AUTO): $DATETIME" >> build-log.txt
+          if [[ "$MSG" == ⏱️* ]]; then
+            echo "Dernier rebuild (COMMIT AUTO): $DATE" >> build-log.txt
           else
-            echo "Commit ($LAST_COMMIT_MSG < $LAST_COMMIT_AUTOR): $DATETIME" >> build-log.txt
+            echo "Commit ($MSG < $AUTEUR): $DATE" >> build-log.txt
           fi
 
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+
           git add build-log.txt
-          git commit -m "⏱️ Rebuild automatique CRON ($DATETIME)"
+          git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push
-                
+
           mkdocs gh-deploy --force
-# jobs:
-#   build-deploy:
-#     runs-on: ubuntu-latest
-#     permissions:
-#       contents: write
-#     steps:
-#       - uses: actions/checkout@v3
-#       - run: pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
-#       - run: mkdocs gh-deploy --force
