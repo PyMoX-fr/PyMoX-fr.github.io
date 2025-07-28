@@ -33,10 +33,10 @@ jobs:
 
           echo "# 🛠️ Déploiement MkDocs" > docs/deploy_info.md
           echo "" >> docs/deploy_info.md
-          echo "**Dernier build :** $DATE" >> docs/deploy-info.md
-          echo "**Commit SHA :** \`$SHA\`" >> docs/deploy-info.md
-          echo "**Message :** $MESSAGE" >> docs/deploy-info.md
-          echo "**Auteur :** $AUTEUR" >> docs/deploy-info.md
+          echo "**Dernier build :** $DATE" >> docs/deploy_info.md
+          echo "**Commit SHA :** \`$SHA\`" >> docs/deploy_info.md
+          echo "**Message :** $MESSAGE" >> docs/deploy_info.md
+          echo "**Auteur :** $AUTEUR" >> docs/deploy_info.md
      
       - name: Ajouter une marque temporelle de build
         env:
