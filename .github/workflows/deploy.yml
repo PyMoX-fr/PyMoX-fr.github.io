@@ -31,7 +31,7 @@ jobs:
           AUTEUR="$(git log -1 --pretty=%an)"
           DATE="$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')"
 
-          echo "# 🛠️ Déploiement MkDocs" > docs/deploy_info.md
+          echo "# 🛠️ Déploiement MkDocs" >> docs/deploy_info.md
           echo "" >> docs/deploy_info.md
           echo "**Dernier build :** $DATE" >> docs/deploy_info.md
           echo "**Commit SHA :** \`$SHA\`" >> docs/deploy_info.md
