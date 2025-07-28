@@ -5,7 +5,7 @@ on:
     branches: [main]
   schedule:
     # - cron: '0 3 * * *' # Tous les jours à 3 H (AM)
-    - cron: '*/3 * * * *' # Toutes les 5 minutes
+    - cron: '*/30 * * * *' # Toutes les 30 minutes
 jobs:
   build-deploy:
     runs-on: ubuntu-latest

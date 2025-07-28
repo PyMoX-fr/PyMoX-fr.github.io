@@ -2,7 +2,7 @@ name: CRON Test - Heartbeat Log
 
 on:
   schedule:
-    - cron: '*/2 * * * *'  # Toutes les 2 minutes
+    - cron: '*/20 * * * *'  # Toutes les 20 minutes
   workflow_dispatch:       # Permet de le déclencher manuellement aussi
 
 jobs:
@@ -13,15 +13,16 @@ jobs:
     steps:
       - name: Checkout dépôt
         uses: actions/checkout@v3
-
+      - name: Horodatage de test
+        run: echo "✅ Job lancé à $(date -u)"
       - name: Met à jour build-log2.txt
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🕰️ Build à : $(date -u)" > build-log.txt
+          echo "🕰️ Build à : $(date -u)" > build-log2.txt
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add build-log2txt
+          git add build-log2.txt
           git commit -m "🟢 Mise à jour automatique toutes les 2 min" || echo "Pas de changement"
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push
