@@ -21,7 +21,7 @@ jobs:
           echo "🕰️ Build à : $(date -u)" > build-log.txt
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add build-log.txt
+          git add build-log2txt
           git commit -m "🟢 Mise à jour automatique toutes les 2 min" || echo "Pas de changement"
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push
