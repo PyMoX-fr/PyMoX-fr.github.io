@@ -5,7 +5,7 @@ on:
     branches: [main]
   schedule:
     # - cron: '0 3 * * *' # Tous les jours à 3 H (AM)
-    - cron: '*/30 * * * *' # Toutes les 30 minutes
+    - cron: '0 * * * *' # Toutes les heures
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Dernier rebuild : $(date -u)" > build-log.txt
+          echo "Dernier rebuild : $(date -u)" > build-log.txt # >> = remplace, >> = ajoute
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git add build-log.txt
