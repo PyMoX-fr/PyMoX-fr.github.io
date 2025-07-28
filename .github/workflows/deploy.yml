@@ -46,11 +46,12 @@ jobs:
           
           # Vérifie si le dernier commit est un commit automatique
           LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+          LAST_COMMIT_AUTOR=$(git log -1 --pretty=%an)
 
           if [[ "$LAST_COMMIT_MSG" == ⏱️* ]]; then
             echo "Dernier rebuild (COMMIT AUTO): $DATETIME" >> build-log.txt
           else
-            echo "Commit ($LAST_COMMIT_MSG < $AUTEUR): $DATETIME" >> build-log.txt
+            echo "Commit ($LAST_COMMIT_MSG < $LAST_COMMIT_AUTOR): $DATETIME" >> build-log.txt
           fi
 
           git config --global user.email "action@github.com"
