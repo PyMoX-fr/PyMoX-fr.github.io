@@ -14,4 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
+      - name: Ajouter une marque temporelle de build
+        run: |
+          echo "Dernier rebuild : $(date -u)" > build-log.txt
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add build-log.txt
+          git commit -m "⏱️ Rebuild automatique CRON"
+          git push
       - run: mkdocs gh-deploy --force
