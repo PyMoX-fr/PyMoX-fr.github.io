@@ -50,7 +50,7 @@ jobs:
           if [[ "$LAST_COMMIT_MSG" == ⏱️* ]]; then
             echo "Dernier rebuild (COMMIT AUTO): $DATETIME" >> build-log.txt
           else
-            echo "Dernier rebuild ($LAST_COMMIT_MSG): $DATETIME" >> build-log.txt
+            echo "Commit ($LAST_COMMIT_MSG < $AUTEUR): $DATETIME" >> build-log.txt
           fi
 
           git config --global user.email "action@github.com"
