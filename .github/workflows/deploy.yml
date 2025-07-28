@@ -5,7 +5,8 @@ on:
     branches: [main]
   schedule:
     # - cron: '0 3 * * *' # Tous les jours à 3 H (AM)
-    - cron: '0 * * * *' # Toutes les heures
+    # - cron: '0 * * * *' # Toutes les heures
+    - cron: '*/5 * * * *' # Toutes les 5 minutes
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
@@ -13,19 +14,53 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - run: pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
+      - run: pip install --upgrade pip mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
+      
+      - name: Afficher le commit déclencheur
+        run: |
+          echo "🚀 Déploiement déclenché par le commit suivant :"
+          echo "🔢 SHA       : ${{ github.sha }}"
+          echo "🗒️ Message   : $(git log -1 --pretty=%B)"
+          echo "👤 Auteur    : $(git log -1 --pretty=%an)"
+          echo "📅 Date      : $(git log -1 --pretty=%cd)"
+
+      - name: Générer une page d'infos de déploiement
+        run: |
+          SHA=${{ github.sha }}
+          MESSAGE="$(git log -1 --pretty=%B)"
+          AUTEUR="$(git log -1 --pretty=%an)"
+          DATE="$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')"
+
+          echo "# 🛠️ Déploiement MkDocs" > docs/deploy-info.md
+          echo "" >> docs/deploy_info.md
+          echo "**Dernier build :** $DATE" >> docs/deploy-info.md
+          echo "**Commit SHA :** \`$SHA\`" >> docs/deploy-info.md
+          echo "**Message :** $MESSAGE" >> docs/deploy-info.md
+          echo "**Auteur :** $AUTEUR" >> docs/deploy-info.md
+     
       - name: Ajouter une marque temporelle de build
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           DATETIME=$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')
           echo "Dernier rebuild : $DATETIME" >> build-log.txt # > = remplace, >> = ajoute
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add build-log.txt
-          # git commit -m "⏱️ Rebuild automatique CRON ($(date -u))"
-          git commit -m "⏱️ Rebuild automatique CRON ($DATETIME)"
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-          git push
-
-      - run: mkdocs gh-deploy --force
+          # git config --global user.email "action@github.com"
+          # git config --global user.name "GitHub Action"
+          # git add build-log.txt
+          # # git commit -m "⏱️ Rebuild automatique CRON ($(date -u))"
+          # git commit -m "⏱️ Rebuild automatique CRON ($DATETIME)"
+          # git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+          # git push
+          
+          
+          
+          mkdocs gh-deploy --force
+# jobs:
+#   build-deploy:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#     steps:
+#       - uses: actions/checkout@v3
+#       - run: pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
+#       - run: mkdocs gh-deploy --force
