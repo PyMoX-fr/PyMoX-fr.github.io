@@ -12,7 +12,12 @@ def define_env(env):
 
         citations = data["citations"]
         # On utilise la date du jour comme point de départ
-        index = datetime.now().timetuple().tm_yday % len(citations)
+        # index = datetime.now().timetuple().tm_yday % len(citations) # Change / 24H
+        
+        
+        now = datetime.now() # Pour test chgmnt toutes les 5 minutes
+        index = (now.hour * 12 + now.minute // 5) % len(citations)
+
         # print("Citation du jour:", index, citations[index])
         # index = n or 12 # Pour tester une citation précisée là
         citation_obj = citations[index]
