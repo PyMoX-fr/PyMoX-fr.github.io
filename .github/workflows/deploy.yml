@@ -40,14 +40,14 @@ jobs:
           echo "# 🛠️ Déploiement MkDocs" >> docs/deploy-info.md
           echo "" >> docs/deploy-info.md
           echo "**Dernier build :** $DATE" >> docs/deploy-info.md
+          echo "**Message :** $MSG" >> docs/deploy-info.md
+          echo "**Auteur :** $AUTOR" >> docs/deploy-info.md
           echo "**Commit SHA :** \`$SHA\`" >> docs/deploy-info.md
-          echo "**Message :** $MESSAGE" >> docs/deploy-info.md
-          echo "**Auteur :** $AUTEUR" >> docs/deploy-info.md
 
           if [[ "$MSG" == ⏱️* ]]; then
             echo "Dernier rebuild (COMMIT AUTO): $DATE" >> build-log.txt
           else
-            echo "Commit ($MSG < $AUTEUR): $DATE" >> build-log.txt
+            echo "Commit ($MSG < $AUTOR): $DATE" >> build-log.txt
           fi
 
           git config --global user.email "action@github.com"
