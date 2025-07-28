@@ -1,8 +1,7 @@
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import subprocess
-import os
+import subprocess, os
 
 
 class FileChangeHandler(FileSystemEventHandler):
@@ -20,12 +19,12 @@ class FileChangeHandler(FileSystemEventHandler):
 
 handler = FileChangeHandler()
 observer = Observer()
-observer.schedule(handler, path="./macros_pymox", recursive=False)
+observer.schedule(handler, path="./ppp_macros_pymox", recursive=False)
 # observer.schedule(handler, path="./", recursive=True)
 observer.start()
 
 print("👀 Surveillance du fichier...")
-subprocess.Popen(["mkdocs", "serve"])
+# subprocess.Popen(["mkdocs", "serve"])
 
 try:
     while True:

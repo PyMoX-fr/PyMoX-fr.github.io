@@ -6,6 +6,10 @@ Ce dépôt central regroupe les dépôts indépendants liés à ces sujets, ains
 
 Ce dépôt sert de point d’entrée pour explorer les différents modules, outils, et développemnts dans ces domaines. Il agit comme un hub de navigation pour l’ensemble des composants du projet PyMoX.
 
+<div style="text-align:center; font-size:24px">
+  <a href="http://pymox-fr.github.io" target="_blank" rel="noopener">Voir la Doc</a>
+</div>
+
 ## 📦 Dépôts liés
 
 ```mermaid
