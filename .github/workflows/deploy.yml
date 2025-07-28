@@ -19,7 +19,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           DATETIME=$(TZ="Europe/Paris" date '+%d/%m/%Y - %H:%M:%S')
-          echo "Dernier rebuild : $DATETIME" > build-log.txt # >> = remplace, >> = ajoute
+          echo "Dernier rebuild : $DATETIME" >> build-log.txt # > = remplace, >> = ajoute
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git add build-log.txt
