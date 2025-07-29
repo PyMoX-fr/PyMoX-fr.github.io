@@ -53,7 +53,7 @@ jobs:
           echo "" >> "$DEPLOY_INFO_FILE"
           # echo "---" >> "$DEPLOY_INFO_FILE"
           echo "> Ce build a été généré automatiquement par le workflow GitHub Actions." >> "$DEPLOY_INFO_FILE"
-          echo "> Pour plus d'infos sur les déclenchements, voir le fichier \`build-log.txt\`." >> "$DEPLOY_INFO_FILE"
+          echo "> Pour plus d'infos sur les déclenchements, voir le fichier $LOGS_FILE." >> "$DEPLOY_INFO_FILE"
 
           # 🔍 Écriture dans le fichier logs selon le type de commit
           if [[ "$MSG" == ⏱️* ]]; then
