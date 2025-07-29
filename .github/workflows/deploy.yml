@@ -56,7 +56,7 @@ jobs:
           if [[ "$MSG" == ⏱️* ]]; then
             echo "Dernier commit (AUTO pour rebuild): $DATE" >> "$LOGS_FILE"
           else
-            echo "Commit ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
+            echo "Commit ($MSG < $AUTOR - Manual Push): $DATE" >> "$LOGS_FILE"
           fi
 
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
@@ -79,7 +79,7 @@ jobs:
             git config --global user.name "GitHub Action"
 
             # Ajout et commit
-            git commit -m "⏱️ Rebuild automatique CRON for just deploy logs ($DATE)"
+            git commit -m "⏱️ Rebuild automatique CRON for just deploy logs (Dev - $DATE)"
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
           fi
