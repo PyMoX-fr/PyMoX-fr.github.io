@@ -40,17 +40,17 @@ jobs:
           echo "👤 Auteur    : $AUTOR
           echo "🔢 SHA       : $SHA
 
-          echo "# 🛠️ Déploiement MkDocs" >> $"DEPLOY_INFO_FILE"
+          echo "# 🛠️ Déploiement MkDocs" >> "$DEPLOY_INFO_FILE"
           echo "" >> $"DEPLOY_INFO_FILE"
-          echo "| 🗓️ **Dernier build** | $DATE |" >> $"DEPLOY_INFO_FILE"
-          echo "|----------------------|--------|" >> $"DEPLOY_INFO_FILE"
-          echo "| 📝 **Message**        | $MSG  |" >> $"DEPLOY_INFO_FILE"
-          echo "| 👤 **Auteur**         | $AUTOR |" >> $"DEPLOY_INFO_FILE"
-          echo "| 🔢 **Commit SHA**     | \`$SHA\` |" >> $"DEPLOY_INFO_FILE"
-          echo "" >> $"DEPLOY_INFO_FILE"
-          # echo "---" >> $"DEPLOY_INFO_FILE"
-          echo "> Ce build a été généré automatiquement par le workflow GitHub Actions." >> $"DEPLOY_INFO_FILE"
-          echo "> Pour plus d'infos sur les déclenchements, voir le fichier \`build-log.txt\`." >> $"DEPLOY_INFO_FILE"
+          echo "| 🗓️ **Dernier build** | $DATE |" >> "$DEPLOY_INFO_FILE"
+          echo "|----------------------|--------|" >> "$DEPLOY_INFO_FILE"
+          echo "| 📝 **Message**        | $MSG  |" >> "$DEPLOY_INFO_FILE"
+          echo "| 👤 **Auteur**         | $AUTOR |" >> "$DEPLOY_INFO_FILE"
+          echo "| 🔢 **Commit SHA**     | \`$SHA\` |" >> "$DEPLOY_INFO_FILE"
+          echo "" >> "$DEPLOY_INFO_FILE"
+          # echo "---" >> "$DEPLOY_INFO_FILE"
+          echo "> Ce build a été généré automatiquement par le workflow GitHub Actions." >> "$DEPLOY_INFO_FILE"
+          echo "> Pour plus d'infos sur les déclenchements, voir le fichier \`build-log.txt\`." >> "$DEPLOY_INFO_FILE"
 
 
           if [[ "$MSG" == ⏱️* ]]; then
