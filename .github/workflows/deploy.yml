@@ -68,7 +68,7 @@ jobs:
             git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
-            else
+          else
             echo "Commit ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
             
             # Pour forcer le 're'-commit pour avoir fichier log mis à jour
