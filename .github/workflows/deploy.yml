@@ -25,11 +25,11 @@ jobs:
       - name: 📋 Push si CRON, mets à jour deploy_info.md et build-log.txt
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ github.sha }}
         run: |
           DATE="$(TZ='Europe/Paris' date '+%d/%m/%Y - %H:%M:%S')"
           MSG="$(git log -1 --pretty=%B)"
           AUTOR="$(git log -1 --pretty=%an)"
-          SHA="${{ github.sha }}"
           
           LOGS_FILE="tools/logs/build-log.txt"
           DEPLOY_INFO_FILE="docs/xtra/logs/deploy-info.md"
