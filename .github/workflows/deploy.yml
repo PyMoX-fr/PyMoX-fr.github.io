@@ -32,7 +32,7 @@ jobs:
           SHA="${{ github.sha }}"
           
           LOGS_FILE="tools/logs/build-log.txt"
-          DEPLOY_INFO_FILE="xtra/logs/deploy-info.md"
+          DEPLOY_INFO_FILE="docs/xtra/logs/deploy-info.md"
           
           echo "🚀 Déploiement déclenché par le commit suivant :"
           echo "📅 Date      : $DATE
