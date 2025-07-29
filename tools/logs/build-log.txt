@@ -12,3 +12,5 @@ Commit (TEst < GrCOTE7 - Manual Push): 29/07/2025 - 15:44:23
 Commit by manual push (TEst < GrCOTE7): 29/07/2025 - 15:44:23
 Commit (Corr < GrCOTE7 - Manual Push): 29/07/2025 - 15:52:41
 Re-commit for logs after manual push (Corr < GrCOTE7): 29/07/2025 - 15:52:41
+Commit (cchange  deploy.md folder < GrCOTE7 - Manual Push): 29/07/2025 - 15:55:21
+Re-commit for logs after manual push (cchange  deploy.md folder < GrCOTE7): 29/07/2025 - 15:55:21
