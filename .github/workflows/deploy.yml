@@ -31,6 +31,8 @@ jobs:
           AUTOR="$(git log -1 --pretty=%an)"
           SHA="${{ github.sha }}"
           
+          LOGS_FILE = "tools/logs/build-log.txt"
+          
           echo "🚀 Déploiement déclenché par le commit suivant :"
           echo "📅 Date      : $DATE
           echo "🗒️ Message   : $MSG
@@ -51,9 +53,9 @@ jobs:
 
 
           # if [[ "$MSG" == ⏱️* ]]; then
-          #   echo "Dernier commit (AUTO pour rebuild): $DATE" >> build-log.txt
+          #   echo "Dernier commit (AUTO pour rebuild): $DATE" >> $LOGS_FILE
           # else
-          #   echo "Commit ($MSG < $AUTOR): $DATE" >> build-log.txt
+          #   echo "Commit ($MSG < $AUTOR): $DATE" >> $LOGS_FILE
           # fi
 
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
