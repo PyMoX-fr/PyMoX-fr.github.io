@@ -37,13 +37,20 @@ jobs:
           echo "👤 Auteur    : $AUTOR
           echo "🔢 SHA       : $SHA
           
-          # Pour deploy-info (- et non _ car fichier AUTO)
-          echo "# 🛠️ Déploiement MkDocs" >> docs/deploy-info.md
-          echo "" >> docs/deploy-info.md
-          echo "**Dernier build :** $DATE<br>" >> docs/deploy-info.md
-          echo "**Message :** $MSG<br>" >> docs/deploy-info.md
-          echo "**Auteur :** $AUTOR<br>" >> docs/deploy-info.md
-          echo "**Commit SHA :** \`$SHA\`" >> docs/deploy-info.md
+          - name: 🧾 Mettre à jour le fichier deploy-info.md
+            run: |
+              echo "# 🛠️ Déploiement MkDocs" > docs/deploy-info.md
+              echo "" >> docs/deploy-info.md
+              echo "| 🗓️ **Dernier build** | $DATE |" >> docs/deploy-info.md
+              echo "|----------------------|--------|" >> docs/deploy-info.md
+              echo "| 📝 **Message**        | $MSG  |" >> docs/deploy-info.md
+              echo "| 👤 **Auteur**         | $AUTOR |" >> docs/deploy-info.md
+              echo "| 🔢 **Commit SHA**     | \`$SHA\` |" >> docs/deploy-info.md
+              echo "" >> docs/deploy-info.md
+              echo "---" >> docs/deploy-info.md
+              echo "> Ce build a été généré automatiquement par le workflow GitHub Actions." >> docs/deploy-info.md
+              echo "> Pour plus d'infos sur les déclenchements, voir le fichier \`build-log.txt\`." >> docs/deploy-info.md
+
 
           # if [[ "$MSG" == ⏱️* ]]; then
           #   echo "Dernier commit (AUTO pour rebuild): $DATE" >> build-log.txt
