@@ -1,8 +1,8 @@
 # ⏱️ Déploiement quotidien MkDocs
 
-- 📅 **Date** : 29/07/2025 - 17:11:18
-- 📝 **Message** : AddU dates a times
+- 📅 **Date** : 29/07/2025 - 17:38:37
+- 📝 **Message** : Merge branch 'main' of github.com:PyMoX-fr/PyMoX-fr.github.io
 - 👤 **Auteur** : GrCOTE7
-- 🔢 **SHA** : `54b4941d2c335e39180b3c3e5032d47238349873`
+- 🔢 **SHA** : `127dd96d28b5dab502c3ebe60374a17387f2e505`
 
 > Ce déploiement a été effectué automatiquement chaque jour à 3h par GitHub Actions.
