@@ -8,6 +8,7 @@ on:
     # - cron: '0 * * * *' # Toutes les heures
     # - cron: '*/5 * * * *' # Toutes les 5 minutes
     - cron: '*/15 * * * *' # Toutes les 15 minutes
+
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
@@ -25,12 +26,13 @@ jobs:
       - name: 📋 Push si CRON, mets à jour deploy_info.md et build-log.txt
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SHA: ${{ github.sha }}
+          SHA: ${{ github.sha }} # ✅ SHA peut rester en env, car défini par GitHub Actions
         run: |
+          # 🗓️ Génération des infos du commit
           DATE="$(TZ='Europe/Paris' date '+%d/%m/%Y - %H:%M:%S')"
           MSG="$(git log -1 --pretty=%B)"
           AUTOR="$(git log -1 --pretty=%an)"
-          
+
           LOGS_FILE="tools/logs/build-log.txt"
           DEPLOY_INFO_FILE="docs/xtra/logs/deploy-info.md"
           
@@ -43,7 +45,7 @@ jobs:
           echo "# 🛠️ Déploiement MkDocs" > "$DEPLOY_INFO_FILE"
           echo "" >> "$DEPLOY_INFO_FILE"
           echo "| 🗓️ **Dernier build** | $DATE |" >> "$DEPLOY_INFO_FILE"
-          echo "|----------------------|--------|" >> "$DEPLOY_INFO_FILE"
+          echo "|-----------------------------|----------------------------------|" >> "$DEPLOY_INFO_FILE"
           echo "| 📝 **Message**        | $MSG  |" >> "$DEPLOY_INFO_FILE"
           echo "| 👤 **Auteur**         | $AUTOR |" >> "$DEPLOY_INFO_FILE"
           echo "| 🔢 **Commit SHA**     | \`$SHA\` |" >> "$DEPLOY_INFO_FILE"
@@ -52,24 +54,26 @@ jobs:
           echo "> Ce build a été généré automatiquement par le workflow GitHub Actions." >> "$DEPLOY_INFO_FILE"
           echo "> Pour plus d'infos sur les déclenchements, voir le fichier \`build-log.txt\`." >> "$DEPLOY_INFO_FILE"
 
-
+          # 🔍 Écriture dans le fichier logs selon le type de commit
           if [[ "$MSG" == ⏱️* ]]; then
             echo "Dernier commit (AUTO pour rebuild): $DATE" >> "$LOGS_FILE"
           else
             echo "Commit ($MSG < $AUTOR - Manual Push): $DATE" >> "$LOGS_FILE"
           fi
 
+          # 🤖 Si c'est un déclenchement CRON
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
             # Configuration Git
             git add "$LOGS_FILE"
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            
+
             # Ajout et commit
             git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
           else
+            # 👀 Commit manuel, on force le push pour mettre à jour les logs
             echo "Re-commit for logs after manual push ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
             
             # Pour forcer le 're'-commit pour avoir fichier log mis à jour
@@ -85,12 +89,12 @@ jobs:
             git push
           fi
           
-          # Pour voir la création du fichier logs
+          # 🧾 Pour voir la création du fichier logs
           ls -la tools/logs
           cat "$LOGS_FILE"
 
+          # 🚚 Déploiement MkDocs
           mkdocs gh-deploy --force
 
           # Créer un tag automatiquement:
           #   git tag -a "cron-deploy-$(date +%Y%m%d%H%M)" -m "Déploiement CRON automatique"
-
