@@ -63,21 +63,21 @@ jobs:
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
 
-            # Pour focer le commùit pour avoir fichier log mis à jour
             # Ajout et commit
             git add "$LOGS_FILE"
             git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
-          else
+            else
             echo "Commit ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
             
+            # Pour forcer le 're'-commit pour avoir fichier log mis à jour
             # Configuration Git
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
 
             # Ajout et commit
-            git add build-log.txt
+            git add "$LOGS_FILE"
             git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
