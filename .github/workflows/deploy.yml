@@ -72,15 +72,15 @@ jobs:
             echo "Commit ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
             
             # Pour forcer le 're'-commit pour avoir fichier log mis à jour
-            # Configuration Git
-            git config --global user.email "action@github.com"
-            git config --global user.name "GitHub Action"
+            # # Configuration Git
+            # git config --global user.email "action@github.com"
+            # git config --global user.name "GitHub Action"
 
-            # Ajout et commit
-            git add "$LOGS_FILE"
-            git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
-            git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-            git push
+            # # Ajout et commit
+            # git add "$LOGS_FILE"
+            # git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
+            # git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+            # git push
           fi
           
           # Pour voir la création du fichier logs
