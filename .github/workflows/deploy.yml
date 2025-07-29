@@ -40,7 +40,7 @@ jobs:
           echo "👤 Auteur    : $AUTOR
           echo "🔢 SHA       : $SHA
 
-          echo "# 🛠️ Déploiement MkDocs" >> "$DEPLOY_INFO_FILE"
+          echo "# 🛠️ Déploiement MkDocs" > "$DEPLOY_INFO_FILE"
           echo "" >> $"DEPLOY_INFO_FILE"
           echo "| 🗓️ **Dernier build** | $DATE |" >> "$DEPLOY_INFO_FILE"
           echo "|----------------------|--------|" >> "$DEPLOY_INFO_FILE"
