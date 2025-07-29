@@ -1,10 +1,8 @@
-# 🛠️ Déploiement MkDocs
+# ⏱️ Déploiement quotidien MkDocs
 
-| 🗓️ **Dernier build** | 29/07/2025 - 16:26:03 |
-|-----------------------------|----------------------------------|
-| 📝 **Message**        | CORR  |
-| 👤 **Auteur**         | GrCOTE7 |
-| 🔢 **Commit SHA**     | `76fe252415442481b3d16659675994dce4c4bd39` |
+- 📅 **Date** : 29/07/2025 - 17:11:18
+- 📝 **Message** : AddU dates a times
+- 👤 **Auteur** : GrCOTE7
+- 🔢 **SHA** : `54b4941d2c335e39180b3c3e5032d47238349873`
 
-> Ce build a été généré automatiquement par le workflow GitHub Actions.
-> Pour plus d'infos sur les déclenchements, voir le fichier tools/logs/build-log.txt.
+> Ce déploiement a été effectué automatiquement chaque jour à 3h par GitHub Actions.
