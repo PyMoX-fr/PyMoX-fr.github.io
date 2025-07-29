@@ -70,7 +70,7 @@ jobs:
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
           else
-            echo "Commit ($MSG < $AUTOR): $DATE" >> build-log.txt
+            echo "Commit ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
             
             # Configuration Git
             git config --global user.email "action@github.com"
