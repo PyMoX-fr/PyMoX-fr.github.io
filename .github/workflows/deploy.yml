@@ -45,7 +45,7 @@ jobs:
           echo "| 👤 **Auteur**         | $AUTOR |" >> docs/deploy-info.md
           echo "| 🔢 **Commit SHA**     | \`$SHA\` |" >> docs/deploy-info.md
           echo "" >> docs/deploy-info.md
-          echo "---" >> docs/deploy-info.md
+          # echo "---" >> docs/deploy-info.md
           echo "> Ce build a été généré automatiquement par le workflow GitHub Actions." >> docs/deploy-info.md
           echo "> Pour plus d'infos sur les déclenchements, voir le fichier \`build-log.txt\`." >> docs/deploy-info.md
 
