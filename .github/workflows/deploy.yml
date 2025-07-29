@@ -70,11 +70,12 @@ jobs:
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
           else
-            echo "Commit by manual push ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
+            echo "Re-commit for logs after manual push ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
             
             # Pour forcer le 're'-commit pour avoir fichier log mis à jour
             # # Configuration Git
-            git add "$LOGS_FILE"
+            # git add "$LOGS_FILE"
+            git add .
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
 
