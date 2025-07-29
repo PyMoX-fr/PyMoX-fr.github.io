@@ -40,9 +40,9 @@ jobs:
           # Pour deploy-info (- et non _ car fichier AUTO)
           echo "# 🛠️ Déploiement MkDocs" >> docs/deploy-info.md
           echo "" >> docs/deploy-info.md
-          echo "**Dernier build :** $DATE\n" >> docs/deploy-info.md
-          echo "**Message :** $MSG\n" >> docs/deploy-info.md
-          echo "**Auteur :** $AUTOR\n" >> docs/deploy-info.md
+          echo "**Dernier build :** $DATE<br>" >> docs/deploy-info.md
+          echo "**Message :** $MSG<br>" >> docs/deploy-info.md
+          echo "**Auteur :** $AUTOR<br>" >> docs/deploy-info.md
           echo "**Commit SHA :** \`$SHA\`" >> docs/deploy-info.md
 
           # if [[ "$MSG" == ⏱️* ]]; then
