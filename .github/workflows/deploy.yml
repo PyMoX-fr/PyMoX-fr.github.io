@@ -1,13 +1,8 @@
-name: Deploy Docs
+name: Deploy Docs (sans commit dans main)
 
 on:
   push:
     branches: [main]
-  schedule:
-    # - cron: '0 3 * * *' # Tous les jours à 3 H (AM)
-    # - cron: '0 * * * *' # Toutes les heures
-    # - cron: '*/5 * * * *' # Toutes les 5 minutes
-    - cron: '*/15 * * * *' # Toutes les 15 minutes
 
 jobs:
   build-deploy:
@@ -18,84 +13,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: 🛠️ Installer les dépendances MkDocs
+      - name: 🛠️ Installer MkDocs & plugins
         run: |
           pip install --upgrade pip
           pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin
 
-      - name: 📋 Push si CRON, mets à jour deploy_info.md et build-log.txt
+      - name: 📋 Génère deploy-info.md
         env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SHA: ${{ github.sha }} # ✅ SHA peut rester en env, car défini par GitHub Actions
+          SHA: ${{ github.sha }}
         run: |
-          # 🗓️ Génération des infos du commit
           DATE="$(TZ='Europe/Paris' date '+%d/%m/%Y - %H:%M:%S')"
           MSG="$(git log -1 --pretty=%B)"
           AUTOR="$(git log -1 --pretty=%an)"
-
-          LOGS_FILE="tools/logs/build-log.txt"
-          DEPLOY_INFO_FILE="docs/xtra/logs/deploy-info.md"
           
-          echo "🚀 Déploiement déclenché par le commit suivant :"
-          echo "📅 Date      : $DATE"
-          echo "🗒️ Message   : $MSG"
-          echo "👤 Auteur    : $AUTOR"
-          echo "🔢 SHA       : $SHA"
+          mkdir -p "docs/xtra/logs"
+          echo "# 🛠️ Déploiement MkDocs" > docs/xtra/logs/deploy-info.md
+          echo "" >> docs/xtra/logs/deploy-info.md
+          echo "- 📅 **Date** : $DATE" >> docs/xtra/logs/deploy-info.md
+          echo "- 📝 **Message** : $MSG" >> docs/xtra/logs/deploy-info.md
+          echo "- 👤 **Auteur** : $AUTOR" >> docs/xtra/logs/deploy-info.md
+          echo "- 🔢 **SHA** : \`$SHA\`" >> docs/xtra/logs/deploy-info.md
+          echo "" >> docs/xtra/logs/deploy-info.md
+          echo "> Déploiement déclenché par push sur la branche *main*." >> docs/xtra/logs/deploy-info.md
 
-          mkdir -p "$(dirname "$DEPLOY_INFO_FILE")"
-          echo "# 🛠️ Déploiement MkDocs" > "$DEPLOY_INFO_FILE"
-          echo "" >> "$DEPLOY_INFO_FILE"
-          echo "| 🗓️ **Dernier build** | $DATE |" >> "$DEPLOY_INFO_FILE"
-          echo "|-----------------------------|----------------------------------|" >> "$DEPLOY_INFO_FILE"
-          echo "| 📝 **Message**        | $MSG  |" >> "$DEPLOY_INFO_FILE"
-          echo "| 👤 **Auteur**         | $AUTOR |" >> "$DEPLOY_INFO_FILE"
-          echo "| 🔢 **Commit SHA**     | \`$SHA\` |" >> "$DEPLOY_INFO_FILE"
-          echo "" >> "$DEPLOY_INFO_FILE"
-          # echo "---" >> "$DEPLOY_INFO_FILE"
-          echo "> Ce build a été généré automatiquement par le workflow GitHub Actions." >> "$DEPLOY_INFO_FILE"
-          echo "> Pour plus d'infos sur les déclenchements, voir le fichier $LOGS_FILE." >> "$DEPLOY_INFO_FILE"
+      - name: 🏗️ Build site MkDocs
+        run: mkdocs build
 
-          # 🔍 Écriture dans le fichier logs selon le type de commit
-          if [[ "$MSG" == ⏱️* ]]; then
-            echo "Dernier commit (AUTO pour rebuild): $DATE" >> "$LOGS_FILE"
-          else
-            echo "Commit ($MSG < $AUTOR - Manual Push): $DATE" >> "$LOGS_FILE"
-          fi
+      - name: 📦 Injecte le log dans le site généré
+        run: |
+          cp docs/xtra/logs/deploy-info.md site/xtra/logs/deploy-info.md
 
-          # 🤖 Si c'est un déclenchement CRON
-          if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            # Configuration Git
-            git add "$LOGS_FILE"
-            git config --global user.email "action@github.com"
-            git config --global user.name "GitHub Action"
-
-            # Ajout et commit
-            git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
-            git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-            git push
-          else
-            # 👀 Commit manuel, on force le push pour mettre à jour les logs
-            echo "Re-commit for logs after manual push ($MSG < $AUTOR): $DATE" >> "$LOGS_FILE"
-            
-            # Pour forcer le 're'-commit pour avoir fichier log mis à jour
-            # # Configuration Git
-            # git add "$LOGS_FILE"
-            git add .
-            git config --global user.email "action@github.com"
-            git config --global user.name "GitHub Action"
-
-            # Ajout et commit
-            git commit -m "⏱️ Rebuild automatique CRON for just deploy logs (Dev - $DATE)"
-            git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-            git push
-          fi
-          
-          # 🧾 Pour voir la création du fichier logs
-          ls -la tools/logs
-          cat "$LOGS_FILE"
-
-          # 🚚 Déploiement MkDocs
-          mkdocs gh-deploy --force
-
-          # Créer un tag automatiquement:
-          #   git tag -a "cron-deploy-$(date +%Y%m%d%H%M)" -m "Déploiement CRON automatique"
+      - name: 🚀 Déploie vers gh-pages
+        run: mkdocs gh-deploy --force
