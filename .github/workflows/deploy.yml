@@ -35,10 +35,10 @@ jobs:
           DEPLOY_INFO_FILE="docs/xtra/logs/deploy-info.md"
           
           echo "🚀 Déploiement déclenché par le commit suivant :"
-          echo "📅 Date      : $DATE
-          echo "🗒️ Message   : $MSG
-          echo "👤 Auteur    : $AUTOR
-          echo "🔢 SHA       : $SHA
+          echo "📅 Date      : $DATE"
+          echo "🗒️ Message   : $MSG"
+          echo "👤 Auteur    : $AUTOR"
+          echo "🔢 SHA       : $SHA"
 
           echo "# 🛠️ Déploiement MkDocs" > "$DEPLOY_INFO_FILE"
           echo "" >> "$DEPLOY_INFO_FILE"
