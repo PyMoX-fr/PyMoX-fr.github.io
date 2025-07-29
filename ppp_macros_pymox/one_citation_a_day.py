@@ -16,9 +16,10 @@ def define_env(env):
         
         
         now = datetime.now() # Uniquement pour changements courts 
-        index = now.hour % len(citations) # Chaque heure
+        # index = now.hour % len(citations) # Chaque heure
 
         # index = (now.hour * 12 + now.minute // 5) % len(citations) # Pour test chgmnt toutes les 5 minutes
+        index = (now.hour * 12 + now.minute // 1) % len(citations) # Pour test chgmnt toutes les minutes
         
 
         # print("Citation du jour:", index, citations[index])

@@ -32,7 +32,7 @@ jobs:
           SHA="${{ github.sha }}"
           
           echo "🚀 Déploiement déclenché par le commit suivant :"
-          echo "📅 Date      : $DATA
+          echo "📅 Date      : $DATE
           echo "🗒️ Message   : $MSG
           echo "👤 Auteur    : $AUTOR
           echo "🔢 SHA       : $SHA
@@ -40,23 +40,33 @@ jobs:
           # Pour deploy-info (- et non _ car fichier AUTO)
           echo "# 🛠️ Déploiement MkDocs" >> docs/deploy-info.md
           echo "" >> docs/deploy-info.md
-          echo "**Dernier build :** $DATE" >> docs/deploy-info.md
-          echo "**Message :** $MSG" >> docs/deploy-info.md
-          echo "**Auteur :** $AUTOR" >> docs/deploy-info.md
+          echo "**Dernier build :** $DATE\n" >> docs/deploy-info.md
+          echo "**Message :** $MSG\n" >> docs/deploy-info.md
+          echo "**Auteur :** $AUTOR\n" >> docs/deploy-info.md
           echo "**Commit SHA :** \`$SHA\`" >> docs/deploy-info.md
 
-          if [[ "$MSG" == ⏱️* ]]; then
-            echo "Dernier rebuild (COMMIT AUTO): $DATE" >> build-log.txt
+          # if [[ "$MSG" == ⏱️* ]]; then
+          #   echo "Dernier commit (AUTO pour rebuild): $DATE" >> build-log.txt
+          # else
+          #   echo "Commit ($MSG < $AUTOR): $DATE" >> build-log.txt
+          # fi
+
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            # Configuration Git
+            git config --global user.email "action@github.com"
+            git config --global user.name "GitHub Action"
+
+            # Ajout et commit
+            git add build-log.txt
+            git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
+            git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+            git push
           else
             echo "Commit ($MSG < $AUTOR): $DATE" >> build-log.txt
           fi
 
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-
-          git add build-log.txt
-          git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-          git push
-
           mkdocs gh-deploy --force
+
+          # Créer un tag automatiquement:
+          #   git tag -a "cron-deploy-$(date +%Y%m%d%H%M)" -m "Déploiement CRON automatique"
+
