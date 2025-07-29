@@ -63,8 +63,9 @@ jobs:
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
 
+            # Pour focer le commùit pour avoir fichier log mis à jour
             # Ajout et commit
-            git add build-log.txt
+            git add "$LOGS_FILE"
             git commit -m "⏱️ Rebuild automatique CRON ($DATE)"
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
@@ -81,6 +82,10 @@ jobs:
             git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
             git push
           fi
+          
+          # Pour voir la création du fichier logs
+          ls -la tools/logs
+          cat "$LOGS_FILE"
 
           mkdocs gh-deploy --force
 
