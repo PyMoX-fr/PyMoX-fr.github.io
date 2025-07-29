@@ -17,3 +17,5 @@ Re-commit for logs after manual push (cchange  deploy.md folder < GrCOTE7): 29/0
 Dernier commit (AUTO pour rebuild): 29/07/2025 - 15:56:18
 Commit (Up < GrCOTE7 - Manual Push): 29/07/2025 - 16:01:08
 Re-commit for logs after manual push (Up < GrCOTE7): 29/07/2025 - 16:01:08
+Commit (aDD MKDIR < GrCOTE7 - Manual Push): 29/07/2025 - 16:22:51
+Re-commit for logs after manual push (aDD MKDIR < GrCOTE7): 29/07/2025 - 16:22:51
