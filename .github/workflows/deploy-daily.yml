@@ -30,7 +30,7 @@ jobs:
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
           mkdir -p "$(dirname "$DEPLOY_INFO_PATH")"
-          # mkdir -p "$DEPLOY_INFO_DIR"
+          # mkdir -p "$DEPLOY_INFO_PATH"
 
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
           TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
