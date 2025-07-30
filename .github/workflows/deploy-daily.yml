@@ -1,4 +1,4 @@
-name: Deploy Docs (CRON 3h)
+name: Deploy Docs (CRON à 3h)
 
 on:
   schedule:
@@ -29,7 +29,8 @@ jobs:
           DEPLOY_INFO_FILE="deploy_info.md"
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
-          mkdir -p "$DEPLOY_INFO_DIR"
+          mkdir -p "$(dirname "$DEPLOY_INFO_PATH")"
+          # mkdir -p "$DEPLOY_INFO_DIR"
 
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
           TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
@@ -57,11 +58,11 @@ jobs:
           echo "🚀 **Déclencheur** : GitHub Actions" >> "$DEPLOY_INFO_PATH"
           echo "<br><br>" >> "$DEPLOY_INFO_PATH"
 
-          echo "> ✅ Ce déploiement a été effectué **automatiquement** comme chaque jour vers 3h.<hr>(Chaque 1/4 d'heure pendant la mise au poiint)" >> "$DEPLOY_INFO_PATH"
+          echo "> ✅ Ce déploiement a été effectué **automatiquement** comme chaque jour vers 3h.<hr>(Chaque ¼ d'heure pendant la mise au poiint)" >> "$DEPLOY_INFO_PATH"
 
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add "$DEPLOY_INFO_PATH"
+          git add "$DEPLOY_INFO_FILE"
           git commit -m "⏱️ Déploiement quotidien CRON ($DATE)"
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push
