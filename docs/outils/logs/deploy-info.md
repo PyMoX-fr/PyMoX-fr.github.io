@@ -1,8 +1,10 @@
-# 🚀 Dernier déploiement (AUTOmatique)
+# ⏱️ Dernier déploiement
+
+## → Automatique
 
 | 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |
 |----------------|------------------------|------------------------|--------------------|
-| **30/07/2025**  | **17:17:26**        | `2025-07-30T15:17:26Z`   | `1753888646`       |
+| **30/07/2025**  | **17:50:48**        | `2025-07-30T15:50:48Z`   | `1753890648`       |
 
 ### 📋 Informations de déploiement
 

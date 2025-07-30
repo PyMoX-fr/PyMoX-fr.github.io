@@ -13,7 +13,10 @@ DATE_UNIX="$(date +%s)"
 MSG="🚀 Déploiement automatique CRON"
 AUTOR="PyMoX"
 
-echo "# 🚀 Dernier déploiement (AUTOmatique)" > "$DEPLOY_INFO_PATH"
+echo "# ⏱️ Dernier déploiement" > "$DEPLOY_INFO_PATH"
+echo "" >> "$DEPLOY_INFO_PATH"
+
+echo "## → Automatique" >> "$DEPLOY_INFO_PATH"
 echo "" >> "$DEPLOY_INFO_PATH"
 
 echo "| 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |" >> "$DEPLOY_INFO_PATH"

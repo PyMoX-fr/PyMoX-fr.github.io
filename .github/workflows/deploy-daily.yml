@@ -26,7 +26,7 @@ jobs:
           SHA: ${{ github.sha }}
         run: |
           DEPLOY_INFO_DIR="docs/outils/logs"
-          DEPLOY_INFO_FILE="deploy-info.md"
+          DEPLOY_INFO_FILE="deploy_info.md"
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
           mkdir -p "$DEPLOY_INFO_DIR"
@@ -35,10 +35,13 @@ jobs:
           TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
           DATE_ISO="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
           DATE_UNIX="$(date +%s)"
-          MSG="🚀 Déploiement automatique CRON"
+          MSG="⏱️ Déploiement automatique CRON"
           AUTOR="PyMoX"
 
-          echo "# 🚀 Dernier déploiement (AUTOmatique)" > "$DEPLOY_INFO_PATH"
+          echo "# ⏱️ Dernier déploiement" > "$DEPLOY_INFO_PATH"
+          echo "" >> "$DEPLOY_INFO_PATH"
+
+          echo "## → Automatique" >> "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
 
           echo "| 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |" >> "$DEPLOY_INFO_PATH"
