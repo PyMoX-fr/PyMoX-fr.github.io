@@ -18,7 +18,7 @@ jobs:
           pip install --upgrade pip
           pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin mkdocs-open-in-new-tab
 
-      - name: 📋 Génère deploy-info.md
+      - name: 📋 Génère deploy_info.md
         env:
           SHA: ${{ github.sha }}
         run: |
