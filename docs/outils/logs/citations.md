@@ -1,4 +1,7 @@
-# Resources
+---
+title: 🧠 Citations
+author: GC7
+---
 
 ## La citation du jour
 

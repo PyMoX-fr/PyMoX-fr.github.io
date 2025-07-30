@@ -1,6 +1,6 @@
 ---
 author: GrCOTE7
-title:  🗂️ Derniers commits
+title: 🗂️ Derniers commits
 ---
 
 ## 🕒 Les 10 dernières modifications
