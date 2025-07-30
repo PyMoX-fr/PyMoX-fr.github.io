@@ -52,7 +52,7 @@ jobs:
           echo "🚀 **Déclencheur** : Push manuel sur la branche \`main\`" >> "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
           
-          echo "> ✅ Ce déploiement a été lancé automatiquement suite au push manuel sur \`main\`, sans commit permanent du fichier deploy-info.md dans l'historique Git." >> "$DEPLOY_INFO_PATH"
+          echo "> ✅ Ce déploiement a été lancé automatiquement suite au push manuel sur \`main\` (Sans commit permanent du fichier deploy-info.md dans l'historique Git)." >> "$DEPLOY_INFO_PATH"
 
       - name: 🏗️ Build site MkDocs
         run: mkdocs build
