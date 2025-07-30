@@ -46,7 +46,7 @@ jobs:
           
           echo "### 📋 Informations de déploiement" >> "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
-          echo "📝 Message Git : **${MSG}*<br>*" >> "$DEPLOY_INFO_PATH"
+          echo "📝 Message Git : **${MSG}**<br>" >> "$DEPLOY_INFO_PATH"
           echo "👤 Auteur : ${AUTOR}<br>" >> "$DEPLOY_INFO_PATH"
           echo "🔁 SHA Commit : \`${SHA}\`<br>" >> "$DEPLOY_INFO_PATH"
           echo "🚀 **Déclencheur** : Push manuel sur la branche \`main\`" >> "$DEPLOY_INFO_PATH"
