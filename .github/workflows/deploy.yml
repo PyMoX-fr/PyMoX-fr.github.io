@@ -1,4 +1,4 @@
-name: Deploy Docs (sans commit dans main)
+name: Deploy Docs (sans re-commit dans main)
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
         env:
           SHA: ${{ github.sha }}
         run: |
-          DEPLOY_INFO_DIR="docs/outils/logs"
+          DEPLOY_INFO_DIR="site/outils/logs"
           DEPLOY_INFO_FILE="deploy-info.md"
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
@@ -59,7 +59,7 @@ jobs:
 
       # - name: 📦 Injecte le log dans le site généré
       #   run: |
-      #     cp docs/xtra/logs/deploy-info.md site/xtra/logs/deploy-info.md
+      #     cp docs/xtra/logs/deploy_info.md site/xtra/logs/deploy_info.md
 
       - name: 🚀 Déploie vers gh-pages
         run: mkdocs gh-deploy --force
