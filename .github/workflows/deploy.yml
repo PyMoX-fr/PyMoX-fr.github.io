@@ -23,7 +23,7 @@ jobs:
           SHA: ${{ github.sha }}
         run: |
           DEPLOY_INFO_DIR="docs/outils/logs"
-          DEPLOY_INFO_FILE="deploy-info.md"
+          DEPLOY_INFO_FILE="deploy_info.md"
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
           mkdir -p "$DEPLOY_INFO_DIR"
