@@ -1,10 +1,12 @@
 nav:
     # - a
     - index.md
+     
     # - avenir.md
     # - ready.md
 
-
+    - outils
+     
     # - notice.md
     # - example.md
     # - chapitre01
