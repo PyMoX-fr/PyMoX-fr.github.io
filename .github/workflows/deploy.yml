@@ -28,7 +28,7 @@ jobs:
           DATE_UNIX="$(date +%s)"
           MSG="$(git log -1 --pretty=%B)"
           AUTOR="$(git log -1 --pretty=%an)"
-          SHA="${{ github.sha }}"
+          # SHA="${{ github.sha }}"
 
           DEPLOY_INFO_DIR="docs/xtra/logs"
           DEPLOY_INFO_FILE="deploy-info.md"
