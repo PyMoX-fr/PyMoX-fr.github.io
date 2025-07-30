@@ -41,7 +41,7 @@ jobs:
           
           echo "| 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |" >> "$DEPLOY_INFO_PATH"
           echo "|----------------|------------------------|------------------------|--------------------|" >> "$DEPLOY_INFO_PATH"
-          echo "| \`$DATE_HUMAN\`  | \`$TIME_HUMAN\`        | \`$DATE_ISO\`   | \`$DATE_UNIX\`       |" >> "$DEPLOY_INFO_PATH"
+          echo "| \`**$DATE_HUMAN**\`  | \`**$TIME_HUMAN**\`        | \`$DATE_ISO\`   | \`$DATE_UNIX\`       |" >> "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
           
           echo "### 📋 Informations de déploiement" >> "$DEPLOY_INFO_PATH"
