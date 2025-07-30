@@ -1,8 +1,8 @@
 # ⏱️ Déploiement quotidien MkDocs
 
-- 📅 **Date** : 30/07/2025 - 15:39:23
-- 📝 **Message** : Corr virtual path to site folder
+- 📅 **Date** : 30/07/2025 - 16:39:47
+- 📝 **Message** : Corr 2
 - 👤 **Auteur** : GrCOTE7
-- 🔢 **SHA** : `2e17e6c935b0e3b65d3114819965cd296c0513bb`
+- 🔢 **SHA** : `177400441f751cc91c6d7be8fae94eefddbb934f`
 
 > Ce déploiement a été effectué automatiquement chaque jour à 3h par GitHub Actions.
