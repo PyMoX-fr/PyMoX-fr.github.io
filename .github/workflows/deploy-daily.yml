@@ -3,9 +3,9 @@ name: Deploy Docs (CRON 3h)
 on:
   schedule:
     # - cron: '0 3 * * *' # Tous les jours à 3h du matin
-    # - cron: '0 * * * *' # Toutes les heures
+    - cron: '0 * * * *' # Toutes les heures
     # - cron: '*/15 * * * *' # Toutes les 15 minutes
-    - cron: "*/5 * * * *" # Toutes les 5 minutes
+    # - cron: "*/5 * * * *" # Toutes les 5 minutes
 jobs:
   daily-deploy:
     runs-on: ubuntu-latest
