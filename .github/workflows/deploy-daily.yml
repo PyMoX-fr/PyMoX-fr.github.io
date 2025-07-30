@@ -1,4 +1,4 @@
-name: Deploy Docs (CRON à 3h)
+name: Deploy Docs (CRON à ≃ 3h00)
 
 on:
   schedule:
@@ -25,7 +25,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ github.sha }}
         run: |
-          DEPLOY_INFO_DIR="docs/outils/logs"
+          DEPLOY_INFO_DIR="site/outils/logs"
           DEPLOY_INFO_FILE="deploy_info.md"
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
