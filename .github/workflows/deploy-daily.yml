@@ -25,21 +25,36 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ github.sha }}
         run: |
-          DATE="$(TZ='Europe/Paris' date '+%d/%m/%Y - %H:%M:%S')"
-          MSG="$(git log -1 --pretty=%B)"
-          AUTOR="$(git log -1 --pretty=%an)"
+          DEPLOY_INFO_DIR="docs/outils/logs"
+          DEPLOY_INFO_FILE="deploy-info.md"
+          DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
-          DEPLOY_INFO_FILE="docs/xtra/logs/deploy-info.md"
-          mkdir -p "$(dirname "$DEPLOY_INFO_FILE")"
+          mkdir -p "$DEPLOY_INFO_DIR"
 
-          echo "# ⏱️ Déploiement quotidien MkDocs" > "$DEPLOY_INFO_FILE"
-          echo "" >> "$DEPLOY_INFO_FILE"
-          echo "- 📅 **Date** : $DATE" >> "$DEPLOY_INFO_FILE"
-          echo "- 📝 **Message** : $MSG" >> "$DEPLOY_INFO_FILE"
-          echo "- 👤 **Auteur** : $AUTOR" >> "$DEPLOY_INFO_FILE"
-          echo "- 🔢 **SHA** : \`$SHA\`" >> "$DEPLOY_INFO_FILE"
-          echo "" >> "$DEPLOY_INFO_FILE"
-          echo "> Ce déploiement a été effectué automatiquement chaque jour à 3h par GitHub Actions." >> "$DEPLOY_INFO_FILE"
+          DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
+          TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
+          DATE_ISO="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          DATE_UNIX="$(date +%s)"
+          MSG="🚀 Déploiement automatique CRON"
+          AUTOR="PyMoX"
+
+          echo "# 🚀 Dernier déploiement (Suite à push manuel)" > "$DEPLOY_INFO_PATH"
+          echo "" >> "$DEPLOY_INFO_PATH"
+
+          echo "| 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |" >> "$DEPLOY_INFO_PATH"
+          echo "|----------------|------------------------|------------------------|--------------------|" >> "$DEPLOY_INFO_PATH"
+          echo "| **$DATE_HUMAN**  | **$TIME_HUMAN**        | \`$DATE_ISO\`   | \`$DATE_UNIX\`       |" >> "$DEPLOY_INFO_PATH"
+          echo "" >> "$DEPLOY_INFO_PATH"
+
+          echo "### 📋 Informations de déploiement" >> "$DEPLOY_INFO_PATH"
+          echo "" >> "$DEPLOY_INFO_PATH"
+          echo "📝 Message Git : **${MSG}**<br>" >> "$DEPLOY_INFO_PATH"
+          echo "👤 Auteur : ${AUTOR}<br>" >> "$DEPLOY_INFO_PATH"
+          echo "🔁 SHA Commit : \`${SHA}\`<br>" >> "$DEPLOY_INFO_PATH"
+          echo "🚀 **Déclencheur** : GitHub Actions" >> "$DEPLOY_INFO_PATH"
+          echo "<br><br>" >> "$DEPLOY_INFO_PATH"
+
+          echo "> ✅ Ce déploiement a été effectué **automatiquement** comme chaque jour vers 3h." >> "$DEPLOY_INFO_PATH"
 
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
