@@ -29,14 +29,14 @@ jobs:
           mkdir -p "$DEPLOY_INFO_DIR"
           
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
-          TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S %Z')"
+          TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
           DATE_ISO="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
           DATE_UNIX="$(date +%s)"
           MSG="$(git log -1 --pretty=%B)"
           AUTOR="$(git log -1 --pretty=%an)"
           # SHA="${{ github.sha }}"
 
-          echo "# 🚀 Déploiement suite push manuel" > "$DEPLOY_INFO_PATH"
+          echo "# 🚀 Dernier déploiement (Suite à push manuel)" > "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
           
           echo "| 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |" >> "$DEPLOY_INFO_PATH"
