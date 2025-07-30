@@ -25,7 +25,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ github.sha }}
         run: |
-          DEPLOY_INFO_DIR="site/outils/logs"
+          DEPLOY_INFO_DIR="docs/outils/logs"
           DEPLOY_INFO_FILE="deploy_info.md"
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
@@ -62,7 +62,7 @@ jobs:
 
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add "$DEPLOY_INFO_FILE"
+          git add "$DEPLOY_INFO_PATH"
           git commit -m "⏱️ Déploiement quotidien CRON ($DATE)"
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push
