@@ -4,6 +4,11 @@
 -->
 
 <!-- Pour éditer la page dans un autre onglet -->
+{# Note: Quasi inutile car bouton d'origine est maintenant ouvert dans un nouvel onglet, grâce au plugin:
+  - open-in-new-tab:
+      add_icon: true 
+→ Gardé pour personnalisation du lmessage et modèle de surcharge du thème
+      #}
 {% block content %}
     <a
         href="{{ page.edit_url }}"

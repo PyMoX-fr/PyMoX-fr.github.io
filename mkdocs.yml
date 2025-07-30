@@ -121,7 +121,7 @@ extra:
     default: latest
   author: Communauté PyMoX
   description: Documentation de PyMoX-fr
-  keywords: Python, Programmation, Tutoriel, Didacticiel, Formation, Apprentissage, Cours, Exercices, Jeux, Vidéo-jeux, JEU DE ROLLE, RPG, Role Playing Game, Jeu de rôle, Jeu de rôles, Jeu de rôle, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles, Jeu de rôles
+  keywords: Python, Programmation, Tutoriel, Didacticiel, Formation, Apprentissage, Cours, Exercices, Jeux, Vidéo-jeux, JEU DE ROLLE, RPG, Role Playing Game, Jeu de rôle
   image: assets/images/pymox_logo_tr
   social:
     # - icon: fontawesome/solid/clipboard-question
@@ -147,6 +147,9 @@ plugins:
       collapse_single_pages: true
 
   - search
+  - open-in-new-tab:
+      add_icon: true
+
   # module_name: macros.qcm_macros
   # modules:
   # - pyodide_macros.macros
@@ -154,6 +157,7 @@ plugins:
   #   ...
   # - tags:
   #     tags_file: tags.md # Déprécié
+  - tags
   - pyodide_macros:
       # Vous pouvez ajouter ici tout réglage que vous auriez ajouté concernant les macros:
       on_error_fail: true # Il est conseillé d'ajouter celui-ci si vous ne l'utilisez pas.
@@ -164,12 +168,13 @@ plugins:
         # - git-revision-date-localized # * [ ] à tester
       # - sqlite-console
       # module_name: macros_pymox/one_citation_a_day
-      module_name: ppp_macros_pymox # ppp_ = dossier provisoire en attendant de réussir à glisser ces macros dans includes/macros_pymox/
+      module_name:
+        ppp_macros_pymox # ppp_ = dossier provisoire en attendant de réussir à glisser ces macros dans includes/macros_pymox/
         # - macros_pymox/one_citation_a_day
         # - macros_pymox.all_citations
       # modules:
       #   - ./macros_pymox/one_citation_a_day
-        # - macros_pymox.all_citations
+      # - macros_pymox.all_citations
 
   # - macros:
 
