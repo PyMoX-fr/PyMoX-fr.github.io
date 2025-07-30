@@ -30,13 +30,13 @@ jobs:
           AUTOR="$(git log -1 --pretty=%an)"
           SHA="${{ github.sha }}"
 
-          DEPLOY_INFO_DIR="site/xtra/logs"
+          DEPLOY_INFO_DIR="docs/xtra/logs"
           DEPLOY_INFO_FILE="deploy-info.md"
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
           mkdir -p "$DEPLOY_INFO_DIR"
 
-          echo "# 🛠️ Déploiement MkDocs" > "$DEPLOY_INFO_PATH"
+          echo "# 🛠️ Déploiement MkDocs suite push" > "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
           echo "| 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |" >> "$DEPLOY_INFO_PATH"
           echo "|---------------|------------------------|--------------------------|--------------------|" >> "$DEPLOY_INFO_PATH"
