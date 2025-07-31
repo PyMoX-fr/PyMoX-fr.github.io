@@ -37,6 +37,12 @@ jobs:
             PREV_SHA="$(git rev-parse HEAD^)"
             MSG="$(git show -s --format=%B "$PREV_SHA")"
             AUTOR="$(git show -s --format=%an "$PREV_SHA")"
+            
+            DATE_HUMAN="$(TZ='Europe/Paris' date -d "$(git show -s --format=%ci "$PREV_SHA")" '+%d/%m/%Y')"
+            TIME_HUMAN="$(TZ='Europe/Paris' date -d "$(git show -s --format=%ci "$PREV_SHA")" '+%H:%M:%S')"
+            DATE_ISO="$(date -u -d "$(git show -s --format=%ci "$PREV_SHA")" '+%Y-%m-%dT%H:%M:%SZ')"
+            DATE_UNIX="$(date -d "$(git show -s --format=%ci "$PREV_SHA")" '+%s')"
+
 
             # # Fallback si MSG vide
             # if [[ -z "$MSG" ]]; then
