@@ -89,7 +89,7 @@ jobs:
       - name: 🌐 Ajoute le fichier CNAME et le copie
         run: |
           echo "pymox.fr" > site/CNAME
-          cp site/CNAME CNAME
+          cp site/CNAME site/CNAME
 
       - name: 🚀 Déploie vers gh-pages
         run: mkdocs gh-deploy --force
