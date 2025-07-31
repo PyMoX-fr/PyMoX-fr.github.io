@@ -58,7 +58,7 @@ jobs:
           echo "🚀 **Déclencheur** : GitHub Actions" >> "$DEPLOY_INFO_PATH"
           echo "<br><br>" >> "$DEPLOY_INFO_PATH"
 
-          echo "> ✅ Ce déploiement a été effectué **automatiquement** comme chaque jour vers 3h (G.M.T.)." >> "$DEPLOY_INFO_PATH"
+          echo "> ✅ Ce déploiement a été effectué **automatiquement** comme chaque nuit vers 3h (G.M.T.)." >> "$DEPLOY_INFO_PATH"
 
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
