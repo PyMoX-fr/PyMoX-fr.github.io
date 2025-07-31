@@ -70,7 +70,7 @@ jobs:
 
       - name: 🌐 Ajoute le fichier CNAME + déploiement
         run: |
-          echo "pymox.fr" > site/CNAME
+          echo "pymox.fr" > docs/CNAME
           mkdocs gh-deploy --force
 
           # Créer un tag automatiquement:
