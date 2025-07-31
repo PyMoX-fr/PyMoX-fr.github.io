@@ -28,21 +28,23 @@ jobs:
 
           mkdir -p "$DEPLOY_INFO_DIR"
 
-          # On récupère le dernier message de commit LAST_COMMIT_MSG="$(git log -1 --pretty=%B)"
-          
-          # On vérifie s'il commence par "Merge" et finit par "github.io"
+          LAST_COMMIT_MSG="$(git log -1 --pretty=%B)"
+
           if [[ "$LAST_COMMIT_MSG" =~ ^Merge.*github\.io$ ]]; then
-            # Récupère le SHA du commit précédent
             PREV_SHA="$(git rev-parse HEAD^)"
-            # Récupère le message du commit précédent
             MSG="$(git show -s --format=%B "$PREV_SHA")"
-            # Récupère l’auteur du commit précédent
             AUTOR="222→$(git show -s --format=%an "$PREV_SHA")"
+
+            # Fallback si MSG vide
+            if [[ -z "$MSG" ]]; then
+              echo "⚠️ Le message du commit précédent est vide !"
+              MSG="[commit précédent vide ou inaccessible]"
+            fi
           else
-            # Sinon, on garde le dernier commit
             MSG="$LAST_COMMIT_MSG"
             AUTOR="111->$(git log -1 --pretty=%an)"
           fi
+
 
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
           TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
