@@ -34,8 +34,9 @@ jobs:
           LAST_COMMIT_MSG="$(git log -1 --pretty=%B)"
 
           if [[ "$LAST_COMMIT_MSG" =~ ^Merge.*github\.io$ ]]; then
-            PREV_SHA="$(git rev-parse HEAD^)<br>
-            *([This commit has since been merged](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commits/main))*"
+          
+            PREV_SHA="$(git rev-parse HEAD^)"
+            MSG="$(git show -s --format=%B "$PREV_SHA") *([This commit has since been merged](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commits/main))*"
             AUTOR="$(git show -s --format=%an "$PREV_SHA")"
             
             DATE_HUMAN="$(TZ='Europe/Paris' date -d "$(git show -s --format=%ci "$PREV_SHA")" '+%d/%m/%Y')"
