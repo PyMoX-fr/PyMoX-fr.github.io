@@ -51,6 +51,7 @@ jobs:
           echo "| **$DATE_HUMAN**  | **$TIME_HUMAN**        | \`$DATE_ISO\`   | \`$DATE_UNIX\`       |" >> "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
 
+          
           echo "### 📋 Informations de déploiement" >> "$DEPLOY_INFO_PATH"
           echo "" >> "$DEPLOY_INFO_PATH"
           echo "📝 Message Git : **${MSG}**<br>" >> "$DEPLOY_INFO_PATH"
