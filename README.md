@@ -2,9 +2,9 @@
 
 Bienvenue dans le Dépôt Officiel et Central de l'écosystème **PyMoX**-fr, pour des études et projets liés aux langages tels que **Py**thon, Django, **Mo**jo, Flet et Flet**X** (Liste non exhaustive...).
 
-Ce dépôt central regroupe les dépôts indépendants liés à ces sujets, ainsi que ce projet lui-même, entièrement open-source (sous licence MIT), composé principalement de son application mobile, de son site web et d’une documentation collaborative.
+Ce Dépôt Central regroupe les dépôts indépendants liés à ces sujets, ainsi que ce projet lui-même, entièrement open-source (sous licence MIT), composé principalement de son application mobile, de son site web et d’une documentation collaborative.
 
-Ce dépôt sert de point d’entrée pour explorer les différents modules, outils, et développemnts dans ces domaines. Il agit comme un hub de navigation pour l’ensemble des composants du projet PyMoX.
+Ce dépôt sert donc de point d’entrée pour explorer les différents modules, outils, et développemnts dans ces domaines. Il agit comme un hub de navigation pour l’ensemble des composants du projet PyMoX.
 
 <div style="text-align:center; font-size:24px">
   <a href="http://pymox-fr.github.io" target="_blank" rel="noopener">Voir la Doc</a>
