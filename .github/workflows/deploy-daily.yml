@@ -19,7 +19,8 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin mkdocs-open-in-new-tab
-
+      - name: 🌐 Prépare le fichier CNAME
+        run: echo "pymox.fr" > docs/CNAME
       - name: ⏱️ Build CRON silencieux
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
