@@ -90,6 +90,13 @@ jobs:
         run: |
           echo "pymox.fr" > site/CNAME
           [ -f site/CNAME ] && cp site/CNAME CNAME
+           
+      - name: 🌐 Copie README.md
+        run: cp README.md site/README.md
+      - name: 🌐 Ajoute le fichier CNAME et le copie
+        run: |
+          echo "pymox.fr" > site/CNAME
+          [ -f site/CNAME ] && cp site/CNAME CNAME
 
       - name: 🚀 Déploie vers gh-pages
         run: mkdocs gh-deploy --force
