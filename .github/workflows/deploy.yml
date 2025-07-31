@@ -35,7 +35,7 @@ jobs:
             # Récupère le message du commit précédent
             MSG="$(git show -s --format=%B "$PREV_SHA")"
             # Récupère l’auteur du commit précédent
-            AUTOR="$(git show -s --format=%an "$PREV_SHA")"
+            AUTOR="222→$(git show -s --format=%an "$PREV_SHA")"
           else
             # Sinon, on garde le dernier commit
             MSG="$(git log -1 --pretty=%B)"
