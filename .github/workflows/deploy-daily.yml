@@ -2,7 +2,7 @@ name: Deploy Docs (CRON à ≃ 3h00)
 
 on:
   schedule:
-    - cron: '0 3 * * *' # Tous les jours à 3h du matin
+    - cron: '0 1 * * *' # Tous les jours à 3h (GMT) du matin
     # - cron: '0 * * * *' # Toutes les heures
     # - cron: '*/15 * * * *' # Toutes les 15 minutes
     # - cron: "*/5 * * * *" # Toutes les 5 minutes
@@ -58,7 +58,7 @@ jobs:
           echo "🚀 **Déclencheur** : GitHub Actions" >> "$DEPLOY_INFO_PATH"
           echo "<br><br>" >> "$DEPLOY_INFO_PATH"
 
-          echo "> ✅ Ce déploiement a été effectué **automatiquement** comme chaque jour vers 3h." >> "$DEPLOY_INFO_PATH"
+          echo "> ✅ Ce déploiement a été effectué **automatiquement** comme chaque jour vers 3h (G.M.T.)." >> "$DEPLOY_INFO_PATH"
 
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
