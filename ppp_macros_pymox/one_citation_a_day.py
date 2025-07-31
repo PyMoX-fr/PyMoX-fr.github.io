@@ -12,14 +12,14 @@ def define_env(env):
 
         citations = data["citations"]
         # On utilise la date du jour comme point de départ
-        # index = datetime.now().timetuple().tm_yday % len(citations) # Change / 24H
+        index = datetime.now().timetuple().tm_yday % len(citations) # Change / 24H
         
         
-        now = datetime.now() # Uniquement pour changements courts 
+        # now = datetime.now() # Uniquement pour changements courts 
         # index = now.hour % len(citations) # Chaque heure
 
         # index = (now.hour * 12 + now.minute // 5) % len(citations) # Pour test chgmnt toutes les 5 minutes
-        index = (now.hour * 12 + now.minute // 1) % len(citations) # Pour test chgmnt toutes les minutes
+        # index = (now.hour * 12 + now.minute // 1) % len(citations) # Pour test chgmnt toutes les minutes
         
 
         # print("Citation du jour:", index, citations[index])
@@ -28,4 +28,5 @@ def define_env(env):
         texte = citation_obj.get("texte", "Citation manquante")
         contexte = citation_obj.get("contexte", "Citation célèbre")
         auteur = citation_obj.get("auteur", "Auteur inconnu")
-        return f"""<blockquote>{index} : <i>"{texte}"</i><footer>{contexte} < {auteur}</footer></blockquote>"""
+        # return f"""<blockquote>{index} : <i>"{texte}"</i><footer>{contexte} < {auteur}</footer></blockquote>"""
+        return f"""<blockquote><i>"{texte}"</i><footer>{contexte} < {auteur}</footer></blockquote>"""
