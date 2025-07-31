@@ -30,7 +30,7 @@ jobs:
 
           mkdir -p "$DEPLOY_INFO_DIR"
 
-          
+
           LAST_COMMIT_MSG="$(git log -1 --pretty=%B)"
 
           if [[ "$LAST_COMMIT_MSG" =~ ^Merge.*github\.io$ ]]; then
@@ -48,7 +48,7 @@ jobs:
             AUTOR="$(git log -1 --pretty=%an)"
           fi
 
-          
+
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
           TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
           DATE_ISO="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
@@ -85,6 +85,9 @@ jobs:
       - name: 📦 Injecte le log dans le site généré
         run: |
           cp docs/outils/logs/deploy_info.md site/outils/logs/deploy_info.md
+
+      # - name: 🌐 Ajoute le fichier CNAME dans le site
+        # run: echo "pymox.fr" > site/CNAME
 
       - name: 🚀 Déploie vers gh-pages
         run: mkdocs gh-deploy --force
