@@ -81,19 +81,22 @@ jobs:
 
       - name: 🌐 Prépare le fichier CNAME
         run: echo "pymox.fr" > docs/CNAME
+        
       - name: 🌐 Copie README.md
         run: cp README.md docs/README.md
+        
       - name: 🏗️ Build site MkDocs
         run: mkdocs build
-
+        
       - name: 📦 Injecte le log dans le site généré
         run: |
           cp docs/outils/logs/deploy_info.md site/outils/logs/deploy_info.md
+          cp README.md site/README.md
 
-      - name: 🌐 Ajoute le fichier CNAME et le copie
-        run: |
-          echo "pymox.fr" > site/CNAME
-          [ -f site/CNAME ] && cp site/CNAME CNAME
+      # - name: 🌐 Ajoute le fichier CNAME et le copie
+      #   run: |
+      #     echo "pymox.fr" > site/CNAME
+      #     [ -f site/CNAME ] && cp site/CNAME CNAME
            
 
       # - name: 🌐 Ajoute le fichier CNAME et le copie
