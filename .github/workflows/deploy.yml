@@ -38,7 +38,7 @@ jobs:
             AUTOR="$(git show -s --format=%an "$PREV_SHA")"
           else
             # Sinon, on garde le dernier commit
-            MSG="$LAST_COMMIT_MSG"
+            MSG="$(git log -1 --pretty=%B)"
             AUTOR="$(git log -1 --pretty=%an)"
           fi
 
