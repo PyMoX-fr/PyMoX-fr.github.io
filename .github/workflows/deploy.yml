@@ -35,7 +35,7 @@ jobs:
 
           if [[ "$LAST_COMMIT_MSG" =~ ^Merge.*github\.io$ ]]; then
             PREV_SHA="$(git rev-parse HEAD^)"
-            MSG="$(git show -s --format=%B "$PREV_SHA")"
+            MSG="$(git show -s --format=%B "$PREV_SHA") *(This commit has since been merged.)*"
             AUTOR="$(git show -s --format=%an "$PREV_SHA")"
             
             DATE_HUMAN="$(TZ='Europe/Paris' date -d "$(git show -s --format=%ci "$PREV_SHA")" '+%d/%m/%Y')"
@@ -49,10 +49,9 @@ jobs:
             #   MSG="[commit précédent vide ou inaccessible]"
             # fi
           else
-            MSG="$LAST_COMMIT_MSG *(A merge has been between now)*"
+            MSG="$LAST_COMMIT_MSG"
             AUTOR="$(git log -1 --pretty=%an)"
           fi
-
 
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
           TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
