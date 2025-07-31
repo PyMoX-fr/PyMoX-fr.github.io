@@ -30,6 +30,7 @@ jobs:
           DEPLOY_INFO_PATH="$DEPLOY_INFO_DIR/$DEPLOY_INFO_FILE"
 
           mkdir -p "$DEPLOY_INFO_DIR"
+          
 
           LAST_COMMIT_MSG="$(git log -1 --pretty=%B)"
 
