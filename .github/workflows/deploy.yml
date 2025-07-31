@@ -42,7 +42,6 @@ jobs:
             AUTOR="$(git log -1 --pretty=%an)"
           fi
 
-
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
           TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
           DATE_ISO="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
