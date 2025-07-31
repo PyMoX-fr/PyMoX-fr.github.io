@@ -87,7 +87,7 @@ blockquote {
   border-radius: 12px;
   /* margin: auto!important; */
   margin-top: -1em!important; 
-  margin-bottom: -1em !important;
+  /* margin-bottom: -1em !important; */
 }
 
 blockquote footer {
