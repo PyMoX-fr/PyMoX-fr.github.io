@@ -28,6 +28,7 @@ jobs:
 
           mkdir -p "$DEPLOY_INFO_DIR"
 
+          # On récupère le dernier message de commit LAST_COMMIT_MSG="$(git log -1 --pretty=%B)"
           
           # On vérifie s'il commence par "Merge" et finit par "github.io"
           if [[ "$LAST_COMMIT_MSG" =~ ^Merge.*github\.io$ ]]; then
@@ -39,7 +40,7 @@ jobs:
             AUTOR="222→$(git show -s --format=%an "$PREV_SHA")"
           else
             # Sinon, on garde le dernier commit
-            MSG="$(git log -1 --pretty=%B)"
+            MSG="$LAST_COMMIT_MSG"
             AUTOR="111->$(git log -1 --pretty=%an)"
           fi
 
