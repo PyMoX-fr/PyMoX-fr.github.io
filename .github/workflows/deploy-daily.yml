@@ -64,7 +64,7 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git add "$DEPLOY_INFO_PATH"
-          git commit -m "⏱️ Déploiement quotidien CRON ($DATE)"
+          git commit -m "⏱️ Déploiement quotidien CRON ($DATE_HUMAN - $TIME_HUMAN)"
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push
 
