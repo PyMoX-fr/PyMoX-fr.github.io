@@ -36,16 +36,16 @@ jobs:
           if [[ "$LAST_COMMIT_MSG" =~ ^Merge.*github\.io$ ]]; then
             PREV_SHA="$(git rev-parse HEAD^)"
             MSG="$(git show -s --format=%B "$PREV_SHA")"
-            AUTOR="222→$(git show -s --format=%an "$PREV_SHA")"
+            AUTOR="$(git show -s --format=%an "$PREV_SHA")"
 
-            # Fallback si MSG vide
-            if [[ -z "$MSG" ]]; then
-              echo "⚠️ Le message du commit précédent est vide !"
-              MSG="[commit précédent vide ou inaccessible]"
-            fi
+            # # Fallback si MSG vide
+            # if [[ -z "$MSG" ]]; then
+            #   echo "⚠️ Le message du commit précédent est vide !"
+            #   MSG="[commit précédent vide ou inaccessible]"
+            # fi
           else
             MSG="$LAST_COMMIT_MSG"
-            AUTOR="111->$(git log -1 --pretty=%an)"
+            AUTOR="$(git log -1 --pretty=%an)"
           fi
 
           
