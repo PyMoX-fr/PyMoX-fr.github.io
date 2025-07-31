@@ -49,7 +49,7 @@ jobs:
             #   MSG="[commit précédent vide ou inaccessible]"
             # fi
           else
-            MSG="$LAST_COMMIT_MSG"
+            MSG="$LAST_COMMIT_MSG *(A merge has been between now)*"
             AUTOR="$(git log -1 --pretty=%an)"
           fi
 
