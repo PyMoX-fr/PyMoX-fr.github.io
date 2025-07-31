@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: 🛠️ Installer MkDocs & plugins
+      - name: 🛠️ Install MkDocs & plugins
         run: |
           pip install --upgrade pip
           pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin mkdocs-open-in-new-tab
