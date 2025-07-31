@@ -82,8 +82,8 @@ jobs:
       - name: 🌐 Prépare le fichier CNAME
         run: echo "pymox.fr" > docs/CNAME
         
-      - name: 🌐 Copie README.md
-        run: cp README.md docs/README.md
+      # - name: 🌐 Copie README.md
+      #   run: cp README.md docs/README.md
         
       - name: 🏗️ Build site MkDocs
         run: mkdocs build
