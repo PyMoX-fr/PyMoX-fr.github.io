@@ -39,7 +39,7 @@ jobs:
           else
             # Sinon, on garde le dernier commit
             MSG="$(git log -1 --pretty=%B)"
-            AUTOR="$(git log -1 --pretty=%an)"
+            AUTOR="111->$(git log -1 --pretty=%an)"
           fi
 
           DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
