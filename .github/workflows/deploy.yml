@@ -30,7 +30,6 @@ jobs:
 
           mkdir -p "$DEPLOY_INFO_DIR"
 
-
           LAST_COMMIT_MSG="$(git log -1 --pretty=%B)"
 
           if [[ "$LAST_COMMIT_MSG" =~ ^Merge.*github\.io$ ]]; then
