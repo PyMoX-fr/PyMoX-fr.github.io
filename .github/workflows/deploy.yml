@@ -53,12 +53,12 @@ jobs:
           else
             MSG="$LAST_COMMIT_MSG"
             AUTOR="$(git log -1 --pretty=%an)"
+            DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
+            TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
+            DATE_ISO="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+            DATE_UNIX="$(date +%s)"
           fi
 
-          DATE_HUMAN="$(TZ='Europe/Paris' date '+%d/%m/%Y')"
-          TIME_HUMAN="$(TZ='Europe/Paris' date '+%H:%M:%S')"
-          DATE_ISO="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-          DATE_UNIX="$(date +%s)"
 
           # SHA="${{ github.sha }}"
 
