@@ -4,13 +4,13 @@
 
 | 📅 Date        | 🕰️ Heure (Paris)       | 🌐 ISO 8601 UTC         | 🔢 Timestamp UNIX |
 |----------------|------------------------|------------------------|--------------------|
-| **31/07/2025**  | **18:36:53**        | `2025-07-31T16:36:53Z`   | `1753979813`       |
+| **01/08/2025**  | **05:18:19**        | `2025-08-01T03:18:19Z`   | `1754018299`       |
 
 ### 📋 Informations de déploiement
 
 📝 Message Git : **⏱️ Déploiement automatique CRON**<br>
 👤 Auteur : PyMoX<br>
-🔁 SHA Commit : `200aec25b4f4a0162a96166caadecedadf633201`<br>
+🔁 SHA Commit : `143f4eed8148d8a8c47541bfed6a7be0b171cf95`<br>
 🚀 **Déclencheur** : GitHub Actions
 <br><br>
 > ✅ Ce déploiement a été effectué **automatiquement** comme chaque nuit vers 3h (G.M.T.).
