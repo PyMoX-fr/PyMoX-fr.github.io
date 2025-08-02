@@ -1,0 +1,198 @@
+/*
+pyodide-mkdocs-theme
+Copyleft GNU GPLv3 🄯 2024 Frédéric Zinelli
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/*
+WARNING:  This file HAS to be loaded before the DOM is built, otherwise
+          the content won't be properly formatted.
+*/
+
+
+.md-typeset div.layout-qcm-wrapper {
+  display: grid;
+  grid-template-columns: auto min-content;
+  gap: 10px;
+}
+
+
+.md-typeset div.py_mk_admonition_qcm.inner {
+  text-align: justify;
+  width: 100%;
+  margin: 0;
+}
+
+
+
+/*
+---------------------------------------
+          Buttons and counter
+---------------------------------------
+*/
+.md-typeset div.py_mk_admonition_qcm .qcm_wrapper {
+  display: flex;
+  align-self: end;
+  justify-self: end;
+  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+}
+.md-typeset div.py_mk_admonition_qcm .qcm_wrapper > button {
+  margin: auto;
+}
+
+.md-typeset .qcm_wrapper .qcm-counter {
+  text-align: center;
+  justify-items: center;
+  color: var(--main-theme);
+  font-size: 1.5em;
+  margin: 0 auto;
+  line-height: 1em;
+}
+
+.md-typeset .hidden .mask-svg {
+  display: flex;
+  justify-content: center;
+  width: 2.5em;
+  margin: 0 3px;
+}
+
+.md-typeset .give-away .mask-svg { display: none; }
+
+
+
+@media (orientation: portrait) {
+  .md-typeset div.layout-qcm-wrapper {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto min-content;
+  }
+  .md-typeset div.py_mk_admonition_qcm .qcm_wrapper {
+    flex-direction: row;
+    width: unset;
+  }
+  .md-typeset div.py_mk_admonition_qcm .qcm_wrapper > button {
+    margin: 4px;
+  }
+  .md-typeset .qcm_wrapper .qcm-counter {
+    margin: auto 4px;
+  }
+}
+
+
+/*
+---------------------------------------
+        Questions and items
+---------------------------------------
+*/
+
+.md-typeset input.qcm { display: none; }
+
+.md-typeset li.py_mk_question_qcm {
+  margin: 2.25em 0;
+}
+
+.md-typeset li.py_mk_item_qcm {
+	list-style-type: none;  /* Remove default markers for question items */
+  margin: .5em 0;
+}
+
+li.py_mk_item_qcm > label {
+  display: flex;
+  width: 100%;
+  line-height: 1.4;
+
+  /* Forbid text selection: */
+  user-select: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+li.py_mk_item_qcm > label:hover {
+  box-shadow: 0 0 5px var(--md-primary-fg-color);
+}
+
+/* Handle the automatic margin crap for inner ul/li items */
+li.py_mk_item_qcm > label div.content {
+  width: calc(100% - 2em);
+}
+li.py_mk_item_qcm > label div.content > *:first-child,
+li.py_mk_item_qcm > label div.content > *:first-child > span.filename {
+  margin-top: 0;
+}
+li.py_mk_item_qcm > label div.content > *:last-child {
+  margin-bottom: 0;
+}
+
+
+
+/*
+---------------------------------------
+          SVGs and ticks
+---------------------------------------
+*/
+/* Define "buttons" basic formatting */
+svg.qcm {
+
+  --svg-size: 1.4em;
+  --circle:none;
+  --square:none;
+  --cross:none;
+  --tick:none;
+  --qcm-border: rgb(131, 131, 131); /* Common */
+  --qcm-light: white;               /* Cross+tick color */
+
+  height: var(--svg-size);
+  min-height: var(--svg-size);
+  min-width: var(--svg-size);
+  margin: var(--svg_margin, 1px 0.6em 0 0);
+  opacity: var(--opacity, 1);
+}
+
+.multi svg.qcm {
+  --circle:none;
+  --square:unset;
+}
+.single svg.qcm {
+  --circle:unset;
+  --square:none;
+}
+/* Override variables depending on the class of the parent item node */
+.correct svg.qcm {
+  --qcm-fill: #20A020;
+  --tick:unset;
+}
+.missed svg.qcm {
+  --qcm-fill: red;
+  --tick:unset;
+}
+.incorrect svg.qcm {
+  --qcm-fill: red;
+  --cross:unset;
+}
+.unchecked svg.qcm {
+  --qcm-fill: none;
+}
+.checked svg.qcm {
+  --qcm-fill: var(--md-default-fg-color);
+}
+
+/* Hovering the parent will affect the "buttons" opacity */
+.unchecked:hover, .checked:hover {
+  --opacity: 0.7;
+}
