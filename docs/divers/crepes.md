@@ -7,21 +7,21 @@ title:  🪙 Crêpes
 
 # Reu sept de craies peu 🪙 !
 
-## Un grés dillant
+## Ingrédients
 
 * 3 oeufs <!-- Seule donnée à ne pas changer, les autres devront être adaptées à terme -->
-* 2 qui lots de paumes deux terres
-* 200 grahm de si guhe
-* 500 grahm de su creux
+* 2 cuillères de pâte à tartiner
+* 200 grammes de sucre
+* 500 grammes de sucre
 
-## Prés par ration
+## Préparation
 
 * Toux mètre dent las mache inne alla vé
 * Pro grammes des licats
 * Et tendre pan dent troa jours
 * Sert vire glace et
 
-Bonze à pet y 😊 !
+Bon appétit 😊 !
 
 ---
 
