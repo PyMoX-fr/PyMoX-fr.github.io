@@ -9,10 +9,10 @@ title:  🪙 Crêpes
 
 ## Ingrédients
 
+* 500 grammes de farine
+* 200 grammes de sucre
 * 3 oeufs <!-- Seule donnée à ne pas changer, les autres devront être adaptées à terme -->
 * 2 cuillères de pâte à tartiner
-* 200 grammes de sucre
-* 500 grammes de sucre
 
 ## Préparation
 
