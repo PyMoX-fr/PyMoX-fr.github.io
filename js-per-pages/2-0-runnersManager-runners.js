@@ -146,7 +146,7 @@ class GlobalSequentialRunner extends GlobalRunnersManagerBase {
     const runningMan = RunningProfile.build(RunningProfile.PROFILE[actionProp])
     const useSequential = (
       sequentialRun && pyoRunner.isInSequentialRun && (
-        !pyoRunner.isIde || pyoRunner.isIde && runningMan.isChecking
+        !pyoRunner.isIde || pyoRunner.isIde && runningMan.isValidating
       )
     )
     if(!useSequential){
@@ -164,6 +164,7 @@ class GlobalSequentialRunner extends GlobalRunnersManagerBase {
       let previousRunner
 
       pyoRunner.running = runningMan    // Dirty override, but needed here or there... :rolleyes:
+      pyoRunner.allowPrint = !this.deactivateStdoutForSecrets   // Because always used for validations
       pyoRunner.lockDisplay()
       pyoRunner.setupTerminalMessageRoutine()
 
@@ -206,6 +207,7 @@ class GlobalSequentialRunner extends GlobalRunnersManagerBase {
 
       }finally{
         pyoRunner.unlockDisplay()
+        pyoRunner.allowPrint = true
 
         // Defensive programming: deactivate again, so that it's always done, even on JS errors.
         if(previousRunner) previousRunner.activateFocus(true)

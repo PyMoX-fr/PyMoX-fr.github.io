@@ -85,7 +85,6 @@ class PyodideSectionsRunnerBase {
   get hasCorrBtn()        { return this.data.has_corr_btn }
   get hasCounter()        { return this.data.has_counter }
   get hasRevealBtn()      { return this.data.has_reveal_btn }
-  get isEncrypted()       { return this.data.is_encrypted }
   get isVert()            { return this.data.is_vert }
   get maxIdeLines()       { return this.data.max_ide_lines }
   get minIdeLines()       { return this.data.min_ide_lines }
@@ -120,7 +119,7 @@ class PyodideSectionsRunnerBase {
 
 
     this.id = id
-    this.data = this._prepareData(PAGE_IDES_CONFIG[id])   // Inner mutable object holding infos coming from mkdocs
+    this.data = this._dataPostConversion(PAGE_IDES_CONFIG[id])   // Inner mutable object holding infos coming from mkdocs
     this.getCodeToTest = ()=>"" // If no editor, nothing to test...
     this.running = undefined    // RunningProfile.build output (object of boolean flags, mostly)
     this.allowPrint = true      // Control stdout display during executions
@@ -141,7 +140,9 @@ class PyodideSectionsRunnerBase {
   }
 
 
-  _prepareData(data){
+  /**Apply any desired data conversion on the info coming directly from mkdocs, before they are used.
+   * */
+  _dataPostConversion(data){
     data.python_libs = new Set(data.python_libs)
     return data
   }

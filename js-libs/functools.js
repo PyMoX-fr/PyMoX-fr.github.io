@@ -21,8 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 
 
-
-
 /**Isolated version, to make sure it doesn't clash with the original one from
  * mathjax-libs.js.
  * */
@@ -44,6 +42,30 @@ export function getTheme(){
 
     const style = CONFIG.ACE_COLOR_THEME.customTheme[curPalette]
     return "ace/theme/" + CONFIG.ACE_COLOR_THEME.aceStyle[style];
+}
+
+
+
+export function getIdeOptions(ide={}){
+    // https://github.com/ajaxorg/ace/wiki/Configuring-Ace
+    return {
+        autoScrollEditorIntoView: false,
+        copyWithEmptySelection:   true,               // active alt+flèches pour déplacer une ligne, aussi
+        enableBasicAutocompletion:true,
+        enableLiveAutocompletion: false,
+        enableSnippets:           true,
+        tabSize:                  4,
+        useSoftTabs:              true,               // Spaces instead of tabs
+        navigateWithinSoftTabs:   false,              // this is _fucking_ actually "Atomic Soft Tabs"...
+        printMargin:              false,              // hide ugly margins...
+        maxLines:                 ide.maxIdeLines ?? 30,
+        minLines:                 ide.minIdeLines ?? 10,
+        mode:                     "ace/mode/python",
+        theme:                    getTheme(),
+        fontSize:                 CONFIG.editorFontSize,
+        fontFamily:               [CONFIG.editorFontFamily, "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
+                                   "Source Code pro", "source-code-pro", "monospace"],   // Fix apple troubles...
+    }
 }
 
 
@@ -786,6 +808,29 @@ export function buildJqHistoryBtn(
 
 
 
+// ATTEMPT. Not finished -> archived just in case...
+// export function fileContentToDom(content, mime, readerMethod, domQuery, domTemplate, templateRepl="{}", domAppend=false){
+//     const elt = $(domQuery)
+//     if(!domAppend) elt.html("")
+
+//     const reader = new FileReader()
+//     reader.abort = function(e){
+//       console.log('ERROR!')
+//     }
+//     reader.onload = function(e){
+//       const data = e.target.result
+//       const html = domTemplate.replace(templateRepl, data)
+//       elt.append(html)
+//     }
+
+//     const blob = new Blob([content], {type: mime})
+//     reader[readerMethod](blob)
+//   }
+
+
+
+
+
 
 /**Apply a "download" action, given the content, name and type of the file to download.
  * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
@@ -1025,7 +1070,7 @@ export class RunningProfile {
       name: profile,
       isTermCmd:  profile.includes(RunningProfile.PROFILE.cmd),
       isPlaying:  profile.includes(RunningProfile.PROFILE.play),
-      isChecking: profile.includes(RunningProfile.PROFILE.validate),
+      isValidating: profile.includes(RunningProfile.PROFILE.validate),
       isTesting:  profile.includes(RunningProfile.PROFILE.testing),
     })
   }
@@ -1055,3 +1100,4 @@ globalThis.isDark        = isDark
 globalThis.downloader    = downloader
 globalThis.uploader      = uploader
 globalThis.uploaderAsync = uploaderAsync
+// globalThis.fileContentToDom = fileContentToDom

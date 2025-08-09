@@ -147,7 +147,7 @@ const CONFIG = {
 
     // Various UI elements identifiers
     element: {
-      allEditors:      'editor_ tester_'.split(' '),
+      allEditors:      'editor_ tester_ playground_'.split(' '),
       searchBlock:     "div.md-search",
       searchBtnsLeft:  "#search-btns-left",
       searchBtnsRight: "#search-btns-right",
@@ -182,6 +182,7 @@ const CONFIG = {
     CLASSES_POOL: {
       GlobalRunnersManager: null,
       Ide: null,
+      IdePlayground: null,
       IdeTester: null,
       PyBtn: null,
       Qcm: null,

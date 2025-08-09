@@ -27,7 +27,7 @@ import {
   decompressLZW,
   downloader,
   freshStore,
-  getTheme,
+  getIdeOptions,
   perennialMathJaxUpdate,
   PythonError,
   sleep,
@@ -78,7 +78,7 @@ class IdeAceManager extends IdeSplitScreenManager {
   * */
   save(givenCode=""){   LOGGER_CONFIG.ACTIVATE && jsLogger("[Save]")
     const currentCode = givenCode || this.getCodeToTest()
-    this.setStorage({code: currentCode, hash:this.srcHash})
+    this.setStorage({code: currentCode, hash: this.srcHash})
   }
 
 
@@ -95,7 +95,7 @@ class IdeAceManager extends IdeSplitScreenManager {
     let exerciseCode = ""
 
     if(attemptLocalStorageExtraction){
-      exerciseCode = this.storage.code
+      exerciseCode = this.getCodeFromStorage()
     }
     if(!exerciseCode){
       exerciseCode = this._joinCodeAndPublicSections(this.userContent)
@@ -307,7 +307,10 @@ class IdeFeedbackManager extends IdeHistoryManager {
     }
 
     // Reveal if success and not delayed, or if attempts==0 (means last error, are last delayed)
-    const isRevelation =  someToReveal && (success && !isDelayed || this.attemptsLeft===0)
+    const isRevelation = someToReveal && (
+      this.attemptsLeft===0
+      || success && !isDelayed
+    )
 
     /*If success, a custom final message has to be built:
           - If the revelation already occurred, return no message at all
@@ -367,12 +370,11 @@ class IdeFeedbackManager extends IdeHistoryManager {
       LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - revealed!")
 
       const sol_div = $(this.solutionH)
-
-      if(this.isEncrypted){
-        const compressed = sol_div.text().trim()
-        const content    = compressed && decompressLZW(compressed, "ides.encrypt_corrections_and_rems")
-        sol_div.html(content)
-        this.data.is_encrypted = false  // Never decompress again
+      const content = sol_div.text().trim()
+      const isCompressed = content.includes(CONFIG.LZW)
+      if(isCompressed){
+        const unCompressed = decompressLZW(content, "ides.encrypt_corrections_and_rems")
+        sol_div.html(unCompressed)
       }
       sol_div.attr('class', '')         // Unhide
       this.hiddenDivContent = false     // Never reveal again (last in case of errors...)
@@ -483,7 +485,7 @@ class IdeRunnerLogic extends IdeFeedbackManager {
   isPlaying(){  return this.running.isPlaying }
 
   /**Is the current action "running the validation tests"? (legacy) */
-  isChecking(){ return this.running.isChecking }
+  isValidating(){ return this.running.isValidating }
 
   /**Does nothing, but catch any call on the parent class, which would raise an error
    * because prefillTerm is undefined, for IDEs.
@@ -661,9 +663,9 @@ class IdeRunnerLogic extends IdeFeedbackManager {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - corr_btn start")
 
     this._corrConfigSwap = {            // (not defined in the constructor. MEH!  xp )
-      codeGetter:   this.getCodeToTest,
-      profile:      this.profile,
       currentCode:  this.getCodeToTest(),
+      codeGetter:   this.getCodeToTest,
+      profile:      this.profile,       // The profile/MODE has to be ignored for the CORR button => store original
     }
 
     this.getCodeToTest = ()=>this.corrContent
@@ -678,9 +680,10 @@ class IdeRunnerLogic extends IdeFeedbackManager {
     try{
       out = await this.teardownRuntimeIDE(runtime)
     }finally{
-      const {codeGetter, profile, currentCode} = this._corrConfigSwap
-      this.getCodeToTest = codeGetter
+      // Restore normal values:
+      const {currentCode, codeGetter, profile} = this._corrConfigSwap
       this.data.profile  = profile
+      this.getCodeToTest = codeGetter
       this.save(currentCode)     // Ensure the corr content doesn't stay stored in localStorage
     }
     return out
@@ -785,28 +788,9 @@ export class IdeRunner extends IdeRunnerLogic {
    * */
   setupAceEditor() {
 
-    // https://github.com/ajaxorg/ace/wiki/Configuring-Ace
-    const options = {
-        autoScrollEditorIntoView: false,
-        copyWithEmptySelection:   true,               // active alt+flèches pour déplacer une ligne, aussi
-        enableBasicAutocompletion:true,
-        enableLiveAutocompletion: false,
-        enableSnippets:           true,
-        tabSize:                  4,
-        useSoftTabs:              true,               // Spaces instead of tabs
-        navigateWithinSoftTabs:   false,              // this is _fucking_ actually "Atomic Soft Tabs"...
-        printMargin:              false,              // hide ugly margins...
-        maxLines:                 this.maxIdeLines,
-        minLines:                 this.minIdeLines,
-        mode:                     "ace/mode/python",
-        theme:                    getTheme(),
-        fontSize:                 CONFIG.editorFontSize,
-        fontFamily:               [CONFIG.editorFontFamily, "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
-                                   "Source Code pro", "source-code-pro", "monospace"],   // Fix apple troubles...
-    }
-
-    this.editor = ace.edit(this.id, options);
-    this.gutter = this.global.find('div.ace_gutter-layer')
+    const options = getIdeOptions(this)
+    this.editor   = ace.edit(this.id, options);
+    this.gutter   = this.global.find('div.ace_gutter-layer')
 
     if(CONFIG._devMode) CONFIG.editors[this.id] = this.editor
 
@@ -842,6 +826,8 @@ export class IdeRunner extends IdeRunnerLogic {
     })
   }
 
+  buildCorrStuff(){ return CONFIG.inServe }
+
 
 
   bindIdeButtons(){
@@ -862,6 +848,8 @@ export class IdeRunner extends IdeRunnerLogic {
 
     // Bind all buttons below the IDE
     const ideThis = this
+    const corrStuff = this.buildCorrStuff()
+
     this.global.find("button").each(function(){
 
       const btn  = $(this)
@@ -886,9 +874,9 @@ export class IdeRunner extends IdeRunnerLogic {
         case 'save':      callback = _=>{ ideThis.save(); ideThis.focusEditor() } ; break
         case 'zip':       callback = ideThis.buildZipExportsToolsAndCbk(btn) ; break
 
-        case 'corr_btn':  if(!CONFIG.inServe) return;
+        case 'corr_btn':  if(!corrStuff) return;
                           callback = ideThis.runners.validateCorr.asEvent ; break
-        case 'show':      if(!CONFIG.inServe) return;
+        case 'show':      if(!corrStuff) return;
                           callback = ()=>ideThis.revealSolutionAndRems() ; break
 
         default:          throw new Error(`Y'should never get there, mate... (${ kind })`)
@@ -994,9 +982,9 @@ export class IdeRunner extends IdeRunnerLogic {
 
   /**Download the current content of the editor to the download folder of the user.
    * */
-  download(){   LOGGER_CONFIG.ACTIVATE && jsLogger("[Download]")    // CodCap
+  download(content=null){   LOGGER_CONFIG.ACTIVATE && jsLogger("[Download]")    // CodCap
 
-    let ideContent = this.getCodeToTest() + "" // enforce stringification in any case
+    let ideContent = content ?? this.getCodeToTest() + "" // enforce stringification in any case
     downloader(ideContent, this.pyName)
     this.focusEditor()
   }
@@ -1011,7 +999,9 @@ export class IdeRunner extends IdeRunnerLogic {
    * */
   restart(){    LOGGER_CONFIG.ACTIVATE && jsLogger("[Restart]")   // CodCap
 
-    if(!window.confirm(CONFIG.lang.restartConfirm.msg)) return false
+    if(!window.confirm(CONFIG.lang.restartConfirm.msg)){
+      return false
+    }
 
     this.setStartingCode({extractFromLocalStorage: false})
     this.storage = freshStore("", {}, this)

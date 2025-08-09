@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 import { getTheme, subscribeWhenReady, perennialMathJaxUpdate } from 'functools'
 
+export const chaining=0;      // To control imports orders when using overrides
 
 
 
@@ -127,12 +128,19 @@ document.querySelector("[data-md-color-scheme]")
   const ALL_TERMINALS = []
 
 
+  const idePrefixToClass = {
+    editor_: "Ide",
+    tester_: "IdeTester",
+    playground_: "IdePlayground",
+  }
+
+
   const TO_BUILD_CONFIG = [
     ["span[id^=auto_run_]", "PyBtn"],
     ["[id^=btn_only_]",     "PyBtn"],
     ["div[id^=term_only_]", "Terminal"],
     ...CONFIG.element.allEditors.map(id=>
-      [`div[id^=global_${ id }]`, id=="editor_"?"Ide":"IdeTester", id=>id.slice('global_'.length)]
+      [`div[id^=global_${ id }]`, idePrefixToClass[id], id=>id.slice('global_'.length)]
     )
   ]
 

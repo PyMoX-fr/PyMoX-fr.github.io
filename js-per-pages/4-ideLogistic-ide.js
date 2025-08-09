@@ -98,6 +98,10 @@ class IdeStorageManager extends TerminalRunner {
     return storage
   }
 
+  getCodeFromStorage(){
+    return this.storage.code
+  }
+
 
   updateGenericStorageData(storage){
     storage.name   = this.pyName
@@ -645,6 +649,7 @@ export class IdeFullScreenGlobalManager extends IdeGuiManager {
    * */
   static buildBodyObserver(){
     new MutationObserver((records)=>{
+      if(!this.currentIde) return
 
       for(const record of records) {
 

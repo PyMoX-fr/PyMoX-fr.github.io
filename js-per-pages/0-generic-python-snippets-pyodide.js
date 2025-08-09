@@ -339,8 +339,12 @@ def _hack_io_stuff():
         try:
             js.config().termMessage(key, msg, format or 'none', False, new_line)
         except Exception as e:
-            stripped_js_err = str(e)[ len('Error: '): ]
-            raise ValueError(stripped_js_err) from None
+            msg = str(e)
+            target = 'Error: '      # Error might be Error, or PythonError
+            i = msg.find(target)
+            if i<0: i = -len(target)
+            stripped_js_err = msg[ i+len(target): ]
+            raise Exception(stripped_js_err) from None
 `,
 
 

@@ -36,6 +36,10 @@ import { IdeRunner } from '4-ideRunner-ide'
 
 class IdeTesterGuiManager extends IdeRunner {
 
+
+  get revealCorrRems(){ return this.conf.reveal_corr_rems }
+
+
   constructor(editorId){
     super(editorId)
     this.globalTestsJq = $("#py_mk_test_global_wrapper")
@@ -68,6 +72,12 @@ class IdeTesterGuiManager extends IdeRunner {
     // Configure all the tests before the counters, so that counts are up to date
     const confsArr = Object.values(CASES_DATA)
     confsArr.forEach( conf=>this.setupOneConfCaseAndAllSubcases(conf) )
+
+    if(!CONFIG._devMode){
+      for(let key in CASES_DATA){
+        delete CASES_DATA[key]
+      }
+    }
 
     this.finalizeCounters(confsArr.length, this.test_cases.length)
   }
@@ -198,13 +208,7 @@ class IdeTesterGuiManager extends IdeRunner {
 
     conf.fail = Boolean( conf.fail || conf.in_error_msg || conf.not_in_error_msg )
     conf.skip = Boolean( conf.skip || conf.human )
-
-    // `reveal_corr_rems:undefined` means this won't be tested:
-    if('reveal_corr_rems' in conf){
-      conf.reveal_corr_rems = Boolean(conf.reveal_corr_rems)
-    }
-    // Initialize the test state flag (to know if it has been done in the tests or not):
-    conf.revealedCorrRems = false
+    conf.reveal_corr_rems = false
 
     ;'std_capture_regex not_std_capture_regex'.split(' ').forEach( prop=>{
       try{
@@ -344,7 +348,7 @@ class IdeTesterGuiManager extends IdeRunner {
 
     const hasSetMaxHide = 'set_max_and_hide' in this.conf
     if(onLoad || hasSetMaxHide){
-      this.conf.revealedCorrRems = false
+      this.conf.reveal_corr_rems = false
       this.hiddenDivContent      = true
       this.srcAttemptsLeft       = hasSetMaxHide ? this.conf.set_max_and_hide
                                                  : this.conf.srcAttemptsLeft
@@ -373,9 +377,10 @@ class IdeTesterGuiManager extends IdeRunner {
 
   save(_){}
 
-
   async runAllTests(targets, forceRun=false){ throw new Error('Not implemented') }
+
   setupFetchers(){ throw new Error('Not implemented') }
+
   clearLibsIfNeeded(){ throw new Error('Not implemented') }
 
 
@@ -398,13 +403,7 @@ class IdeTesterGuiManager extends IdeRunner {
       const configs  = decompressAndConvert(fix_comp)
 
       Object.entries(configs).forEach( ([editor,data])=>{
-        // WARNING, the conf object matches only ONE of the data extracted from one page, so the
-        // data object cannot be updated right away with decrease_attempts_on_user_code_failure
-        // and so on...
-        conf._profile = data.profile
-        if(!conf.keep_profile) data.profile = null   // Remove profile info for tests (by default).
-
-        this.ides_cache[editor] = this._prepareData(data)
+        this.ides_cache[editor] = this._dataPostConversion(data)
       })
     }
 
@@ -668,7 +667,7 @@ export class IdeTester extends IdeTesterGuiManager {
   // Override
   revealSolutionAndRems(){
     if(!this.conf) return;
-    this.conf.revealedCorrRems = true
+    this.conf.reveal_corr_rems = true
     this.hiddenDivContent = false      // Mimic actual behavior, logic-wise
   }
 
@@ -697,14 +696,6 @@ export class IdeTester extends IdeTesterGuiManager {
       const exp    = this.conf.delta_attempts
       if(exp != actual) msg.push(
         `Delta attempts: ${ actual } should be ${ exp }`
-      )
-    }
-
-
-    if(('reveal_corr_rems' in this.conf)){
-      if(this.conf.reveal_corr_rems !== this.conf.revealedCorrRems) msg.push(
-        this.conf.reveal_corr_rems ? "Corr/REMs should have been revealed."
-                                   : "Corr/REMs should NOT have been revealed."
       )
     }
 

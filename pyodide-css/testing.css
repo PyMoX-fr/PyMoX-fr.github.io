@@ -46,7 +46,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 #py_mk_tests_results {
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: auto repeat(3, max-content);
   justify-items: baseline;
   align-items: center;
   width: fit-content;
@@ -115,7 +115,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 .py_mk_test_element {
   height: 100%;
-  width: 100%;
+  /* width: 100%; BREAKS LAYOUT */
 }
 
 .py_mk_test_element.status > svg.qcm {
