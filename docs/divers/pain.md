@@ -7,6 +7,8 @@ title:  🥖 Pain
 
 # Recette du Pain 🥖 !
 
+🚀 Initiateurs: [Evil Eye, SoloEnder & Thomas, canal Discord PyPRO](https://discord.com/channels/1056923339546968127/1075041467690664070/1403408305283530773) :-)👏
+
 ...
 
 ???+ tip "Recettes"
