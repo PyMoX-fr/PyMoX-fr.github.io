@@ -97,8 +97,13 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
-  - pymdownx.blocks.details
-  - pymdownx.blocks.admonition
+  - pymdownx.blocks.details:
+      types:
+        - name: unreleased-block
+          class: unreleased-block
+          title: My Default title
+  # - pymdownx.blocks.admonition
+  # - pymdownx.blocks:
 
   - pymdownx.superfences:
       custom_fences:
@@ -107,9 +112,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
           
         # Option pour désactiver le label "Text Only"
-        - pymdownx.blocks:
-            details:
-              text_only_label: false
+        # - pymdownx.blocks:
+        #     details:
+        #       text_only_label: false
 
   - pymdownx.arithmatex:
       generic: true

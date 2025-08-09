@@ -31,6 +31,14 @@ details.unreleased-block:not([open]) summary::before {
 }
 
 
+.md-typeset .custom {
+  border-color: var(--unreleased-color);
+  /* border-style: dashed; */
+  border-width: thin;
+  border-left: 4px solid #f39c12;
+  border-top-style: dashed;
+}
+
 
 .copy-target {
   cursor: pointer;

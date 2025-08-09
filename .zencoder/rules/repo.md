@@ -32,38 +32,39 @@ Le site utilise des blocs d'avertissement (admonition) personnalisés, notamment
 
 ## Solution à votre problème CSS
 
-Le problème avec votre bloc "unreleased-block" en français vient de la façon dont vous définissez l'ID. Dans votre CSS, vous ciblez un élément avec l'ID `#unreleased-block`, mais dans votre markdown, vous utilisez une syntaxe différente.
+Le problème avec votre bloc "unreleased-block" en français vient de la façon dont vous essayez d'appliquer la classe CSS à votre bloc admonition.
 
 ### Problème actuel
 ```markdown
-!!! unreleased-block "Unreleased-block"
-    Ceci est une note informative.
-{#: unreleased-block}
-```
-
-Le `{#: unreleased-block}` ne fonctionne pas comme prévu car il n'applique pas correctement l'ID à l'élément HTML généré.
-
-### Solutions possibles
-
-1. **Modifier votre markdown** pour utiliser l'attribut ID directement dans le bloc admonition:
-
-```markdown
-!!! unreleased-block "Unreleased-block" {: #unreleased-block }
+!!! warning "Unreleased-block" {class = 'unreleased-block' }
     Ceci est une note informative.
 ```
 
-2. **Utiliser la syntaxe des blocs détaillés** qui permet d'ajouter des attributs:
+Cette syntaxe ne fonctionne pas correctement avec les admonitions de MkDocs.
+
+### Solutions qui fonctionnent
+
+1. **Utiliser la syntaxe des blocs détaillés** (solution recommandée) :
 
 ```markdown
 /// details | Unreleased-block
     type: warning
     open: true
-    attrs: {id: 'unreleased-block'}
+    attrs: {class: 'unreleased-block'}
 Ceci est une note informative.
 ///
 ```
 
-3. **Modifier votre CSS** pour cibler la classe plutôt que l'ID:
+Cette solution fonctionne déjà dans votre code et est la plus propre.
+
+2. **Définir un type personnalisé d'admonition** dans votre CSS :
+
+```markdown
+!!! unreleased-block "Unreleased-block"
+    Ceci est une note informative.
+```
+
+Avec le CSS correspondant qui cible directement ce type :
 
 ```css
 .md-typeset .unreleased-block>summary:after {
@@ -73,14 +74,30 @@ Ceci est une note informative.
 .md-typeset .unreleased-block>summary:before {
   background-color: var(--unreleased-color);
 }
+```
 
-.md-typeset details.unreleased-block>summary {
-  background-color: var(--unreleased-color-fd)
+3. **Utiliser la syntaxe des attributs après le bloc** :
+
+```markdown
+!!! warning "Unreleased-block"
+    Ceci est une note informative.
+{: .unreleased-block}
+```
+
+Cette syntaxe applique la classe `.unreleased-block` à l'élément parent du bloc admonition.
+
+### Pour les icônes différentes selon l'état ouvert/fermé
+
+Vous avez déjà implémenté cette fonctionnalité avec :
+
+```css
+details.unreleased-block[open] summary::before {
+  content: "🟡";
 }
 
-.md-typeset details.unreleased-block {
-  border-color: var(--unreleased-color)
+details.unreleased-block:not([open]) summary::before {
+  content: "⚪";
 }
 ```
 
-La solution 1 ou 2 est recommandée car elle maintient votre CSS actuel intact.
+Cette partie fonctionne correctement avec la solution des blocs détaillés (option 1).
