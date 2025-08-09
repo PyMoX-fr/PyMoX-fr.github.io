@@ -798,7 +798,7 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "
       .then(data => {
         const version = data.version || "inconnue";
         $(".md-copyright_pyodide #pyodide-footer").prepend(
-          $(`<div>${version}</div>`).css({
+          $(`<div>PyMoX ${version}</div>`).css({
             display: "flex",
             justifyContent: "right",
             fontWeight: "bold"
