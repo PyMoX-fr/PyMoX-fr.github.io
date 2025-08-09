@@ -37,7 +37,8 @@ jobs:
 
       - name: Generate versions.json
         run: |
-          echo "{\"version\": \"${GITHUB_REF_NAME}\"}" > versions.json
+          TAG=$(git describe --tags --abbrev=0)
+          echo "{\"version\": \"${TAG}\"}" > versions.json
 
       - name: Copy versions.json to site
         run: cp versions.json ./docs/outils/
