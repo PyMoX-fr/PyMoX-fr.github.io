@@ -25,8 +25,11 @@ Bon appétit 😊 !
 
 ---
 
-## Principe de collaboration
-
-* → Une à 3 modifications max par commit et par jour
-
-* → Des pages d'aides éventuellement seront listées ICI selon réactions de chacun...
+???+ abstract "Principe de Collaboration 🛠️ 🧰 🧵 🧪"
+    
+    * → Un à 3 ajouts et/ou modifications max par commit et par jour
+    
+    * → Des pages d'aides éventuellement seront listées ICI selon réactions de chacun...
+    
+    @ vous d'jouer 😀 !
+    

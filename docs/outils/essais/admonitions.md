@@ -24,42 +24,18 @@ lines.append('<details class="optional-class"><summary>Text</summary><p>Content<
 
 lines.append('??? details-note "<span style="color:red">ATTENTION : **Page en travaux**</span> :-)"\n    Réfection du style si des commits de type Unreleased existent')
   -->
-
 ??? warning "Default WARNING"
     Content
 
-??? warning "<span style="color:red">ATTENTION : **Page en travaux**</span> 🚧"
-    Réfection du style du bloc des commits de type Unreleased (Visible que qd il y en a !)
-
-??? unreleased_block " 📦 Unreleased"
+??? unreleased-block "📦 Unreleased-block (???)"
     Liste des commits...
-{:.unreleased_block}
 
-<!-- /// details | 🚧 Unreleased Commits\n    type: warning\n    attrs: {class: "unreleased-commits", id: "unreleased", data-status: "pending"}\n    open: true\n    \n    - feat: add dark mode toggle\n    - fix: resolve crash on startup\n    - chore: update dependencies\n/// -->
-
-???+ warning "🚧 <span style='color:red'>ATTENTION : **Page en travaux**</span>"
-    Réfection du style du bloc des commits de type Unreleased (Visible que qd il y en a !)
-{: .unreleased-warning }
-
-/// details | In titre Ok 1 ici
-    type: warning
-    open: true
-    attrs: {id: 'unreleased-block'}
-Content 1
+/// details | 🍵 Unreleased-block (///)
+    type: unreleased-block
+    open: false
+    attrs: {class: 'unreleased-block'}
+Content 2
 ///
-
----
-
-
-# lines.append('/// details | In titre Ok 2 ici\n    type: warning\n    attrs: {}\n    open: true\n    \n```## Content\n* feat: add dark mode toggle\n* fix: resolve crash on startup\n* chore: update dependencies\n///```')
-
-lines.append('\n---\n')
-
-lines.append('<details class="optional-class"><summary>Text</summary><p>Content</p></details>')
-
-lines.append('??? details-note "<span style="color:red">ATTENTION : **Page en travaux**</span> :-)"\n    Réfection du style si des commits de type Unreleased existent')    
-
-/// details | 🚧 Unreleased Commits\n    type: warning\n    attrs: {class: "unreleased-commits", id: "unreleased", data-status: "pending"}\n    open: true\n    \n    - feat: add dark mode toggle\n    - fix: resolve crash on startup\n    - chore: update dependencies\n///
 
 <hr>
 

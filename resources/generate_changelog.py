@@ -1,23 +1,24 @@
 import subprocess, re
 from collections import defaultdict
 
-import markdown
-from pymdownx.blocks.details import Details
+# import markdown
+# from pymdownx.blocks.details import Details
 
-md = markdown.Markdown(
-    extensions=["pymdownx.blocks.details"],
-    extension_configs={
-        "pymdownx.blocks.details": {
-            "types": [
-                {
-                    "name": "unreleased-block",
-                    "class": "unreleased-block",
-                    "title": "My Default title",
-                }
-            ]
-        }
-    },
-)
+# md = markdown.Markdown(
+#     extensions=["pymdownx.blocks.details"],
+#     extension_configs={
+#         "pymdownx.blocks.details": {
+#             "types": [
+#                 {
+#                     "name": "unreleased-block",
+#                     "class": "unreleased-block",
+#                     "title": "My Default title",
+#                 }
+#             ]
+#         }
+#     },
+# )
+
 
 MAX_COMMITS = 177
 CHANGELOG_PATH = "docs/outils/logs/CHANGELOG.md"
@@ -80,8 +81,7 @@ def get_block_prefix_by_index(i: int, has_unreleased: bool) -> str:
 def format_changelog(tag_commits: dict[str, list[str]]) -> str:
     lines = ["# 📝 CHANGELOG</span>"]
 
-
-    lines.append('???+ warning "<span style="color:red">ATTENTION : **Page en travaux**</span> 🚧"\n    <div class="copy_target" data-copy>Réfection du style si des commits de type Unreleased existant</div>')
+    lines.append('???+ warning "<span style="color:red">ATTENTION : **Page en travaux**</span> 🚧"\n    <div class="copy_target" data-copy>→ Réfection du style du bloc si des commits de type Unreleased existent</div>')
 
     tags = list(tag_commits.keys())
     has_unreleased = tags[0] == "Unreleased"

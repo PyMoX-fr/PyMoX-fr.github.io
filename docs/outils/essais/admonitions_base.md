@@ -12,7 +12,7 @@
         
         OK ?
     
-    /// details | Unreleased-block 2
+    /// details | "Unreleased-block 2"
         type: unreleased-block
         open: true
         attrs: {class: 'unreleased-block'}
@@ -21,7 +21,7 @@
     
     !!! unreleased-block "Unreleased-block"
         Ceci est une note informative.
-    {: .unreleased-block}
+
     
 ??? abstract "~ Simples"
 
