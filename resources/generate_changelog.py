@@ -70,7 +70,6 @@ def get_block_prefix_by_index(i: int, has_unreleased: bool) -> str:
 
     if has_unreleased:
         if i == 0:
-            # return f"{prefix}<span id='unreleased_admonition'>warning</span>"  # Unreleased section
             return f"{prefix}unreleased-block"  # Unreleased section
         elif i == 1:
             return f"{prefix}success"  # First real version after unreleased
