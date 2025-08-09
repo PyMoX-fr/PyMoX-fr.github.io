@@ -97,11 +97,19 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
+  - pymdownx.blocks.details
+  - pymdownx.blocks.admonition
+
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+          
+        # Option pour désactiver le label "Text Only"
+        - pymdownx.blocks:
+            details:
+              text_only_label: false
 
   - pymdownx.arithmatex:
       generic: true
@@ -158,6 +166,10 @@ plugins:
   # - tags:
   #     tags_file: tags.md # Déprécié
   - tags
+  
+  # - mkdocs-material
+  # - mkdocs-pymdownx
+  
   - pyodide_macros:
       # Vous pouvez ajouter ici tout réglage que vous auriez ajouté concernant les macros:
       on_error_fail: true # Il est conseillé d'ajouter celui-ci si vous ne l'utilisez pas.
@@ -190,9 +202,12 @@ exclude_docs: |
 
 extra_javascript:
   - xtra/javascripts/removeTrashBtn.js
-  # - javascripts/essai.js
+  # - xtra/javascripts/essai.js
+  - xtra/javascripts/copy.js
 
 extra_css:
+  - xtra/stylesheets/essais.css # ajustements
   - xtra/stylesheets/ajustements.css # ajustements
 
 # * [ ] Refaire scritp mots sémantiques suppl pour semantic-release (up, chore, fix, feat, etc...)
+

@@ -1,6 +1,24 @@
 import subprocess, re
 from collections import defaultdict
 
+import markdown
+from pymdownx.blocks.details import Details
+
+md = markdown.Markdown(
+    extensions=["pymdownx.blocks.details"],
+    extension_configs={
+        "pymdownx.blocks.details": {
+            "types": [
+                {
+                    "name": "unreleased",
+                    "unreleased": "custom",
+                    "title": "My Default title",
+                }
+            ]
+        }
+    },
+)
+
 MAX_COMMITS = 177
 CHANGELOG_PATH = "docs/outils/logs/CHANGELOG.md"
 GITHUB_REPO_URL = "https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit"
@@ -36,9 +54,6 @@ def group_commits_by_tag(commits: list[str]) -> dict[str, list[str]]:
 
     return tag_commits
 
-
-
-
 def generate_base_labels() -> list[str]:
     distribution = [("success", 1), ("info", 8), ("note",999)]
     return [label for label, count in distribution for _ in range(count)]
@@ -54,6 +69,7 @@ def get_block_prefix_by_index(i: int, has_unreleased: bool) -> str:
 
     if has_unreleased:
         if i == 0:
+            # return f"{prefix}<span id='unreleased_admonition'>warning</span>"  # Unreleased section
             return f"{prefix}warning"  # Unreleased section
         elif i == 1:
             return f"{prefix}success"  # First real version after unreleased
@@ -62,7 +78,11 @@ def get_block_prefix_by_index(i: int, has_unreleased: bool) -> str:
 
 
 def format_changelog(tag_commits: dict[str, list[str]]) -> str:
-    lines = ["# 📝 Changelog\n"]
+    lines = ["# 📝 CHANGELOG</span>"]
+
+
+    lines.append('???+ warning "<span style="color:red">ATTENTION : **Page en travaux**</span> 🚧"\n    <div class="copy_target" data-copy>Réfection du style si des commits de type Unreleased existent</div>')
+
     tags = list(tag_commits.keys())
     has_unreleased = tags[0] == "Unreleased"
 
