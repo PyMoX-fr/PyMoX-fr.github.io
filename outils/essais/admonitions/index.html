@@ -159,11 +159,6 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#linesappend_details_in_titre_ok_2_icin_type_warningn_attrs_n_open_truen_n_contentn_feat_add_dark_mode_togglen_fix_resolve_crash_on_startupn_chore_update_dependenciesn" class="md-skip">
-          Aller au contenu
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -644,6 +639,44 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Divers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Divers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../../divers/crepes/" class="md-nav__link">
         
@@ -656,6 +689,37 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../divers/pain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    🥖 Pain
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -694,36 +758,21 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
   
 
 
+  <h1>Admonitions</h1>
+
 <p><a href="../sommaire/">Retour Sommaire</a></p>
 <details class="warning">
 <summary>Default WARNING</summary>
 <p>Content</p>
 </details>
-<details class="warning">
-<summary><span style="color:red">ATTENTION : <strong>Page en travaux</strong></span> 🚧</summary>
-<p>Réfection du style du bloc des commits de type Unreleased (Visible que qd il y en a !)</p>
-</details>
-<details class="unreleased_block">
-<summary> 📦 Unreleased</summary>
+<details class="unreleased-block">
+<summary>📦 Unreleased-block (???)</summary>
 <p>Liste des commits...</p>
 </details>
-<p>{:.unreleased_block}</p>
-<details class="warning" open="open">
-<summary>🚧 <span style='color:red'>ATTENTION : <strong>Page en travaux</strong></span></summary>
-<p>Réfection du style du bloc des commits de type Unreleased (Visible que qd il y en a !)</p>
+<details class="unreleased-block unreleased-block">
+<summary>🍵 Unreleased-block (///)</summary>
+<p>Content 2</p>
 </details>
-<p>{: .unreleased-warning }</p>
-<details class="warning" id="unreleased-block" open="open">
-<summary>In titre Ok 1 ici</summary>
-<p>Content 1</p>
-</details>
-<hr />
-<h1 id="linesappend_details_in_titre_ok_2_icin_type_warningn_attrs_n_open_truen_n_contentn_feat_add_dark_mode_togglen_fix_resolve_crash_on_startupn_chore_update_dependenciesn">lines.append('/// details | In titre Ok 2 ici\n    type: warning\n    attrs: {}\n    open: true\n    \n<code>## Content\n* feat: add dark mode toggle\n* fix: resolve crash on startup\n* chore: update dependencies\n///</code>')<a class="headerlink" href="#linesappend_details_in_titre_ok_2_icin_type_warningn_attrs_n_open_truen_n_contentn_feat_add_dark_mode_togglen_fix_resolve_crash_on_startupn_chore_update_dependenciesn" title="Permanent link">⚓︎</a></h1>
-<p>lines.append('\n---\n')</p>
-<p>lines.append('<details class="optional-class"><summary>Text</summary><p>Content</p></details>')</p>
-<p>lines.append('??? details-note "<span style="color:red">ATTENTION : <strong>Page en travaux</strong></span> :-)"\n    Réfection du style si des commits de type Unreleased existent')    </p>
-<details>
-<summary>🚧 Unreleased Commits\n    type: warning\n    attrs: {class: "unreleased-commits", id: "unreleased", data-status: "pending"}\n    open: true\n    \n    - feat: add dark mode toggle\n    - fix: resolve crash on startup\n    - chore: update dependencies\n///</summary>
 <hr>
 
 <ul class="task-list">
@@ -736,12 +785,10 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "#\\s*Tests"}, "c
 </ul>
 <div class="copy-target" data-copy title="">
   Exemple de texte que l'on veut pouvoir cliquer pour être copié dans le presse-papier.
-</div>
-
-</details><script type="text/javascript">
+</div><script type="text/javascript">
 CONFIG.needMermaid = false;
 CONFIG.overlordClasses = [];
-globalThis.PAGE_IDES_CONFIG = '.\x1e{}\x1e0a0b.'
+globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
 </script>
 
 
