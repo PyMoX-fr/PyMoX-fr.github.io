@@ -19,7 +19,7 @@ gh run list -R "$REPO" --limit "$LIMIT" --json databaseId --jq '.[].databaseId' 
   yes | gh run delete "$run_id" -R "$REPO"
 done
 
-echo "✅ Tous les logs desruns ont été supprimés."
+echo "✅ Tous les logs des workflow runs ont été supprimés."
 
 # En CLI: gh auth status
 # Sous linux: chmod +x delete-workflows.sh
