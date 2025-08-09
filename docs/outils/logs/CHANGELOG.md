@@ -1,9 +1,11 @@
 # 📝 CHANGELOG</span>
 ???+ warning "<span style="color:red">ATTENTION : **Page en travaux**</span> 🚧"
-    <div class="copy_target" data-copy>Réfection du style si des commits de type Unreleased existent</div>
-???+ warning "📦 `Unreleased`"
+    <div class="copy_target" data-copy>Réfection du style si des commits de type Unreleased existant</div>
+???+ unreleased-block "📦 `Unreleased`"
 
-    * 2025-08-08 (17:20) : [Re-sort recipe (Crêpes)  (HEAD -> main, origin/main)](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b480fae) (`b480fae`)
+    * 2025-08-09 (02:18) : [Fix: code style unreleased-block OK  (HEAD -> devUnreleased, origin/devUnreleased)](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/26f73ac) (`26f73ac`)
+    * 2025-08-09 (01:52) : [Set custom css for unreleased block](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/77f2382) (`77f2382`)
+    * 2025-08-08 (17:20) : [Re-sort recipe (Crêpes)  (origin/main, main)](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b480fae) (`b480fae`)
     * 2025-08-08 (17:05) : [Up doc](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5e149ae) (`5e149ae`)
 
 ???+ success "📦 `v1.0.1`"

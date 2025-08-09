@@ -4,15 +4,24 @@
 
 ???+ abstract "~ Persos"
 
-    !!! warning "Unreleased-block" {class = 'unreleased-block' }
-        Ceci est une note informative.
+    !!! unreleased-block
+        Ceci est un bloc pour les releases.
         
-    /// details | Unreleased-block
-        type: warning
+    !!! unreleased-block "Unreleased-block 1"
+        Ceci est un bloc pour les releases.
+        
+        OK ?
+    
+    /// details | Unreleased-block 2
+        type: unreleased-block
         open: true
         attrs: {class: 'unreleased-block'}
     Ceci est un bloc pour les releases.
     ///
+    
+    !!! unreleased-block "Unreleased-block"
+        Ceci est une note informative.
+    {: .unreleased-block}
     
 ??? abstract "~ Simples"
 

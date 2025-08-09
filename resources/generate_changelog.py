@@ -10,8 +10,8 @@ md = markdown.Markdown(
         "pymdownx.blocks.details": {
             "types": [
                 {
-                    "name": "unreleased",
-                    "unreleased": "custom",
+                    "name": "unreleased-block",
+                    "class": "unreleased-block",
                     "title": "My Default title",
                 }
             ]
@@ -70,7 +70,7 @@ def get_block_prefix_by_index(i: int, has_unreleased: bool) -> str:
     if has_unreleased:
         if i == 0:
             # return f"{prefix}<span id='unreleased_admonition'>warning</span>"  # Unreleased section
-            return f"{prefix}warning"  # Unreleased section
+            return f"{prefix}unreleased-block"  # Unreleased section
         elif i == 1:
             return f"{prefix}success"  # First real version after unreleased
 
@@ -81,7 +81,7 @@ def format_changelog(tag_commits: dict[str, list[str]]) -> str:
     lines = ["# 📝 CHANGELOG</span>"]
 
 
-    lines.append('???+ warning "<span style="color:red">ATTENTION : **Page en travaux**</span> 🚧"\n    <div class="copy_target" data-copy>Réfection du style si des commits de type Unreleased existent</div>')
+    lines.append('???+ warning "<span style="color:red">ATTENTION : **Page en travaux**</span> 🚧"\n    <div class="copy_target" data-copy>Réfection du style si des commits de type Unreleased existant</div>')
 
     tags = list(tag_commits.keys())
     has_unreleased = tags[0] == "Unreleased"
