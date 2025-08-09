@@ -1,0 +1,146 @@
+/*
+pyodide-mkdocs-theme
+Copyleft GNU GPLv3 🄯 2024 Frédéric Zinelli
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#py_mk_test_global_wrapper {
+  margin: 2em 0;
+}
+
+#py_mk_tests_filters {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: space-around;
+  margin: 1em;
+}
+
+#py_mk_tests_controllers {
+    display: block;
+    width: fit-content;
+    margin-top: 4em;
+}
+
+
+#py_mk_tests_table {
+  min-height: 10em;
+  height: 40em;
+  overflow: auto;
+  resize: vertical;
+  border: solid 1px var(--main-theme);
+  padding: 10px;
+}
+
+#py_mk_tests_results {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-items: baseline;
+  align-items: center;
+  width: fit-content;
+  column-gap: 1em;
+}
+
+
+.cases-btn, .filter-btn {
+  border: 0;
+  margin: 0 5px;
+  padding: 7px;
+  text-align: center;
+  border-radius: 10px;
+  background-image: linear-gradient(
+    to top left,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.2) 30%,
+    rgba(0, 0, 0, 0)
+  );
+  box-shadow:
+    inset 2px 2px 5px rgba(255, 255, 255, 0.6),
+    inset -2px -2px 1px rgba(0, 0, 0, 0.6);
+}
+
+
+.cases-btn:hover {
+    background-color: rgb(90, 88, 88);
+  }
+
+.cases-btn:active, .filter-btn[state="1"] {
+  box-shadow:
+    inset -2px -2px 1px rgba(255, 255, 255, 0.6),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.filter-btn {
+  display: grid;
+  gap: 10px;
+  align-items: unset;
+  grid-template-columns: auto auto;
+  padding: 12px 20px 6px 31px;
+}
+
+.filter-show {margin-top: -3px;}
+
+.must-fail svg.qcm {
+  --qcm-fill: white;
+  --qcm-light: #20A020;
+  --tick:none;
+  --cross:unset
+}
+
+.md-typeset .pmt_note_tests {
+  font-size: 0.8em;
+  font-style: italic;
+  color: gray;
+  margin-left: 1em;
+}
+.md-typeset .pmt_note_tests.top_test {
+  margin-top: -.4em;
+  font-weight: bold;
+}
+.md-typeset .pmt_note_tests.last {
+  margin-bottom: 1.8em;
+}
+
+.py_mk_test_element {
+  height: 100%;
+  width: 100%;
+}
+
+.py_mk_test_element.status > svg.qcm {
+  margin: 0
+}
+
+.py_mk_test_element.status.top_test {
+  padding-top: 0.2em
+}
+
+.py_mk_test_element > .sections {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  height: fit-content;
+  align-self: start;
+  margin: -4px 0 10px 0;
+}
+.tooltip.section-box {
+  line-height: 1;
+}
+
+.orange-box {
+  box-shadow: 0 0 5px orange;
+}
+
+.tooltip.testing > img {
+  width: 22px;
+}
