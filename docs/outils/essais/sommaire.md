@@ -1,4 +1,4 @@
-[![Dernière version](https://img.shields.io/github/v/tag/PyMoX-fr/PyMoX-fr.github.io?label=Version)](outils/logs/CHANGELOG.md)
+[![Dernière version](https://img.shields.io/github/v/tag/PyMoX-fr/PyMoX-fr.github.io?label=Version)](../logs/CHANGELOG.md)
 
 # Sommaire des Essais
 
