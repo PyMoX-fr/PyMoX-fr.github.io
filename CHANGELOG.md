@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.5 (2025-08-09)
+
+### Bug Fixes
+
+- Get Version number and not branch name
+  ([`72b8e2c`](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/72b8e2c86b78fbdd62bfa7ecb23d5985bfa9d80c))
+
+
 ## v1.0.4 (2025-08-09)
 
 ### Bug Fixes
