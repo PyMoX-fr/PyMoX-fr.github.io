@@ -18,12 +18,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      
+
       - name: 🛠️ Install MkDocs & plugins
         run: |
           pip install --upgrade pip
           pip install mkdocs mkdocs-material pyodide-mkdocs-theme mkdocs-awesome-pages-plugin mkdocs-open-in-new-tab python-semantic-release build
-      
+
       - name: Run semantic-release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -34,7 +34,14 @@ jobs:
 
       - name: 📦 List installed packages
         run: pip freeze
-        
+
+      - name: Generate versions.json
+        run: |
+          echo "{\"version\": \"${GITHUB_REF_NAME}\"}" > versions.json
+
+      - name: Copy versions.json to site
+        run: cp versions.json ./docs/outils/
+
       - name: Générer le changelog personnalisé
         run: python resources/generate_changelog.py
 
