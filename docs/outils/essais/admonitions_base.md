@@ -2,14 +2,23 @@
 
 # Admonitions
 
-???+ abstract "~ Simples"
+???+ abstract "~ Persos"
+
+    !!! warning "Unreleased-block" {class = 'unreleased-block' }
+        Ceci est une note informative.
+        
+    /// details | Unreleased-block
+        type: warning
+        open: true
+        attrs: {class: 'unreleased-block'}
+    Ceci est un bloc pour les releases.
+    ///
+    
+??? abstract "~ Simples"
 
     !!! note "Note"
         Ceci est une note informative.
         
-    !!! unreleased-block "Unreleased-block"
-        Ceci est une note informative.
-    {#: unreleased-block}
     
     !!! info "Info"
         Voici une information utile.
