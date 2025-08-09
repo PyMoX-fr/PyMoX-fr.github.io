@@ -28,8 +28,13 @@ theme:
   # logo: assets/images/animated_favicon.gif
   logo: assets/images/pymox_logo_tr_001.png
   name: pyodide-mkdocs-theme
+  show_cache_refresh: true
   # name: material  # 👀 pour la validation
   # custom_dir: pyodide-mkdocs-theme  # 👈 ton vrai thème  # ✅ thème installé via pip, reconnu par mkdocs
+
+  # playground:
+  #   include: null
+  # ide: false
 
   ## name: material
   ##   features:
