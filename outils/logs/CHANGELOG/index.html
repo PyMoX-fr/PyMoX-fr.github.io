@@ -753,20 +753,20 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 
-    <a
-        href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/edit/main/docs/outils/logs/CHANGELOG.md"
-        title="Modifier cette page"
-        class="md-content__button md-icon"
-        target="_blank"
-        rel="edit"
-    >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-                d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"
-            ></path>
-        </svg>
-    </a>
-    
+<a
+  href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/edit/main/docs/outils/logs/CHANGELOG.md"
+  title="Modifier cette page"
+  class="md-content__button md-icon"
+  target="_blank"
+  rel="edit"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path
+      d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"
+    ></path>
+  </svg>
+</a>
+
 
 
                   
@@ -776,13 +776,15 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "
 
 
 <h1 id="changelog">📝 CHANGELOG</span><a class="headerlink" href="#changelog" title="Permanent link">⚓︎</a></h1>
-<details class="unreleased-block" open="open">
-<summary>📦 <code>Unreleased</code></summary>
+<details class="success" open="open">
+<summary>📦 <code>v1.0.4</code></summary>
 <ul>
-<li>2025-08-09 (16:59) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/7995516">Add t/sentinelle.py  (HEAD -&gt; main, origin/main)</a> (<code>7995516</code>)</li>
+<li>2025-08-09 (17:17) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/23d0b40">Merge branch 'footerVersion'  (origin/main)</a> (<code>23d0b40</code>)</li>
+<li>2025-08-09 (17:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/df8d593">Fix: set footer version dynamic  (origin/footerVersion)</a> (<code>df8d593</code>)</li>
+<li>2025-08-09 (16:59) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/7995516">Add t/sentinelle.py</a> (<code>7995516</code>)</li>
 </ul>
 </details>
-<details class="success" open="open">
+<details class="info" open="open">
 <summary>📦 <code>v1.0.3</code></summary>
 <ul>
 <li>2025-08-09 (16:05) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/52bc1aa">Fix: Remove In Working CHANGELOG page  (tag: v1.0.3)</a> (<code>52bc1aa</code>)</li>
@@ -841,8 +843,7 @@ globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
 
                 
 
-
-
+ 
               </article>
             </div>
           
@@ -857,8 +858,7 @@ globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
 </button>
         
       </main>
-      
-  
+       
         <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
@@ -905,20 +905,29 @@ globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
   </div>
 </footer>
       
-  <script>
-    fetch("/versions.json")
-      .then(response => response.json())
-      .then(data => {
-        const version = data.version || "inconnue";
-        $(".md-copyright_pyodide #pyodide-footer").prepend(
+<script>
+  fetch("/outils/versions.json")
+    .then((response) => {
+      if (!response.ok) throw new Error("Version file not found");
+      return response.json();
+    })
+    .then((data) => {
+      const version = data.version || "inconnue";
+      const footer = $(".md-copyright_pyodide #pyodide-footer");
+      if (footer.length) {
+        footer.prepend(
           $(`<div>PyMoX ${version}</div>`).css({
             display: "flex",
             justifyContent: "right",
-            fontWeight: "bold"
+            fontWeight: "bold",
           })
         );
-      });
-  </script>
+      }
+    })
+    .catch((error) => {
+      console.warn("Impossible de charger la version :", error);
+    });
+</script>
 
     </div>
     <div class="md-dialog" data-md-component="dialog">

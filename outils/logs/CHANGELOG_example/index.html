@@ -743,20 +743,20 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 
-    <a
-        href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/edit/main/docs/outils/logs/CHANGELOG_example.md"
-        title="Modifier cette page"
-        class="md-content__button md-icon"
-        target="_blank"
-        rel="edit"
-    >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-                d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"
-            ></path>
-        </svg>
-    </a>
-    
+<a
+  href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/edit/main/docs/outils/logs/CHANGELOG_example.md"
+  title="Modifier cette page"
+  class="md-content__button md-icon"
+  target="_blank"
+  rel="edit"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path
+      d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"
+    ></path>
+  </svg>
+</a>
+
 
 
                   
@@ -828,8 +828,7 @@ globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
 
                 
 
-
-
+ 
               </article>
             </div>
           
@@ -844,8 +843,7 @@ globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
 </button>
         
       </main>
-      
-  
+       
         <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
@@ -892,20 +890,29 @@ globalThis.PAGE_IDES_CONFIG = '.\x1e}{\x1e0b0a.'
   </div>
 </footer>
       
-  <script>
-    fetch("/versions.json")
-      .then(response => response.json())
-      .then(data => {
-        const version = data.version || "inconnue";
-        $(".md-copyright_pyodide #pyodide-footer").prepend(
+<script>
+  fetch("/outils/versions.json")
+    .then((response) => {
+      if (!response.ok) throw new Error("Version file not found");
+      return response.json();
+    })
+    .then((data) => {
+      const version = data.version || "inconnue";
+      const footer = $(".md-copyright_pyodide #pyodide-footer");
+      if (footer.length) {
+        footer.prepend(
           $(`<div>PyMoX ${version}</div>`).css({
             display: "flex",
             justifyContent: "right",
-            fontWeight: "bold"
+            fontWeight: "bold",
           })
         );
-      });
-  </script>
+      }
+    })
+    .catch((error) => {
+      console.warn("Impossible de charger la version :", error);
+    });
+</script>
 
     </div>
     <div class="md-dialog" data-md-component="dialog">

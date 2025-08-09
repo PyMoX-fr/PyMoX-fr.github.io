@@ -744,8 +744,7 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "
 </button>
         
       </main>
-      
-  
+       
         <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
@@ -792,20 +791,29 @@ CONFIG.lang={"tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "
   </div>
 </footer>
       
-  <script>
-    fetch("/versions.json")
-      .then(response => response.json())
-      .then(data => {
-        const version = data.version || "inconnue";
-        $(".md-copyright_pyodide #pyodide-footer").prepend(
+<script>
+  fetch("/outils/versions.json")
+    .then((response) => {
+      if (!response.ok) throw new Error("Version file not found");
+      return response.json();
+    })
+    .then((data) => {
+      const version = data.version || "inconnue";
+      const footer = $(".md-copyright_pyodide #pyodide-footer");
+      if (footer.length) {
+        footer.prepend(
           $(`<div>PyMoX ${version}</div>`).css({
             display: "flex",
             justifyContent: "right",
-            fontWeight: "bold"
+            fontWeight: "bold",
           })
         );
-      });
-  </script>
+      }
+    })
+    .catch((error) => {
+      console.warn("Impossible de charger la version :", error);
+    });
+</script>
 
     </div>
     <div class="md-dialog" data-md-component="dialog">
