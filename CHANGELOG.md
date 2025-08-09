@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.4 (2025-08-09)
+
+### Bug Fixes
+
+- Set footer version dynamic
+  ([`df8d593`](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/df8d5937715e38df48e987cf0ab84d85e859dc8e))
+
+
 ## v1.0.3 (2025-08-09)
 
 ### Bug Fixes
