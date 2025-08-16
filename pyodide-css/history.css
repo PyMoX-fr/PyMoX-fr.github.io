@@ -1,0 +1,39 @@
+/*
+pyodide-mkdocs-theme
+Copyleft GNU GPLv3 🄯 2024 Frédéric Zinelli
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+.history-box {
+  --hist-size: 20px;
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  z-index: 1;
+  background: var(--main-theme);
+  border-radius: 10px;
+  padding: var(--hist-size);
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: calc(var(--hist-size) / 1.6);
+  cursor: auto;
+  font-size: 90%;
+}
+.history-btn {
+  width: max-content;
+  padding: 2px 8px;
+  cursor: pointer;
+}
