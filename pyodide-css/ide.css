@@ -1,0 +1,262 @@
+/*
+pyodide-mkdocs-theme
+Copyleft GNU GPLv3 🄯 2024 Frédéric Zinelli
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/* https://pustelto.com/blog/optimizing-css-for-faster-page-loads/ */
+
+
+
+.md-typeset .admonition.py_mk_hidden, .py_mk_hidden { display: none; }
+
+.py_mk_ide {
+  min-width: 350px;
+  background-color: var(--md-default-bg-color);
+}
+
+
+
+
+/*
+-------------------------
+  Organisation générale
+-------------------------
+*/
+
+
+.py_mk_wrapper, .py_mk_wrapper_v {
+  overflow: hidden; /* Allow round corners without content overflowing */
+  border: solid 1px;
+  display: grid;
+  border-color: var(--main-theme);
+  background-color: var(--main-theme);
+  gap: 1px;
+}
+.py_mk_wrapper {
+  grid-template-rows: auto auto;
+}
+.py_mk_wrapper_v {
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr;
+}
+
+
+.comment_py_mk_wrapper {
+  --marg-vert: 4px;
+  --marg-right: 9px;
+  position: relative;
+  background-color: var(--md-default-bg-color);
+}
+
+
+
+/*
+--------------------
+  Tweak ace editor
+--------------------
+*/
+
+.py_mk_ide .ace_editor:not(.ace-tm):not(.ace_autocomplete) {
+  background: var(--background-theme);
+}
+
+
+/* overloading ace gutters and sliders to hide them behind the navbar or header */
+.ace_gutter, .ace_scrollbar {
+  z-index: 1;
+}
+
+.ace_gutter > .ace_layer {
+  color: var(--main-theme);
+  background-color: var(--gutter-theme);
+  border-right: solid 1px var(--main-theme);
+}
+
+/* global modification of gutters for ace theme */
+div[class*='ace-'] .ace_gutter {
+  background-color: var(--gutter-theme);
+  color: #DEDEDE;
+}
+
+
+.py_mk_ide textarea {    /* WARNING: might not be specific enough... */
+  width: 100%;
+  resize: vertical;
+}
+
+.py_mk_ide textarea:focus {    /* WARNING: might not be specific enough... */
+  outline: none;
+}
+
+
+
+/*
+------------------------
+  Les compteurs d'essais
+------------------------
+*/
+
+.ide_buttons_div_wrapper {
+  display: grid;
+  grid-template-columns: max-content auto;
+  margin: 0.5em 0.1em;
+}
+.ide_buttons_div {
+  z-index: 2;
+  display: inline-flex;
+}
+
+.compteur_wrapper {
+  justify-self: end;
+  width: 100%;
+  display: grid;
+  position: relative;
+}
+
+.py_mk_ide .compteur {
+  justify-self: end;
+  position: absolute;
+  float: right;
+  color: var(--main-theme);
+  font-size: 1.2em;
+  width: max-content;
+}
+
+.py_mk_ide .compteur_txt {
+  font-size: 0.8em
+}
+
+
+
+/*
+-------------------------------------------------------------
+  Le "bouton" pour dés-/activer les tests les tests publics
+-------------------------------------------------------------
+*/
+
+.py_mk_ide .comment {
+  display: inline-block;
+  font-size: 1em;
+  margin-top: var(--marg-vert);
+  margin-right: var(--marg-right);
+  position: absolute;
+  top: -2px;
+  right: 0px;
+  z-index: 2;
+}
+
+.py_mk_ide .comment:hover {
+  cursor: pointer;
+  margin-top: calc( var(--marg-vert) + 1px );
+  margin-right: calc( var(--marg-right) - 1px );
+}
+
+
+.ide-full-screen, .ide-split-screen {
+  position: absolute;
+  bottom: 2px;
+  right: 0px;
+  height: 20px;
+  margin-bottom: var(--marg-vert);
+  margin-right: var(--marg-right);
+  z-index: 2;
+}
+.ide-split-screen {
+  --marg-split: calc( 25px + var(--marg-right));
+  margin-right: var(--marg-split);
+}
+
+.ide-full-screen:hover, .ide-split-screen:hover {
+  cursor: pointer;
+  margin-bottom: calc(var(--marg-vert) - 1px);
+  margin-right: calc(var(--marg-right) - 1px);
+}
+.ide-split-screen:hover {
+  margin-right: calc(var(--marg-split) - 1px);
+}
+
+
+/*
+-------------------------------------------------------------
+                    Mode deux colonnes...
+-------------------------------------------------------------
+*/
+
+#pmt-top-div {
+  width:100%;
+  display: grid;
+  grid-template-columns: 50% min-content auto;
+}
+
+/*Page content has to stay scrollable*/
+#pmt-top-div > div.md-container {  overflow: auto; }
+
+/*Remove nav sidebar if exists*/
+#pmt-top-div > div.md-container div.md-sidebar { display: none; }
+
+#pmt-top-div > div.py_mk_ide.split {
+  overflow: hidden; /*FIX: avoid scrollbar when height computations gets slightly wrong*/
+}
+
+/*Remove IDE buttons tooltips, otherwise they mess with the global div height*/
+#pmt-top-div div.py_mk_ide.split .ide_buttons_div_wrapper span.tooltiptext { display: none; }
+
+/* Fix weird behavior of material...*/
+#pmt-top-div div.py_mk_ide.split .ide_buttons_div_wrapper { font-size: 160%; }
+
+#pmt-ide-placeholder {
+  height: 120px;
+  border: solid 2px var(--main-theme);
+  border-radius: 10px;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  opacity: 0.35;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.7em;
+  color: var(--main-theme);
+  box-shadow: 0 0 10px var(--main-theme);
+}
+
+#pmt-slider-div-div {
+  justify-self: center;
+  align-self: center;
+  width: 1px;
+  height: 100%;
+  background-color: var(--main-theme);
+  display: grid;
+  align-content: center;
+}
+#pmt-slider-div {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+#pmt-split-slider:hover {
+  cursor: grab;
+}
+#pmt-split-slider {
+  position: absolute;
+  background-color: darkgray;
+  border-radius: 4px;
+  height: 3.5em;
+  width: 1em;
+  border: 2px solid gray;
+  top: -1.75em;
+  left: -0.5em;
+}

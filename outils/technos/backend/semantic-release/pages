@@ -1,0 +1,9 @@
+nav:
+
+  - SEMANTIC_RELEASE_GUIDE.md
+
+  - COMMIT_TYPES.md
+
+  <!-- - test_semantic_release -->
+
+  - check_commit.py
