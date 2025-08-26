@@ -30,7 +30,7 @@ WARNING:  This file HAS to be loaded before the DOM is built, otherwise
 }
 
 
-.md-typeset div.py_mk_admonition_qcm.inner {
+.md-typeset .layout-qcm-wrapper .inner {
   text-align: justify;
   width: 100%;
   margin: 0;
@@ -43,7 +43,7 @@ WARNING:  This file HAS to be loaded before the DOM is built, otherwise
           Buttons and counter
 ---------------------------------------
 */
-.md-typeset div.py_mk_admonition_qcm .qcm_wrapper {
+.md-typeset .layout-qcm-wrapper .qcm_wrapper {
   display: flex;
   align-self: end;
   justify-self: end;
@@ -51,11 +51,11 @@ WARNING:  This file HAS to be loaded before the DOM is built, otherwise
   flex-direction: column;
   gap: 4px;
 }
-.md-typeset div.py_mk_admonition_qcm .qcm_wrapper > button {
+.md-typeset .layout-qcm-wrapper .qcm_wrapper > button {
   margin: auto;
 }
 
-.md-typeset .qcm_wrapper .qcm-counter {
+.md-typeset .layout-qcm-wrapper .qcm_wrapper .qcm-counter {
   text-align: center;
   justify-items: center;
   color: var(--main-theme);
@@ -80,14 +80,14 @@ WARNING:  This file HAS to be loaded before the DOM is built, otherwise
     grid-template-columns: 1fr;
     grid-template-rows: auto min-content;
   }
-  .md-typeset div.py_mk_admonition_qcm .qcm_wrapper {
+  .md-typeset .layout-qcm-wrapper .qcm_wrapper {
     flex-direction: row;
     width: unset;
   }
-  .md-typeset div.py_mk_admonition_qcm .qcm_wrapper > button {
+  .md-typeset .layout-qcm-wrapper .qcm_wrapper > button {
     margin: 4px;
   }
-  .md-typeset .qcm_wrapper .qcm-counter {
+  .md-typeset .layout-qcm-wrapper .qcm_wrapper .qcm-counter {
     margin: auto 4px;
   }
 }
