@@ -67,6 +67,9 @@ If not, see <https://www.gnu.org/licenses/>.
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+.md-typeset div.highlight {
+  display: grid;
+}
 
 /* Override */
 .md-typeset div.highlight code,
@@ -78,7 +81,7 @@ If not, see <https://www.gnu.org/licenses/>.
 [dir="ltr"] .md-header__source {
   margin-left: 0;
 }
-.md-typeset .highlighttable {  /* so that code blocks do not overflow from admonitions */
+.md-typeset .highlighttable, .md-typeset div.highlight > pre {  /* so that code blocks do not overflow from admonitions */
   overflow: auto;
 }
 
