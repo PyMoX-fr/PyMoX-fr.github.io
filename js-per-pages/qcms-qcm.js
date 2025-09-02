@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-import { makeIdeJqButton } from 'functools'
+import { decompressLZW, makeIdeJqButton } from 'functools'
 
 
 
@@ -43,8 +43,8 @@ class QCM {
 
     static buildQcms(){
 
-        const questions     = ".py_mk_questions_list_qcm > li.py_mk_question_qcm "
-        const questionItems = " ul.py_mk_item_qcm > li.py_mk_item_qcm"
+        const questions        = ".py_mk_questions_list_qcm > li.py_mk_question_qcm "
+        const questionItems    = "ul.py_mk_item_qcm > li.py_mk_item_qcm"
 
         // Clean up empty <p>, that are messing the layout, BUT, beware that the md rendered
         // qcm description, or the questions descriptions ALSO will contain some, and those
@@ -235,6 +235,19 @@ class Question {
 
         this.shuffleParentPath=`#${ this.questId }>ul.py_mk_item_qcm`
         this.shuffleChildrenPath = ">li.py_mk_item_qcm"
+
+        this.comment = this.jThis.find(".py_mk_comment_qcm")
+        if(this.comment.length){
+            this.comment.detach()
+        }else{
+            this.comment = null
+        }
+        if(this.comment && this.comment.is('.py_mk_encrypted_qcm')){
+            const summary = this.comment.find('summary').detach()
+            const txt = this.comment.text().trim()
+            const unCompressed = decompressLZW(txt, "qcms.encrypt_comments")
+            this.comment.html(unCompressed).prepend(summary)
+        }
     }
 
     _clickFactory(itemId){
@@ -264,6 +277,9 @@ class Question {
     }
 
     _reveal(){
+        if(this.comment){
+            this.jThis.append(this.comment)
+        }
         Object.entries(this.byId).forEach(([itemId,it])=>{
             const classes = []
             if(it.checked) classes.push(it.correct ? CONFIG.qcm.ok : CONFIG.qcm.wrong)
@@ -289,6 +305,7 @@ class Question {
 
 
     resetAllItems(always=false){
+        if(this.comment) this.comment.detach()
         Object.entries(this.byId).forEach(([itemId,it])=>{
             if(always || it.checked) this.updateItem(itemId, false)
         })
