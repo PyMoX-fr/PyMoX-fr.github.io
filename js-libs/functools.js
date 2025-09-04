@@ -353,6 +353,24 @@ export function isDark(){
 
 
 
+export function renderMermaidGraphs(removeCodeTags=true){
+    if(removeCodeTags){
+        $('pre.mermaid').each(function(){
+            const code = $(this).children('code')
+            if(code.length){
+                code.replaceWith(code.text())
+            }
+        })
+    }
+    setTimeout(async ()=>{
+        try{
+            await mermaid.run()
+        }catch(e){}
+    })
+}
+
+
+
 
 
 

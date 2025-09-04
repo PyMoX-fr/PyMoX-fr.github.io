@@ -18,7 +18,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-import { decompressLZW, makeIdeJqButton } from 'functools'
+import {
+    decompressLZW,
+    makeIdeJqButton,
+    perennialMathJaxUpdate,
+    renderMermaidGraphs,
+} from 'functools'
 
 
 
@@ -143,6 +148,8 @@ class QCM {
     check(){
         if(this.reveal){
             this.questions.forEach(quest=>quest._reveal())
+            perennialMathJaxUpdate()
+            renderMermaidGraphs()
         }
         const [good,all] = this.questions.reduce( (track,quest)=>quest._validate(...track), [0,0])
         this.updateCounter(`${good}/${all}`)

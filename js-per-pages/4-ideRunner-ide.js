@@ -30,6 +30,7 @@ import {
   getIdeOptions,
   perennialMathJaxUpdate,
   PythonError,
+  renderMermaidGraphs,
   sleep,
   subscribeWhenReady,
   txtFormat,
@@ -379,7 +380,9 @@ class IdeFeedbackManager extends IdeHistoryManager {
       sol_div.attr('class', '')         // Unhide
       this.hiddenDivContent = false     // Never reveal again (last in case of errors...)
 
-      // Enforce formatting
+      // Enforce formattings of REM contents
+      renderMermaidGraphs()
+
       if(!waitForMathJax){
         perennialMathJaxUpdate()
       }else{
@@ -393,14 +396,6 @@ class IdeFeedbackManager extends IdeHistoryManager {
           }
         )
       }
-
-      /* DOESN'T WORK
-      // Enforce mermaid rendering if any
-      try{
-        // Need to make an async call, but i don't want to make this method an async one...
-        setTimeout(async ()=>console.log('yup?') || await mermaid.run())
-      }catch(e){}
-      //*/
     }
   }
 

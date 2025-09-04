@@ -20,13 +20,14 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { jsLogger } from 'jsLogger'
 import {
+  RunningProfile,
   decompressPagesIfNeeded,
   noStorage,
+  renderMermaidGraphs,
   sleep,
   unEscapeSquaredBrackets,
   withPyodideAsyncLock,
   youAreInTroubles,
-  RunningProfile,
 } from 'functools'
 import { _DUMMY } from 'process_and_gui'   // Enforce dependencies order (if ever a runner is needed)
 
@@ -476,7 +477,7 @@ class PyodideSectionsRunnerBase {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - PyodideSectionsRunner teardownRuntime")
 
     await runtime.runWithCtx('post')
-    await this.handleMermaids(runtime)
+    this.renderPyodideGeneratedMermaids(runtime)
     await this._baseTeardownRuntime(runtime)
   }
 
@@ -488,7 +489,7 @@ class PyodideSectionsRunnerBase {
 
 
 
-  async handleMermaids(runtime){
+  renderPyodideGeneratedMermaids(runtime){
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - teardown mermaid")
 
     if(!CONFIG.needMermaid || !CONFIG.calledMermaid){
@@ -501,12 +502,7 @@ class PyodideSectionsRunnerBase {
         +'Please contact the author of the exercice.'
       )
     }
-    try{
-      await mermaid.run()
-      // mermaid.run systematically throws an error, even on valid graphs...
-      // Worse: If mermaid.run({suppressErrors:true}) is used, nothing is rendered at all...
-      //        (I love JS...)
-    }catch(e){}
+    renderMermaidGraphs()
   }
 }
 
