@@ -27,30 +27,38 @@ import { pyodideFeatureRunCode } from '0-generic-python-snippets-pyodide'
 
 
 
-/**Explore the user's code to find missing modules to install. If some are found, load
- * micropip (if not done yet), then install all the missing modules.
- * Also import all the packages present in runner.whiteList.
+/**Explore the user's code to find missing Python packages to install. If some are found, 
+ * load micropip (if not done yet), then install all the missing modules.
+ * This also imports all the packages present in runner.whiteList and handles python_libs.
  *
  * NOTE:
  *    python_libs are identified by picking into the global config, but are actually loaded
- *    only if they are available in the instance property (this is to limit the _SAVAGE_,
+ *    only if they are available in the Runner instance property (this is to limit _SAVAGE_/
  *    unexpected installations of random packages from PyPI).
  * */
 export const installPythonPackages=(function(){
 
-  /*Things are complicated, here...:
+
+  /*Things are (very) complicated, here...
    *
+   * OBSERVATIONS/GOALS:
+   * 
    *    * Installing packages via micropip doesn't actually import them in the environment (it
    *      works the same for custom python libs).
+   * 
    *    * The theme needs to know up front what packages are missing or not, to decide when to
    *      display installation messages or not.
-   *    * _Installed_ packages can be found through micropip, but not _loaded_ pythonLibs.
+   * 
+   *    * _Installed_ packages can be found through micropip, but NOT loaded python_libs.
    *
    *    So, spotting missing packages relies on picking in sys.modules.
    *    BUT, modules actually end up there _ONLY_ if a python code actually imported them, going
    *    through `import xxx`.
    *    So far, so good. Problems arise with additional features:
    *
+   * 
+   * ADDITIONNAL CONSTRAINTS:
+   * 
    *    * White lists:
    *        - their content has to be actually imported in the global scope, so that they are
    *          actually available to the user.
@@ -69,7 +77,7 @@ export const installPythonPackages=(function(){
    *
    *    * Exclusions:
    *        - They are not applied on env sections, so modules _can_ be installed/loaded here
-   *          so they _have_ to be actually imported...
+   *          so they _have_ to be actually imported (to avoid several installations: see above)...
    *        - ..._BUT_ hidden inside a function, so that they do not leak in the global scope.
    *        - Then the redactor's import (from the `env` or `env_term` code itself) will determine
    *          if the module ends up in the global scope or not.
@@ -80,13 +88,15 @@ export const installPythonPackages=(function(){
    *    For those reasons, all packages that are "installed" will always be imported in a hidden
    *    scope, so that they get registered in sys.modules.
    *
-   *    Since the "triggering code" (env code, user code, cmd, ...) still has to be executed, the
-   *    actual visibility of the imported module is left to the redactor/user, and:
+   *    Since the "triggering code" (env code, user code, cmd, ...) still has to be executed,
+   *    afterward, the actual visibility of the module is left to the redactor/user, and:
    *        - All automatic installs/imports are done in a hidden scope.
    *        - Packages of the whiteList are all imported in the global scope, whatever happens or
    *          the configuration of exclusions/sections, ...
-   **/
+   * */
 
+
+  
 
   const FORBID_EXTERNALS = new Set(['py_lib', 'pylib', 'pylibs', 'py-lib', 'py-libs'])
   const PMT_TOOLS = ['p5', 'vis', 'vis_network']      // GENERATED
@@ -192,15 +202,15 @@ export const installPythonPackages=(function(){
 
   /**IMPORTS_CONFIG type:
    *
-   *      Record<
-   *        PackageName,                  // (string) Name used in the import statement (user's code)
-   *        {
-   *          codeCheck: Cbk[code,conf]   // Verifications to apply to the code content first
-   *          toInstall: string|string[], // Micropip installation name
-   *          post:      async Cbk,       // Callback to run to apply any kind of extra logic
-   *          toImport:  string,          // Automatic import name, at the very end (in hidden scope)
-   *        }
-   *      >
+   *   Record<
+   *     PackageName,                  // (string) Name used in the import statement (user's code)
+   *     {
+   *       codeCheck: Cbk[code,conf]   // Verifications to apply to the code content first
+   *       toInstall: string|string[], // Micropip installation name
+   *       post:      async Cbk,       // Callback to run to apply any kind of extra logic
+   *       toImport:  string,          // Automatic import name, at the very end (in hidden scope)
+   *     }
+   *   >
    * */
   const IMPORTS_CONFIG = {
     matplotlib: {

@@ -204,8 +204,7 @@ const CONFIG = {
 
     COMMENTED_PATTERN:  /(^\s*)(\S)(.?)/,
     MODULE_REG:         /File "<(env[^>]*|post[^>]*|exec|console)>", line (\d+)($|, in (?!redirect_cmd))/,
-    TRACE_REG:          /  File "(?:<env[^>]*>|<post[^>]*>|<exec>|<console>|\/lib\/python[^"]+)"/,
-    TRACE_NUM_LINE:     /File "<(?:env[^>]*|post[^>]*|exec|console)>", line (\d+)/,
+    TRACE_NUM_LINE:     / *File "([^"]+)", line (\d+)/,
 
     ESCAPE_SQ_B:        /\[|\]/g,
     UNESCAPE_SQ_B:      new RegExp(`${ SqBs.L }|${ SqBs.R }`, 'g'),

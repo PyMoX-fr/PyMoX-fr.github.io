@@ -157,6 +157,8 @@ class IdeHistoryManager extends IdeAceManager {
     return (Date()+'').split(' GMT')[0].slice(-8)
   }
 
+  /**Store the data of the current run/validation to this.validations.
+   * */
   pushValidation(code, done){     // CodCap
     const time = this.getTime()
     this.validations.push([done, time, code])
@@ -287,13 +289,13 @@ class IdeFeedbackManager extends IdeHistoryManager {
    * Do not forget that any error related feedback has already been printed to the console, so
    * when it comes to feedback given in this method, it's only about a potential "final message".
    * */
-  handleRunOutcome(runtime, allowCountDecrease, code){
+  handleValidationOutcome(runtime, allowCountDecrease, code){
     const success      = !runtime.stopped
     const done         = success ? 1:-1
     const isDelayed    = this.profile === CONFIG.PROFILES.delayedReveal
     const someToReveal = this.corrRemsMask && this.hiddenDivContent && (!this.profile || isDelayed)
 
-    LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - handleRunOutcome")
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - handleValidationOutcome")
     // console.log("[OutCome]", JSON.stringify({
     //   success, pof:this.profile, revealable, hidden:this.hiddenDivContent,
     //   allowCountDecrease: !!allowCountDecrease, mask:this.corrRemsMask, N:this.attemptsLeft
@@ -475,6 +477,7 @@ class IdeFeedbackManager extends IdeHistoryManager {
  * */
 class IdeRunnerLogic extends IdeFeedbackManager {
 
+  getRemoveAssertionsStacktrace(){ return this.removeAssertionsStacktrace }
 
   /**Is the current action "running the public tests"? (legacy) */
   isPlaying(){  return this.running.isPlaying }
@@ -591,7 +594,7 @@ class IdeRunnerLogic extends IdeFeedbackManager {
 
       // ... but decrease the number attempts and run teardown if this was AssertionError.
       if(runtime.isAssertErr){
-        this.handleRunOutcome(runtime, decrease_count, code)
+        this.handleValidationOutcome(runtime, decrease_count, code)
       }
 
     }else{
@@ -621,7 +624,7 @@ class IdeRunnerLogic extends IdeFeedbackManager {
 
       // Reveal solution and REMs on success, or if the counter reached 0 and the corr&REMs content
       // is still hidden, then prepare an appropriate revelation message if needed (`finalMsg`).
-      this.handleRunOutcome(runtime, decrease_count, code)
+      this.handleValidationOutcome(runtime, decrease_count, code)
     }
   }
 
@@ -782,7 +785,6 @@ export class IdeRunner extends IdeRunnerLogic {
   /**Create and setup the ACE editor for the current Ide instance.
    * */
   setupAceEditor() {
-
     const options = getIdeOptions(this)
     this.editor   = ace.edit(this.id, options);
     this.gutter   = this.global.find('div.ace_gutter-layer')
@@ -810,7 +812,11 @@ export class IdeRunner extends IdeRunnerLogic {
         exec: this.runners.validate.asEvent,
       })
     }
+    this._buildAutoSaveOnKeyStroke()
+  }
 
+
+  _buildAutoSaveOnKeyStroke(){
     // Content of the editor is saved every `CONFIG.ideKeyStrokesSave` keystrokes:
     let nChange = 0;
     this.editor.addEventListener("input", _=>{
@@ -820,6 +826,7 @@ export class IdeRunner extends IdeRunnerLogic {
         }
     })
   }
+
 
   buildCorrStuff(){ return CONFIG.inServe }
 

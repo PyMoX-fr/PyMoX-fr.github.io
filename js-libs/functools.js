@@ -276,7 +276,6 @@ export function subscribeWhenReady(waitId, callback, options={}){
         return ()=>{ CONFIG.subscriptionReady[waitId]=true }
     }
 }
-// TOKEN: end subscribeWhenReady
 
 
 

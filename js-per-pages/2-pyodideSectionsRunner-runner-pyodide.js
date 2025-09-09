@@ -99,6 +99,7 @@ class PyodideSectionsRunnerBase {
   get pypiWhite()         { return this.data.pypi_white }
   get pythonLibs()        { return this.data.python_libs }
   get recLimit()          { return this.data.rec_limit }
+  get removeAssertionsStacktrace(){ return this.data.remove_assertions_stacktrace }
   get runGroup()          { return this.data.run_group }
   get secretTests()       { return this.data.secret_tests }
   get seqRun()            { return this.data.seq_run }
@@ -110,6 +111,12 @@ class PyodideSectionsRunnerBase {
   get userContent()       { return this.data.user_content }
   get whiteList()         { return this.data.white_list }
   //JS_CONFIG_DUMP
+
+
+  /**Intermediate getter required to bypass automatically the behavior for non IDE runners (which
+   * do NOT export the value, while it's needed for environment sections. See `Ctx.build(...)`).
+   * */
+  getRemoveAssertionsStacktrace(){ return false }
 
 
 
@@ -445,6 +452,8 @@ class PyodideSectionsRunnerBase {
           code,
           purgeTrace: runtime.purgeStackTrace,
           autoAssertExtraction: runtime.autoLogAssert,
+          purgeAssertionTrace: this.removeAssertionsStacktrace, // This is independent of the step running => not
+                                                                // tide to `runtime`, but directly to the runner.
         },
         asyncSecrets: testsStep === CONFIG.section.secrets,
         method: async (ctx)=>{

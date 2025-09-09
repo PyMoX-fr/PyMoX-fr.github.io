@@ -962,7 +962,9 @@ export class TerminalRunner extends _TerminalHandler {
       logConfig: {
         code: this.cmdOnTheRun,
         autoAssertExtraction: false,
-        purgeTrace: runtime.purgeStackTrace
+        purgeTrace: runtime.purgeStackTrace,
+        purgeAssertionTrace: this.removeAssertionsStacktrace, // This is independent of the step running => not
+                                                              // tide to `runtime`, but directly to the runner.
       },
     })
 

@@ -142,9 +142,10 @@ import { escapePyodideCodeForJsTemplates, youAreInTroubles } from 'functools'
  * */
 export function generateErrorLog(ctx) {
 
-  const { code, autoAssertExtraction, purgeTrace } = {
+  const { code, autoAssertExtraction, purgeAssertionTrace, purgeTrace } = {
     code: "",
     autoAssertExtraction: false,
+    purgeAssertionTrace: false,
     purgeTrace: false,
     ...ctx.logConfig
   }
@@ -175,7 +176,8 @@ export function generateErrorLog(ctx) {
   const isAssertErr = ctx.isAssertErr = err.type == 'AssertionError'
 
 
-  // If ExclusionError, just throw the last line without anything else:
+  // If ExclusionError, just throw the last line without anything else (assuming the error
+  // message is a single line... Which it should be...):
   if(errLines[iError].includes(CONFIG.MSG.exclusionMarker)){
     const msg  = errLines.slice(iError).join('\n')
     const i    = msg.indexOf(CONFIG.MSG.exclusionMarker)
@@ -192,24 +194,30 @@ export function generateErrorLog(ctx) {
   //   The following lines are working by mutation, so the successive splices are done "backward"
   //   (aka, from end to beginning, so that the line numbers stay consistent).
 
-  // Rebuild the automatic assertion message first, if needed, or reformat the error message:
+  // Rebuild the automatic assertion message first, if needed, or reformat the error message (this
+  // might add new lines to errLines):
   if( code && isAssertErr && hasNoMsg && autoAssertExtraction ){
     const bigFail = buildAssertionMsg(code, errLines, iError, ctx)
     if(bigFail){
       ctx.stdErr =  bigFail
       return
     }
-  } else if(!isAssertErr && purgeTrace){
+  }
+
+  // Remove the original error message if nothing is supposed to show up in the terminal
+  // (see show_only_assertion_errors_for_secrets):
+  if(!isAssertErr && purgeTrace){
     const errKind = errLines[iError].split(':')[0]
     errLines.splice(iError, errLines.length)
     errLines.push(`${errKind} has been raised.`)
   }
 
-  // Then shorten the error code section (if multiline assertion message), and then the stacktrace.
-  shortenArrSection('err',   errLines, iError, errLines.length-1, iModule, purgeTrace)
-
-  // Then remove pyodide related information from the stacktrace (the user doesn't need to know)
-  shortenArrSection('trace', errLines, iModule, iError-1, iModule, purgeTrace)
+  // Then shorten the error code section (if long ass multiline assertion message), ...
+  // ...then remove pyodide related information from the stacktrace (the user doesn't need to
+  // know) and possibly the whole stacktrace:
+  const removeStackTrace = purgeTrace || isAssertErr && purgeAssertionTrace
+  shortenArrSection('err',   errLines, iError,  errLines.length-1)
+  shortenArrSection('trace', errLines, iModule, iError-1, iModule, removeStackTrace)
 
   ctx.stdErr =  errLines.join('\n')
 }
@@ -223,13 +231,15 @@ export function generateErrorLog(ctx) {
  * `to` indices is considered too long.
  * Both indices arguments are inclusive.
  * */
-const shortenArrSection=(kind, errLines, from, to, iModule, purgeTrace)=>{
+const shortenArrSection=(kind, errLines, from, to, iModule=null, purgeTrace=null)=>{
 
+  // Just remove the entire stacktrace, if desired, and stop here:
   if(kind=='trace' && purgeTrace){
     errLines.splice(0, to+1)
     return
   }
 
+  // Or if the terminal feedback can/should be limited:
   if(CONFIG.cutFeedback){
 
     const [limit, head, tail] = "Limit Head Tail".split(' ').map( prop => CONFIG.feedbackShortener[kind+prop] )
@@ -247,10 +257,10 @@ const shortenArrSection=(kind, errLines, from, to, iModule, purgeTrace)=>{
     }
   }
 
+  // When handling the stacktrace, always remove the pyodide specific lines, at the top of the stack trace:
   if(kind=='trace'){
-    // Then remove or reformat pyodide specific lines (nly if this is the last operation, aka "trace")
     errLines.splice(1, iModule-1)
-    errLines[0] = errLines[0].slice( 'PythonError: '.length )
+    errLines[0] = errLines[0].slice('PythonError: '.length)
   }
 }
 
@@ -283,11 +293,11 @@ const guessErrorMsgLine=(arr, errKind)=>{
     const line = arr[i]
 
     // Attempt at early exit when entering the stacktrace, but might not always be found...
-    const isLastTrace = CONFIG.TRACE_REG.test(line)
+    const isLastTrace = CONFIG.TRACE_NUM_LINE.test(line)
     if(isLastTrace) break
 
     const start = matcher.exec(line)
-    if(start && start[0].endsWith(errKind)) iErr=i
+    if(start && start[0].endsWith(errKind)) iErr = i
   }
   if(iErr >= 0){
     return iErr
@@ -308,23 +318,38 @@ ${ arr.join('\n') }`
 /**Get back the full python assertion instruction, by extracting the lines it covers,
  * through the use of the ast module in pyodide, then mutate the array representing
  * the error message accordingly.
+ *
+ * If no message can be rebuilt because of insufficient informations/codes, just do nothing.
+ *
+ * @returns: undefined if everything goes well, or if an error occurs, the error message
+ *           as a string.
  * */
 function buildAssertionMsg(code, errLines, iAssertionError, ctx){
 
-  const callLine = errLines[iAssertionError-1] || ""
+  // Search for the last line starting with "File ..." in the stacktrace
+  let fileLine = iAssertionError
+  let numMatch;
+  while( --fileLine>=0 && !(numMatch = errLines[fileLine].match(CONFIG.TRACE_NUM_LINE)) ){}
 
-  const numMatch = callLine.match(CONFIG.TRACE_NUM_LINE)
-  if(!numMatch){
-    throw new Error(`
-Couldn't determine the line number of the assertion in:
-      ${ callLine }
-    Error message:\n${ errLines.join('\n') }`)
+  const callLine = errLines[fileLine] ?? ''
+  const caller   = numMatch ? numMatch[1].replace(/^<|>$/g, "") : ""
+
+  if(!callLine || !numMatch || caller!="exec"){
+    /*
+    If caller is not exec, the assertion code is not in the current code running. Hence, if it
+    doesn't have any assertion message, assume that's the desired behavior... :pppp
+    (This reasoning is valid because if it's not in the current running code, the assertion is
+    in a fonction, meaning its code is most likely abstracted away with variables, and there is
+    no information useful to the end user to extract anyway...)
+    */
+    return
   }
+
 
   // The double quotes are all escaped to make sure no multiline string in the code
   // can cause troubles.
   const escapedCode = escapePyodideCodeForJsTemplates(code)
-  const lineNo = +numMatch[1]
+  const lineNo = +numMatch[2]
 
   const astExplorer = `
 def _extract_assertion():
@@ -349,7 +374,7 @@ _`
   try{
     assertion = pyodide.runPython(astExplorer)
     if(!assertion) return
-      /* Is assertion is null, this means the assertions comes from a function called by
+      /* If assertion is null, this means the assertions comes from a function called by
          the user code or the command */
 
   }catch(e){

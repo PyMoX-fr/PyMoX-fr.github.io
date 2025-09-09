@@ -66,6 +66,10 @@ class Ctx {
         code:                 runtime.runner[`${ section }Content`].trim(),
         keepRunningOnAssert:  section.startsWith('env'),
         method:               this.genericEnvSectionRunnerAsync,
+        logConfig: {
+          purgeAssertionTrace: runtime.runner.getRemoveAssertionsStacktrace(),
+          // This is independent of the step running => not tide to `runtime`, but directly to the runner.
+        }
       }
     }
 

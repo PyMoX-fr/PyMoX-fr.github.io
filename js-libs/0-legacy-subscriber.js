@@ -29,14 +29,14 @@ globalThis.LOGGER_CONFIG = {ACTIVATE:true, all:1}
 
 
 
-/**For backward compatibility, in case the user is still using the function from the original
- * synch implementation.
+/**Defined for backward compatibility, incase the user is still using the function from the
+ * original synch implementation of subscribeWhenReady.
  *
  * Facts:
  *  1. MathJax subscription is now done from the js-scripts/subscriptions.js module, so any
  *     call for mathjax coming from a user override is totally useless and can just be skipped.
- *  2. If ever another subscription is tried, just transmit the call to the module version
- *     directly, to unify the implementations/logics.
+ *  2. If ever another subscription is done, just directly transmit the call to the module 
+ *     version, to unify the implementations/logics.
  * */
 function subscribeWhenReady(waitId, ...args){
 

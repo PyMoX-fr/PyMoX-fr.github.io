@@ -30,7 +30,7 @@ export const pyodideFeatureCode=(()=>{
     const PYODIDE_SNIPPETS = {
 
 
-    /**Creates the PyodideConsole, which is the runtime tool behind the "terminal", and setup
+    /**Creates the PyodideConsole, which is the runtime tool behind any "terminal", and setup
      * the JS routines so that Runners can interact with it.
      *
      * https://pyodide.org/en/stable/usage/api/python-api/console.html#pyodide.console.PyodideConsole
@@ -43,7 +43,7 @@ export const pyodideFeatureCode=(()=>{
      *      - `redirect_cmd(cmd:string)` to run commands written by a user in the terminal.
      *
      *      - `complete(cmd:string)` to ask for an array of all the possible auto-completion
-     *         suggestions for the command currently typed in the terminal by a user.
+     *         suggestions for the given command (currently typed in the terminal by a user).
      *
      *      - `clear_console()` to cancel the PyodideConsole current buffer, if ever needed
      *        (for example: an incomplete command triggering an error about imports => the previous
@@ -107,8 +107,6 @@ def _hack_start_pyodide():
 _hack_start_pyodide()
 del _hack_start_pyodide     # (no auto_run tool yet)
 `,
-
-    autoRunCleaner: `__builtins__.auto_run.clean()`,
 
     autoRun: `
 def _hack_auto_run():
@@ -241,6 +239,9 @@ def _hack_auto_run():
 _hack_auto_run()
 del _hack_auto_run
 `,
+
+
+    autoRunCleaner: `__builtins__.auto_run.clean()`,
 
 
     version: `

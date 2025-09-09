@@ -20,15 +20,14 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 import { buttonWithTooltip, subscribeWhenReady, txtFormat } from 'functools'
 
+export const _DUMMY=null    // Reexport to enforce dependencies order: see PyodideSectionsRunner.
+                            // (reminder: the script defining CONFIG is loaded synchronously)
 
 
 
 //------------------------------------
 // Post process the content of CONFIG
 //------------------------------------
-
-export const _DUMMY=null    // Reexport to enforce dependencies order: see PyodideSectionsRunner.
-                            // (reminder: the script defining CONFIG is loaded synchronously)
 
 
 // For backward compatibility ( < 2.2.0)
@@ -47,6 +46,7 @@ const DEFAULT_FORMATTING_BEFORE_220 = {
   failHead:          'warning',
 }
 
+// Preformat the various messages to use in the terminals (in the given tongue)
 for(const prop in CONFIG.lang){
   const obj = CONFIG.lang[prop]
   const format = obj.format || DEFAULT_FORMATTING_BEFORE_220[prop]
