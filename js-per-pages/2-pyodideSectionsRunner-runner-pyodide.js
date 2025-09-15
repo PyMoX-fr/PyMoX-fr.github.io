@@ -113,12 +113,6 @@ class PyodideSectionsRunnerBase {
   //JS_CONFIG_DUMP
 
 
-  /**Intermediate getter required to bypass automatically the behavior for non IDE runners (which
-   * do NOT export the value, while it's needed for environment sections. See `Ctx.build(...)`).
-   * */
-  getRemoveAssertionsStacktrace(){ return false }
-
-
 
   constructor(id, callInit=true){
     LOGGER_CONFIG.ACTIVATE && jsLogger('[CheckPoint] - Constructor for', this.constructor.name, id)

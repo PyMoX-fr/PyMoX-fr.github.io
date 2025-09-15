@@ -477,8 +477,6 @@ class IdeFeedbackManager extends IdeHistoryManager {
  * */
 class IdeRunnerLogic extends IdeFeedbackManager {
 
-  getRemoveAssertionsStacktrace(){ return this.removeAssertionsStacktrace }
-
   /**Is the current action "running the public tests"? (legacy) */
   isPlaying(){  return this.running.isPlaying }
 
