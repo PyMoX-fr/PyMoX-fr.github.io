@@ -262,16 +262,25 @@ document.querySelector("[data-md-color-scheme]")
     // set/updated will avoid useless calls/reactions to DOM mutations (IDEs & co).
     LOGGER_CONFIG.ACTIVATE && jsLogger('[MathJax] - subscribe to document$ after pyodide started')
     subscribeWhenReady(
-        'MathJax',
-        perennialMathJaxUpdate,
-        {
-          delay: 200,
-          maxTries: 50,   // because some useless reschedule before pyodide actually starts
-          waitFor: _=>{
-            const ready = Boolean(window.window.MathJax.startup.output)
-            return ready && (!some_runners || CONFIG.pyodideIsReady)
-          }
+      'MathJax',
+      perennialMathJaxUpdate,
+      {
+        delay: 200,
+        maxTries: 50,   // because some useless reschedule before pyodide actually starts
+        waitFor: _=>{
+          // Use A LOT of extra conditions, trying to avoid potential troubles with chrome scripts scheduling...
+          const ready = Boolean(
+            window.MathJax.startup.output
+            && [
+              window.MathJax.startup.output.clearCache,
+              window.MathJax.typesetClear,
+              window.MathJax.texReset,
+              window.MathJax.typesetPromise,
+            ].every( f => typeof(f)=='function' )
+          )
+          return ready && (!some_runners || CONFIG.pyodideIsReady)
         }
+      }
     )
   }
 
