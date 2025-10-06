@@ -194,34 +194,48 @@ export const waitForPyodideReady = async()=>{
  *            identifier.
  * @callback: Routine to run when the document changes
  * @options : An object with optional fields:
- *      .delay (=50): Time interval (in ms) to wait in between two subscription attempts.
- *      .now (=false): If true, ignore the CONFIG.subscriptionReady property and subscribe at call
- *              time. If false, a callback will be returned by the `subscribeWhenReady` function,
- *              that the caller can use to signal when the subscription is ready.
- *      .waitFor (=null): If given, it must be a boolean provider or a jquery identifier string,
- *              which will result in a function checking for the existence of that element in
- *              the DOM. This function will be called every .delay ms and the subscription will
- *              be delayed until it returns true. This has precedence over the .now option.
- *      .runOnly: if truthy, run the callback when ready, but do not subscribe to document changes.
- *      .maxTries: if not given 20 tries allowed.
+ *      .delay (=50):
+ *          Time interval (in ms) to wait in between two subscription attempts.
+ *      .now (=false):
+ *          If true, ignore the CONFIG.subscriptionReady property and subscribe at call time.
+ *          If false, a callback will be returned by the `subscribeWhenReady` function, that
+ *          the caller can use to signal when the subscription is ready.
+ *      .waitFor (=null):
+ *          If given, it must be a boolean provider or a jquery identifier string, which will
+ *          result in a function checking for the existence of that element in the DOM.
+ *          This function will be called every .delay ms and the subscription will be delayed
+ *          until it returns true. This has precedence over the .now option.
+ *      .runOnly (=false):
+ *          If truthy, run the callback when ready, but do not subscribe to document changes.
+ *      .maxTries (=20):
+ *          Maximal number of subscription attempts before throwing an error.
+ *      .ignoreMultipleSubscriptions (=false):
+ *          If false, subscribing several times to the same event throws an error. If true,
+ *          just ignore the current subscription call.
  *
  * @throws: Error if maxTries subscriptions attempts are done without success.
  * */
 export function subscribeWhenReady(waitId, callback, options={}){
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscribing] - Enter', waitId)
 
-    if(waitId in CONFIG.subscriptionReady){
-        throw new Error(`Cannot subscribe several times to "${ waitId }".`)
-    }
 
-    let {now, delay, waitFor, runOnly, maxTries} = {
+    let {now, delay, waitFor, runOnly, maxTries, ignoreMultipleSubscriptions} = {
         delay: 50,
         now: false,
         waitFor: null,  // or string or boolean provider
         runOnly: false,
         maxTries: 20,
+        ignoreMultipleSubscriptions: false, // If true, do not raise if a registration has already been done and skip the current call.
         ...options
     }
+
+    if(waitId in CONFIG.subscriptionReady){
+        if(ignoreMultipleSubscriptions){
+            return
+        }
+        throw new Error(`Cannot subscribe several times to "${ waitId }".`)
+    }
+
     now = now && !waitFor                   // Has to wait if waitFor is used (... XD )
     CONFIG.subscriptionReady[waitId] = now
 

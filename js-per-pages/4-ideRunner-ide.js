@@ -391,8 +391,9 @@ class IdeFeedbackManager extends IdeHistoryManager {
         subscribeWhenReady(
           "revealOnLoad", perennialMathJaxUpdate, {
             waitFor: ()=>CONFIG.subscriptionReady.MathJax,
+            ignoreMultipleSubscriptions: true,
             runOnly: true,
-            delay: 100,
+            delay: 150,
             maxTries: 200,  // Needs a lot of tries, to make sure everything can be setup
                             // properly if pyodide is starting "too soon".
           }
