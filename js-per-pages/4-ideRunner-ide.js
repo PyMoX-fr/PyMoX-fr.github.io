@@ -294,6 +294,7 @@ class IdeFeedbackManager extends IdeHistoryManager {
     const done         = success ? 1:-1
     const isDelayed    = this.profile === CONFIG.PROFILES.delayedReveal
     const someToReveal = this.corrRemsMask && this.hiddenDivContent && (!this.profile || isDelayed)
+    const trueSuccess  = success && !isDelayed
 
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - handleValidationOutcome")
     // console.log("[OutCome]", JSON.stringify({
@@ -305,15 +306,12 @@ class IdeFeedbackManager extends IdeHistoryManager {
     this.setStorage({done})
     this.updateValidationBtnColor(done)
 
-    if(allowCountDecrease && (!success || isDelayed)){
+    if(allowCountDecrease && !trueSuccess){
       this.decreaseIdeCounter()
     }
 
     // Reveal if success and not delayed, or if attempts==0 (means last error, are last delayed)
-    const isRevelation = someToReveal && (
-      this.attemptsLeft===0
-      || success && !isDelayed
-    )
+    const doReveal = someToReveal && (this.attemptsLeft===0 || trueSuccess)
 
     /*If success, a custom final message has to be built:
           - If the revelation already occurred, return no message at all
@@ -324,11 +322,11 @@ class IdeFeedbackManager extends IdeHistoryManager {
      */
     const isSuccessNoReveal = success && this.hiddenDivContent && !isDelayed
 
-    if(isRevelation){
+    if(doReveal){
       LOGGER_CONFIG.ACTIVATE && jsLogger("[OutCome]", 'reveal!', success)
       runtime.finalMsg = success ? this._buildSuccessMessage(someToReveal, isDelayed)
                                  : this._getSolRemTxt(false)
-      this.revealSolutionAndRems()
+      this.revealSolutionAndRems({show:trueSuccess})
 
     }else if(isSuccessNoReveal){
       // Always display the "bravo" message on success, if corr&REMs exist but are not revealable
@@ -361,11 +359,20 @@ class IdeFeedbackManager extends IdeHistoryManager {
    * The only piece of contract this method is holding is that it flags the revelation as done,
    * and decides if the div content has to be decompressed or not on the way.
    *
-   * @waitForMathJax: if true, the call is done with profile=="revealed", so mathjax might not be
-   * ready yet, and the update must be delayed.
+   * @options:
+   *  .waitForMathJax (=false):
+   *      If true, the call is done with profile=="revealed", so mathjax might not be ready yet,
+   *      and the update must be delayed.
+   *  .show (=false):
+   *      If true, deploy the admonition.
    * */
-  revealSolutionAndRems(waitForMathJax=false){    // CodCap
+  revealSolutionAndRems(options={}){    // CodCap
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - Enter revealSolutionAndRems")
+
+    const {waitForMathJax, show} = {
+      waitForMathJax:false, show:false,
+      ...options
+    }
 
     // Need to check here _one more_ time against hiddenDivContent because of the "show"
     // button logic...
@@ -398,6 +405,10 @@ class IdeFeedbackManager extends IdeHistoryManager {
                             // properly if pyodide is starting "too soon".
           }
         )
+      }
+
+      if(show){
+        sol_div.find("details").prop('open', true)
       }
     }
   }
@@ -746,7 +757,7 @@ export class IdeRunner extends IdeRunnerLogic {
 
     // Check for initial actions on page load:
     if(this.profile===CONFIG.PROFILES.revealed){
-      this.revealSolutionAndRems(true)
+      this.revealSolutionAndRems({waitForMathJax:true})
     }
     if(this.twoCols){
       this.switchSplitScreenFromButton(null, false)
@@ -878,7 +889,7 @@ export class IdeRunner extends IdeRunnerLogic {
         case 'corr_btn':  if(!corrStuff) return;
                           callback = ideThis.runners.validateCorr.asEvent ; break
         case 'show':      if(!corrStuff) return;
-                          callback = ()=>ideThis.revealSolutionAndRems() ; break
+                          callback = ()=>ideThis.revealSolutionAndRems({show:true}) ; break
 
         default:          throw new Error(`Y'should never get there, mate... (${ kind })`)
       }
