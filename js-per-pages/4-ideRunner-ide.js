@@ -180,8 +180,10 @@ class IdeHistoryManager extends IdeAceManager {
   updateValidationBtnColor(done=undefined, jElt=undefined){
     done ??= this.storage.done
     jElt ??= this.global.find("button[btn_kind=check]")
-    const color = this.getIdeStateColor(done)
-    jElt.css('--ide-btn-color',  color)
+    if(!this.isDelayedRevelation){
+      const color = this.getIdeStateColor(done)
+      jElt.css('--ide-btn-color',  color)
+    }
     return jElt
   }
 
@@ -274,10 +276,14 @@ class IdeFeedbackManager extends IdeHistoryManager {
 
     if(msg) this.terminalEcho(msg)
 
-    // If no error yet and a validation button is present while running the editor's code only,
-    // prepare a "very final" message reminding to try the validations:
+    // Prepare a "very final" message if needed:
     if(playing && this.hasCheckBtn){
+      // If a validation button is present while running the public tests
       runtime.finalMsg = CONFIG.lang.unforgettable.msg
+    }
+    else if(this.isDelayedRevelation && this.attemptsLeft>0 && this.running.isValidating){
+      // If a validation button is present while running the public tests
+      runtime.finalMsg = CONFIG.lang.delayedReveal.msg.replace('{N}', this.attemptsLeft-1+"")
     }
   }
 
@@ -290,9 +296,9 @@ class IdeFeedbackManager extends IdeHistoryManager {
    * when it comes to feedback given in this method, it's only about a potential "final message".
    * */
   handleValidationOutcome(runtime, allowCountDecrease, code){
+    const isDelayed    = this.isDelayedRevelation
     const success      = !runtime.stopped
-    const done         = success ? 1:-1
-    const isDelayed    = this.profile === CONFIG.PROFILES.delayedReveal
+    const done         = isDelayed ? 0 : success ? 1:-1
     const someToReveal = this.corrRemsMask && this.hiddenDivContent && (!this.profile || isDelayed)
     const trueSuccess  = success && !isDelayed
 

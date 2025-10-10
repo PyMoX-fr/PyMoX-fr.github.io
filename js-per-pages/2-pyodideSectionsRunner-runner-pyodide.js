@@ -66,6 +66,8 @@ class PyodideSectionsRunnerBase {
   get isIde()      { return false }
   get hasTerminal(){ return false }
 
+  get isDelayedRevelation(){ return this.profile === CONFIG.PROFILES.delayedReveal }
+
 
   //JS_CONFIG_DUMP
   get attemptsLeft()      { return this.data.attempts_left }
@@ -320,8 +322,10 @@ class PyodideSectionsRunnerBase {
   /**Build the default configuration runtime to use to run the user's code.
    * */
   setupGlobalConfig(){
-    CONFIG.runningId = this.id
     CONFIG.running   = this.running.name
+    CONFIG.runningId = this.id
+    CONFIG.runningAttempts = this.data.attempts_left // Avoiding troubles with non IDEs or no_undefined logisitic in dev.
+
     for(const prop of 'get del set keys'.split(' ')){
       const globName = prop+'Storage'
       const method   = `pyodide${ _.capitalize(prop) }Storage`

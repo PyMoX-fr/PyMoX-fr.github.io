@@ -75,6 +75,7 @@ const CONFIG = {
         successMsg: null,
         successMsgNoTests: null,
         unforgettable: null,
+        delayedReveal: null,
         successHead: null,
         successHeadExtra: null,
         successTail: null,
@@ -125,6 +126,7 @@ const CONFIG = {
     relUrlRedirect : "",
     running: null,          // Current running profile. Set through lockedRunnerWithBigFailWarningFactory.
     runningId: null,        // html id of the current IDE, terminal or py_btn running
+    runningAttempts: null,  // number of attempts left for the current IDE
 
     termMessage: null,      // (key, msg, format=null) -> undefined
     loadIdeContent: null,   // (editorId, name, code) -> undefined (used for ZIP imports)
