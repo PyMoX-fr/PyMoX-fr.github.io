@@ -66,7 +66,9 @@ class PyodideSectionsRunnerBase {
   get isIde()      { return false }
   get hasTerminal(){ return false }
 
-  get isDelayedRevelation(){ return this.profile === CONFIG.PROFILES.delayedReveal }
+  get isDelayedRevelation(){
+    return this.profile === CONFIG.PROFILES.delayedReveal
+  }
 
 
   //JS_CONFIG_DUMP

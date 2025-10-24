@@ -51,7 +51,7 @@ const get=(id)=>ace.edit(id).getSession().getValue()
 const set=(id, content="")=>ace.edit(id).getSession().setValue(content)
 
 const toSection=(id, code)=>`
-# --- PYODIDE:${ toSectionName[id] } --- #
+# --- PMT:${ toSectionName[id] } --- #
 
 ${ code }
 `
@@ -149,7 +149,7 @@ class IdePlayground extends IdeRunner {
   }
 
   _applyAllCodesFromFileContent(txt){
-    const parts = txt.split(/#\s*-+\s*PYODIDE:(\w+)\s*-+\s*#/)
+    const parts = txt.split(/#\s*-+\s*(?:PMT|PYODIDE):(\w+)\s*-+\s*#/)
     parts.splice(0,1)   // remove leading empty element
     let codeContent=""
 

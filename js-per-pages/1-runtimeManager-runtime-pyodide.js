@@ -99,7 +99,7 @@ class Ctx {
 
       qualname: `${ section || '?' }_${ ctx.method.name }`, // "qualified name" = section + method to run in the current action (debugging purpose)
       ...ctx,
-      section,                      // As in "PYODIDE:{section}", or "unknown" instead. Visible in the stacktrace on errors.
+      section,                      // As in "PMT:{section}", or "unknown" instead. Visible in the stacktrace on errors.
                                     // Always AFTER unpacking @ctx, because section either is consistent, or has been correctly updated.
     }
 

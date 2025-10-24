@@ -464,7 +464,7 @@ class IdeTesterGuiManager extends IdeRunner {
   /**Build a sub section of the original python file.
    * */
   _toSection(py_section, content){
-    return content && `\n\n# --- PYODIDE:${ py_section } --- #\n${ content }`
+    return content && `\n\n# --- PMT:${ py_section } --- #\n${ content }`
   }
 
 }
