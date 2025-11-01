@@ -89,11 +89,12 @@ class IdeTesterGuiManager extends IdeRunner {
     $(".filter-btn").each(function(){
 
       const jBtn = $(this)
+
+      // Setup checkboxes example(s):
+      jBtn.find("span.status_filter").html(CONFIG.QCM_SVG)
+
       const kind = this.id.split('-')[1]
       ideThis.globalTestsJq.css(`--display-${ kind }`, 'unset')
-
-      jBtn.find(".status_filter").html(CONFIG.QCM_SVG).addClass([CONFIG.qcm.multi, kind])
-
       jBtn.on('click', function(){
         const state = 1 ^ +jBtn.attr('state')
         jBtn.attr('state', state)
@@ -260,10 +261,10 @@ class IdeTesterGuiManager extends IdeRunner {
 
 
   updateCountersFor(jDiv, delta){
-    if(jDiv.hasClass(CONFIG.qcm.ok))        this.counters.success   += delta
-    if(jDiv.hasClass(CONFIG.qcm.wrong))     this.counters.failed    += delta
-    if(jDiv.hasClass(CONFIG.qcm.checked))   this.counters.remaining += delta
-    if(jDiv.hasClass(CONFIG.qcm.unchecked)) this.counters.skip      += delta
+    if(jDiv.hasClass(CONFIG.qcm.checked))        this.counters.remaining += delta
+    else if(jDiv.hasClass(CONFIG.qcm.unchecked)) this.counters.skip      += delta
+    else if(jDiv.hasClass(CONFIG.qcm.ok)       || jDiv.hasClass(CONFIG.qcm.failOk))  this.counters.success += delta
+    else if(jDiv.hasClass(CONFIG.qcm.failTest) || jDiv.hasClass(CONFIG.qcm.passBad)) this.counters.failed  += delta
   }
 
 
@@ -599,11 +600,8 @@ export class IdeTester extends IdeTesterGuiManager {
     this.conf.attempts_end = this.attemptsLeft  // Store before swap
     const testOutcome = this._analyzeTestOutcome(runtime)
 
-    const success     = !testOutcome
-    const classToBe   = !success        ? CONFIG.qcm.wrong
-                      : !this.conf.fail ? CONFIG.qcm.ok
-                                        : [CONFIG.qcm.ok,CONFIG.qcm.failOk]
-                                                      // warning: failOk always last!
+    const iClass    = !testOutcome * 2 + this.conf.fail
+    const classToBe = [CONFIG.qcm.failTest, CONFIG.qcm.passBad, CONFIG.qcm.ok, CONFIG.qcm.failOk][iClass]
 
     this.swapConfAndData()    // Has to always occur
     this.teardownFetchers()   // Has to always occur

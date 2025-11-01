@@ -146,7 +146,9 @@ class GlobalSequentialRunner extends GlobalRunnersManagerBase {
     const runningMan = RunningProfile.build(RunningProfile.PROFILE[actionProp])
     const useSequential = (
       sequentialRun && pyoRunner.isInSequentialRun && (
-        !pyoRunner.isIde || pyoRunner.isIde && runningMan.isValidating
+        !pyoRunner.isIde || pyoRunner.isIde && (
+          runningMan.isValidating || pyoRunner.seqPlay && runningMan.isPlaying
+        )
       )
     )
     if(!useSequential){

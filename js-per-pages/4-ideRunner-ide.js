@@ -393,6 +393,9 @@ class IdeFeedbackManager extends IdeHistoryManager {
         sol_div.html(unCompressed)
       }
       sol_div.attr('class', '')         // Unhide
+      if(show){
+        sol_div.children("details").first().prop('open', true)
+      }
       this.hiddenDivContent = false     // Never reveal again (last in case of errors...)
 
       // Enforce formattings of REM contents
@@ -411,10 +414,6 @@ class IdeFeedbackManager extends IdeHistoryManager {
                             // properly if pyodide is starting "too soon".
           }
         )
-      }
-
-      if(show){
-        sol_div.find("details").prop('open', true)
       }
     }
   }

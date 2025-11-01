@@ -86,17 +86,30 @@ If not, see <https://www.gnu.org/licenses/>.
   display: grid;
   gap: 10px;
   align-items: unset;
-  grid-template-columns: auto auto;
-  padding: 12px 20px 6px 31px;
+  grid-template-columns: auto min-content min-content;
+  padding: 12px 5px 6px 25px;
+  align-items: center;
 }
 
-.filter-show {margin-top: -3px;}
+.filter-show { margin-top: -3px; }
 
 .must-fail svg.qcm {
-  --qcm-fill: white;
-  --qcm-light: #20A020;
+  --qcm-fill: #20A020;
+  --qcm-light: red;
+  --tick:unset;
+  --cross:none;
+}
+.pass-bad svg.qcm {
+  --qcm-fill: #20A020;
+  --qcm-light: red;
   --tick:none;
-  --cross:unset
+  --cross:unset;
+}
+.fail-test svg.qcm {
+  --qcm-fill: white !important;
+  --qcm-light: red !important;
+  --tick:none;
+  --cross:unset;
 }
 
 .md-typeset .pmt_note_tests {

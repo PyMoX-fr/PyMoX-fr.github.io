@@ -106,6 +106,7 @@ class PyodideSectionsRunnerBase {
   get removeAssertionsStacktrace(){ return this.data.remove_assertions_stacktrace }
   get runGroup()          { return this.data.run_group }
   get secretTests()       { return this.data.secret_tests }
+  get seqPlay()           { return this.data.seq_play }
   get seqRun()            { return this.data.seq_run }
   get showOnlyAssertionErrorsForSecrets(){ return this.data.show_only_assertion_errors_for_secrets }
   get srcHash()           { return this.data.src_hash }

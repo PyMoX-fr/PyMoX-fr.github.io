@@ -302,8 +302,10 @@ const CONFIG = {
     multi:     'multi',
     single:    'single',
     failOk:    'must-fail',
+    failTest:  'fail-test',
+    passBad:   'pass-bad',
   },
   qcm_clean_up: [
-    'checked', 'unchecked', 'correct', 'incorrect', 'must-fail'
+    'checked', 'unchecked', 'correct', 'incorrect', 'must-fail', 'fail-test', 'pass-bad'
   ],
 }
