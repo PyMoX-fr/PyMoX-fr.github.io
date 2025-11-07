@@ -161,7 +161,6 @@ const CONFIG = {
       qcmCounterCls:   ".qcm-counter",
       qcmWrapper:      ".qcm_wrapper",
       testsResults:    "div.py_mk_tests_results",
-      testElement:     ".py_mk_test_element",
       trashCan:        "#trash-can-svg",
       aceSettings:     'div#ace_settingsmenu',
       aceF1Cmds:       'div.ace_prompt_container',
@@ -274,24 +273,22 @@ const CONFIG = {
     },
 
     QCM_SVG: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-  <svg class="qcm" viewBox="0 0 12 12" role="img" version="1.1"
-    xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"
-    style="stroke-width:1.25;stroke-linecap:round">
-    <path class="bgd-svg" style="fill:var(--qcm-fill);stroke:none;"
-      d="M 5.93,1.93 3.29,2.40 2.70,2.75 1.86,5.70 2.38,8.76 2.75,9.29 5.82,10.13 9.07,9.45 9.36,9.13 10.12,6.11 9.49,2.93 9.12,2.65 Z"></path>
-    <path class="tick"
-      style="display:var(--tick);fill:var(--qcm-light);stroke:var(--qcm-light);stroke-width:0;stroke-linecap:butt;stroke-linejoin:round"
-      d="M 6.34,8.49 C 6.49,7.32 7.07,5.36 9.05,4.06 L 8.93,3.91 C 7.13,4.50 6.38,5.52 5.63,7.03 5.36,6.61 3.91,5.92 3.47,5.86 L 3.32,6.00 C 4.41,6.54 5.06,7.30 5.63,8.77"></path>
-    <g style="display:var(--cross);fill:var(--qcm-light);stroke:var(--qcm-light)"
-      transform="matrix(0.91,0,0,0.91,0.52,0.52)">
+<svg class="qcm" viewBox="0 0 12 12" role="img" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"
+  style="stroke-width:1.25;stroke-linecap:round">
+  <path class="bgd-svg" style="fill:var(--qcm-fill);stroke:none;" d="M 5.93,1.93 3.29,2.40 2.70,2.75 1.86,5.70 2.38,8.76 2.75,9.29 5.82,10.13 9.07,9.45 9.36,9.13 10.12,6.11 9.49,2.93 9.12,2.65 Z"></path>
+  <g style="fill:var(--qcm-light);stroke:var(--qcm-light)">
+    <path class="tick" style="display:var(--tick);stroke-width:0;stroke-linecap:butt;stroke-linejoin:round" d="M 6.34,8.49 C 6.49,7.32 7.07,5.36 9.05,4.06 L 8.93,3.91 C 7.13,4.50 6.38,5.52 5.63,7.03 5.36,6.61 3.91,5.92 3.47,5.86 L 3.32,6.00 C 4.41,6.54 5.06,7.30 5.63,8.77"></path>
+    <g style="display:var(--cross);" transform="matrix(0.91,0,0,0.91,0.52,0.52)">
       <rect width="8.33" height="0.59" x="-5.86" y="8.02" transform="rotate(-56.54)"></rect>
       <rect width="8.33" height="0.59" x="-12.47" y="-1.99" transform="matrix(-0.55,-0.83,-0.83,0.55,0,0)"></rect>
     </g>
-    <g style="fill:none;stroke:var(--qcm-border)">
+  </g>
+  <g style="fill:none;stroke:var(--qcm-border)">
     <circle style="display:var(--circle)" cy="6" cx="6" r="4.2"></circle>
     <rect style="display:var(--square)" class="square" width="7.41" height="7.36" x="2.29" y="2.32"></rect>
-    </g>
-  </svg>`,
+  </g>
+</svg>`,
 
   qcm: {
     checked:   "checked",

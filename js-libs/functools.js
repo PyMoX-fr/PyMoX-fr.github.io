@@ -773,6 +773,7 @@ export function buildJqSelect(obj, prop, valuesArr, options={}){
 
 export const cancelEvent=(e)=>{
     if(!e) return;
+    if(e.originalEvent) e=e.originalEvent
     if(e.stopPropagation) e.stopPropagation()
     if(e.preventDefault)  e.preventDefault()
 }

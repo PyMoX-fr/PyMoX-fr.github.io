@@ -129,6 +129,10 @@ mais sans lien dessus */
   /* display: grid;  FIX - py_btn in span not working anymore */
   cursor: pointer;
   align-items: center;
+  text-decoration: underline dashed gray;
+}
+.tooltip[data-tip-txt] {
+  cursor:unset;
 }
 
 .tooltip .tooltiptext code {
@@ -275,6 +279,8 @@ mais sans lien dessus */
 .p5_btns_wrapper.p5_top    { flex-direction: row; }
 .p5_btns_wrapper.p5_bottom { flex-direction: row; }
 
-.tooltip.p5-btn > img {
-  width: 24px;
-}
+.tooltip.p5-btn > img { width: 24px; }
+
+
+#floating-tip { position: absolute; }
+#floating-tip > span { visibility: unset; }

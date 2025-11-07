@@ -49,7 +49,7 @@ If not, see <https://www.gnu.org/licenses/>.
   grid-template-columns: auto repeat(3, max-content);
   justify-items: baseline;
   align-items: center;
-  width: fit-content;
+  width: 100%;
   column-gap: 1em;
 }
 
@@ -76,7 +76,7 @@ If not, see <https://www.gnu.org/licenses/>.
     background-color: rgb(90, 88, 88);
   }
 
-.cases-btn:active, .filter-btn[state="1"] {
+.cases-btn:active, .filter-btn[active="1"] {
   box-shadow:
     inset -2px -2px 1px rgba(255, 255, 255, 0.6),
     inset 2px 2px 5px rgba(0, 0, 0, 0.6);
@@ -87,27 +87,29 @@ If not, see <https://www.gnu.org/licenses/>.
   gap: 10px;
   align-items: unset;
   grid-template-columns: auto min-content min-content;
-  padding: 12px 5px 6px 25px;
+  padding: 10px 12px 10px 20px;
   align-items: center;
 }
 
 .filter-show { margin-top: -3px; }
 
-.must-fail svg.qcm {
+svg.qcm { margin:0 }  /* override */
+
+.must-fail svg.qcm, svg.qcm[data-state=must-fail] {
   --qcm-fill: #20A020;
   --qcm-light: red;
   --tick:unset;
   --cross:none;
 }
-.pass-bad svg.qcm {
+.pass-bad svg.qcm, svg.qcm[data-state=pass-bad] {
   --qcm-fill: #20A020;
   --qcm-light: red;
   --tick:none;
   --cross:unset;
 }
-.fail-test svg.qcm {
-  --qcm-fill: white !important;
-  --qcm-light: red !important;
+.fail-test svg.qcm, svg.qcm[data-state=fail-test] {
+  --qcm-fill: white;
+  --qcm-light: red;
   --tick:none;
   --cross:unset;
 }
@@ -131,29 +133,31 @@ If not, see <https://www.gnu.org/licenses/>.
   /* width: 100%; BREAKS LAYOUT */
 }
 
-.py_mk_test_element.status > svg.qcm {
-  margin: 0
+.py_mk_test_element > svg.qcm {
+  margin: 0;
+  cursor: pointer;
 }
 
-.py_mk_test_element.status.top_test {
+.py_mk_test_element.top_test {
   padding-top: 0.2em
 }
 
-.py_mk_test_element > .sections {
+.test-btns.testing img {
+  width: 22px;
+}
+
+.py_mk_test_element > .sections-boxes {
   display: grid;
   grid-template-columns: repeat(5, auto);
   height: fit-content;
   align-self: start;
   margin: -4px 0 10px 0;
 }
-.tooltip.section-box {
+.sections-boxes .tooltip {
   line-height: 1;
+  cursor: default;
 }
 
 .orange-box {
   box-shadow: 0 0 5px orange;
-}
-
-.tooltip.testing > img {
-  width: 22px;
 }

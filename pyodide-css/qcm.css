@@ -164,31 +164,31 @@ svg.qcm {
   opacity: var(--opacity, 1);
 }
 
-.multi svg.qcm {
+.multi svg.qcm, svg.qcm[data-state=multi] {
   --circle:none;
   --square:unset;
 }
-.single svg.qcm {
+.single svg.qcm, svg.qcm[data-state=single] {
   --circle:unset;
   --square:none;
 }
 /* Override variables depending on the class of the parent item node */
-.correct svg.qcm {
+.correct svg.qcm, svg.qcm[data-state=correct] {
   --qcm-fill: #20A020;
   --tick:unset;
 }
-.missed svg.qcm {
+.missed svg.qcm, svg.qcm[data-state=missed] {
   --qcm-fill: red;
   --tick:unset;
 }
-.incorrect svg.qcm {
+.incorrect svg.qcm, svg.qcm[data-state=incorrect] {
   --qcm-fill: red;
   --cross:unset;
 }
-.unchecked svg.qcm {
+.unchecked svg.qcm, svg.qcm[data-state=unchecked] {
   --qcm-fill: none;
 }
-.checked svg.qcm {
+.checked svg.qcm, svg.qcm[data-state=checked] {
   --qcm-fill: var(--md-default-fg-color);
 }
 

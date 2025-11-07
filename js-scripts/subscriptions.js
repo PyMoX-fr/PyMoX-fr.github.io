@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { jsLogger } from 'jsLogger'
-import { getTheme, subscribeWhenReady, perennialMathJaxUpdate } from 'functools'
+import { cancelEvent, getTheme, subscribeWhenReady, perennialMathJaxUpdate } from 'functools'
 
 export const chaining=0;      // To control imports orders when using overrides
 
@@ -61,6 +61,130 @@ CONFIG.ACE_COLOR_THEME.aceStyle = {
     default: default_ace_style,
     slate: slate_ace_style,
 };
+
+
+
+
+
+
+/**Logistic for PMT "bare tooltips": They are automatically put in place when an element holds at
+ * the same time the ".tooltip" class and a "data-tip-txt" attribute.
+ *
+ * - The width of the tooltip can be set using "data-tip-width" (value in em)
+ * - The text cannot contains any html code, only text.
+ * */
+;(function(){
+
+  const tips = $(".tooltip[data-tip-txt]")
+  if(!tips.length) return;
+
+  const DELTA    = 10
+  const tipSpan  = $('<span class="tooltiptext"></span>')
+  const floating = $(`<div id="floating-tip" class="md-header md-typeset tooltip"></div>`)
+  floating.append(tipSpan)
+  floating.appendTo('body')
+
+
+  const defaultPos=()=>({
+    translateX:-50, translateY:0, anchorX:0, anchorY:0, width:'auto',
+  })
+
+  const pointerInfos=(top, left, right)=>{
+    const viewW   = document.documentElement.clientWidth
+    const viewH   = document.documentElement.clientHeight
+    const isDown  = top   > viewH * 0.85
+    const isLeft  = left  < viewW * 0.10
+    const isRight = right > viewW * 0.90
+    return {isDown, isLeft,isRight}
+  }
+
+  /**Place the anchor point just below the mouse pointer by mutation of pos
+   * */
+  const getMovingPosition=(e, obj)=>{
+    const pos = defaultPos()
+
+    const w = obj.dataset.tipWidth
+    if (w!==undefined) pos.width = w+'em'
+
+    e = e.originalEvent
+    const pointer = pointerInfos(e.clientY, e.clientX, e.clientX)
+
+    pos.translateX = pointer.isRight ? -100 : 0
+    pos.translateY = pointer.isDown  ? -100 : 0
+    pos.anchorX = e.pageX
+    pos.anchorY = e.pageY + DELTA * (pointer.isDown ? -1:1)
+
+    return pos
+  }
+
+  /**Automatically define the position of the tooltip around the hovered element by mutation of pos
+   * */
+  const getAnchorPoint=({width, height, top, left}, pagePos)=>{
+    const pos   = defaultPos()
+
+    pos.anchorX = Math.round(pagePos.left + width/2)
+    pos.anchorY = pagePos.top + height + DELTA
+
+    const pointer = pointerInfos(top + height, left, left+width)
+    if(pointer.isDown){
+      pos.anchorY    = pagePos.top - DELTA
+      pos.translateY = -100
+    }
+    if(pointer.isLeft){
+      pos.translateX = 0
+    }else if (pointer.isRight){
+      pos.translateX = -100
+    }
+    return pos
+  }
+
+  const placement=function(pos){
+    floating.css({
+      display: 'unset',
+      top:  `${ pos.anchorY }px`,
+      left: `${ pos.anchorX }px`,
+    })
+    tipSpan.css({
+      width: pos.width,
+      transform: `translate(${ pos.translateX }%, ${ pos.translateY }%)`,
+    })
+  }
+
+  tips.on('mouseleave', function(e){
+    floating.css({display: 'none'})
+    tipSpan.text("")
+
+  }).on('mouseenter', function(e){
+    let pos
+
+    if(this.dataset.tipMove!==undefined){
+      pos = getMovingPosition(e, this)
+
+    }else{
+      // Floating must be positioned relative to the _page_, not the viewport (absolute position):
+      const pagePos = $(this).position()
+
+      // Positions & dimensions in viewport:
+      const rect = this.getBoundingClientRect()
+
+      pos = getAnchorPoint(rect, pagePos)
+    }
+    tipSpan.text(this.dataset.tipTxt)
+    placement(pos)
+  })
+
+  // Put in place the moving tooltips:
+  ;[...tips]
+    .filter(tip=>tip.dataset.tipMove!==undefined)
+    .forEach(moving=>{
+      $(moving).on('mousemove', function(e){
+        const pos = getMovingPosition(e, this)
+        placement(pos)
+      })
+    })
+})()
+
+
 
 
 
