@@ -190,9 +190,9 @@ export const waitForPyodideReady = async()=>{
  * If the subscription is not possible yet (readyForSubscription[waitOn] is falsy), try again
  * @delay later until it works.
  *
- * @waitId :  Property to observe in readyForSubscription global object.Also used as subscription
- *            identifier.
- * @callback: Routine to run when the document changes
+ * @subscriptionId : Property to observe in readyForSubscription global object.Also used as
+ *                   subscription identifier.
+ * @callback: Routine to run when the document isReady/conditions are fulfilled.
  * @options : An object with optional fields:
  *      .delay (=50):
  *          Time interval (in ms) to wait in between two subscription attempts.
@@ -213,10 +213,13 @@ export const waitForPyodideReady = async()=>{
  *          If false, subscribing several times to the same event throws an error. If true,
  *          just ignore the current subscription call.
  *
- * @throws: Error if maxTries subscriptions attempts are done without success.
+ * @throws:
+ *      - Error if maxTries subscriptions attempts are done without success.
+ *      - Error if the same witId is registered several times and options.ignoreMultipleSubscriptions
+ *        is false.
  * */
-export function subscribeWhenReady(waitId, callback, options={}){
-    LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscribing] - Enter', waitId)
+export function subscribeWhenReady(subscriptionId, callback, options={}){
+    LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscribing] - Enter', subscriptionId)
 
 
     let {now, delay, waitFor, runOnly, maxTries, ignoreMultipleSubscriptions} = {
@@ -229,44 +232,44 @@ export function subscribeWhenReady(waitId, callback, options={}){
         ...options
     }
 
-    if(waitId in CONFIG.subscriptionReady){
+    if(subscriptionId in CONFIG.subscriptionReady){
         if(ignoreMultipleSubscriptions){
             return
         }
-        throw new Error(`Cannot subscribe several times to "${ waitId }".`)
+        throw new Error(`Cannot subscribe several times to "${ subscriptionId }".`)
     }
 
     now = now && !waitFor                   // Has to wait if waitFor is used (... XD )
-    CONFIG.subscriptionReady[waitId] = now
+    CONFIG.subscriptionReady[subscriptionId] = now
 
     const waitForProp = typeof (waitFor)=='string'
     const checkReady  = !waitFor    ? ()=>null
-                      : waitForProp ? ()=>{ CONFIG.subscriptionReady[waitId] = $(waitFor).length > 0 }
-                                    : ()=>{ CONFIG.subscriptionReady[waitId] = waitFor() }
+                      : waitForProp ? ()=>{ CONFIG.subscriptionReady[subscriptionId] = $(waitFor).length > 0 }
+                                    : ()=>{ CONFIG.subscriptionReady[subscriptionId] = waitFor() }
 
     const isNotReady =()=>{
         checkReady()
-        return !( CONFIG.subscriptionReady[waitId] && globalThis.document$ )
+        return !( CONFIG.subscriptionReady[subscriptionId] && globalThis.document$ )
     }
 
     function autoSubscribe(){
 
         LOGGER_CONFIG.ACTIVATE && jsLogger(
-            '[Subscribing] - Attempt', waitId,'Tries:', CONFIG.subscriptionsTries[waitId]
+            '[Subscribing] - Attempt', subscriptionId,'Tries:', CONFIG.subscriptionsTries[subscriptionId]
         )
         if(isNotReady()){
-            const nTries = CONFIG.subscriptionsTries[waitId]+1 || 1
+            const nTries = CONFIG.subscriptionsTries[subscriptionId]+1 || 1
             if(nTries > maxTries){
-                throw new Error(`Impossible to subscribe to ${ waitId } in time: too many tries.`)
+                throw new Error(`Impossible to subscribe to ${ subscriptionId } in time: too many tries.`)
             }
-            CONFIG.subscriptionsTries[waitId] = nTries
+            CONFIG.subscriptionsTries[subscriptionId] = nTries
             setTimeout(autoSubscribe, delay)
 
         }else{
             const wrapper=function(){
                 try{
                     LOGGER_CONFIG.ACTIVATE && jsLogger(
-                        '[Subscribing] - Running', waitId, 'runOnly', runOnly,'Tries:', CONFIG.subscriptionsTries[waitId]
+                        '[Subscribing] - Running', subscriptionId, 'runOnly', runOnly,'Tries:', CONFIG.subscriptionsTries[subscriptionId]
                     )
                     callback()
                 }catch(e){
@@ -278,7 +281,7 @@ export function subscribeWhenReady(waitId, callback, options={}){
             }else{
                 const subscript = document$.subscribe(wrapper)
                 document.addEventListener(CONFIG.onDoneEvent, function(){
-                    LOGGER_CONFIG.ACTIVATE && jsLogger('[Unsubscribing] -', waitId)
+                    LOGGER_CONFIG.ACTIVATE && jsLogger('[Unsubscribing] -', subscriptionId)
                     subscript.unsubscribe()
                 })
             }
@@ -287,7 +290,7 @@ export function subscribeWhenReady(waitId, callback, options={}){
     autoSubscribe()
 
     if(!now){
-        return ()=>{ CONFIG.subscriptionReady[waitId]=true }
+        return ()=>{ CONFIG.subscriptionReady[subscriptionId]=true }
     }
 }
 
@@ -570,15 +573,19 @@ export const jDiv=(...elements)=>{
 
 
 const defaultOptions=(options, prop)=>({
+
+    // Outer html element:
     tagClass: "vertical",
     tagId: prop,
     fontSize: "",
     extraStyles: "",    // For the outer element/tag, as "width:min-content;..."
 
+    // If a label is used:
     label: prop,
     labelFirst: true,
     noLabel: false,
 
+    // If an input element is used:
     inputId: prop+'-input',     // to link the label to the input/element
     inputClass: "",
 

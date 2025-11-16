@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 import {
   getIdeDataFromStorage,
+  freshStore,
   PythonError,
   sleep,
   PMT_LOCAL_STORAGE_KEYS_WRITE,
@@ -114,6 +115,12 @@ class IdeStorageManager extends TerminalRunner {
   setStorage(changes={}){
     this._updateInternalStorage(changes)
     localStorage.setItem(this.id, JSON.stringify(this.storage))
+  }
+
+  resetElement(){
+    super.resetElement()
+    this.storage = freshStore("", {}, this)
+    localStorage.removeItem(this.id)
   }
 
   _updateInternalStorage(changes){

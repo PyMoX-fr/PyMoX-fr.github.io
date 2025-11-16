@@ -52,7 +52,10 @@ class GlobalRunnersManagerBase {
     this.allRunners[runner.id] = runner
   }
 
-  static _defineIdesManagerProxyLike(){   // Cap override
+  /**Define a global intermediate object transferring silently the calls to the "inner/hidden"
+   * RunnerManager, without exposing it directly.
+   */
+  static _defineIdesManagerProxyLike(){
 
     const IdesManagerClass = CONFIG.CLASSES_POOL.GlobalRunnersManager
     const IDE_MANAGER_SRC  = new IdesManagerClass()
@@ -101,7 +104,7 @@ class GlobalSequentialRunner extends GlobalRunnersManagerBase {
     // of the runners is not guaranteed. So rely on the ordering of the groups in the page.
   }
 
-  registerRunner(runner){
+  registerRunner(runner){     // Cap override
     super.registerRunner(runner)
 
     if(!runner.isInSequentialRun) return;
@@ -120,10 +123,10 @@ class GlobalSequentialRunner extends GlobalRunnersManagerBase {
     }
   }
 
-  overridePriorityElement(elt){
-    if(elt.isInSequentialRun){
-      const iGroup = elt.runGroup
-      this.priority[iGroup] = elt
+  overridePriorityElement(runner){
+    if(runner.isInSequentialRun){
+      const iGroup = runner.runGroup
+      this.priority[iGroup] = runner
     }
   }
 

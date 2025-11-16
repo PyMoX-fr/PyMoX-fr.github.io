@@ -351,7 +351,9 @@ class PyodideSectionsRunnerBase {
   pyodideDelStorage(key)  { noStorage() }   // sink
 
 
-  makeDirty(){ throw new Error('Not implemented') } // sink
+  resetElement(){}    // sink
+
+  makeDirty(){ throw new Error('Not implemented') } // sink with security
 
   /**Lock the terminal (if any) */
   lockDisplay(){}     // sink
@@ -547,6 +549,11 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
   makeDirty(isDirty=true){
     this.isDirty = isDirty
     RUNNERS_MANAGER.overridePriorityElement(this)
+  }
+
+  resetElement(){
+    super.resetElement()
+    this.makeDirty()
   }
 
 

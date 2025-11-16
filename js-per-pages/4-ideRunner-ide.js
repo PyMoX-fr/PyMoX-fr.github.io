@@ -26,7 +26,6 @@ import {
   choice,
   decompressLZW,
   downloader,
-  freshStore,
   getIdeOptions,
   perennialMathJaxUpdate,
   PythonError,
@@ -37,7 +36,6 @@ import {
   uploader,
   RunningProfile,
 } from 'functools'
-// import { clearPyodideScope } from '0-generic-python-snippets-pyodide'
 import { observeResizeOf } from '3-terminalRunner-term'
 import {
   IdeSplitScreenManager,
@@ -1008,33 +1006,33 @@ export class IdeRunner extends IdeRunnerLogic {
 
 
 
-
   /**Reset the content of the editor to its initial content, and reset the localStorage for
    * this editor on the way.
    *
    * @returns; true if the user confirmed the reset.
    * */
-  restart(){    LOGGER_CONFIG.ACTIVATE && jsLogger("[Restart]")   // CodCap
+  restart(){                                                      // CodCap
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Restart]")
 
-    if(!window.confirm(CONFIG.lang.restartConfirm.msg)){
-      return false
+    const doReset = window.confirm(CONFIG.lang.restartConfirm.msg)
+    if(doReset){
+      this.resetElement()
     }
+    return doReset
+  }
 
-    this.setStartingCode({extractFromLocalStorage: false})
-    this.storage = freshStore("", {}, this)
-    localStorage.removeItem(this.id)
+  resetElement(){
+    super.resetElement()
+    this.setStartingCode({extractFromLocalStorage: false, saveOnceApplied: false})
     this.updateValidationBtnColor()
     this.clearValidations()
     if(Number.isFinite(this.srcAttemptsLeft)){
       this.setAttemptsCounter(this.srcAttemptsLeft)
     }
     $("#solution_" + this.id).addClass('py_mk_hidden')
-    this.makeDirty()
     this.hiddenDivContent = true
-    this.terminal.clear()
-    // clearPyodideScope()    // v4.2.0: no scope cleaning anymore.
     this.focusEditor()
-    return true
+    // clearPyodideScope()    // v4.2.0: no scope cleaning anymore.
   }
 }
 

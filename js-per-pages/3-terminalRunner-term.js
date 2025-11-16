@@ -572,6 +572,12 @@ class _TerminalHandler extends PyodideSectionsRunner {
   lockDisplay(){ this.terminal.pause() }
   unlockDisplay(){ this.terminal.resume() }
 
+
+  resetElement(){
+    super.resetElement()
+    this.terminal.clear()
+  }
+
   focusTerminal(arg=undefined){
     // Shenanigans here to be sure to get around the crazy terminal implementation,
     // introducing `focusTerminal` without doing any change in the logic
