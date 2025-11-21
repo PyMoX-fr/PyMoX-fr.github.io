@@ -372,13 +372,14 @@ export class RuntimeManager {
     generateErrorLog(ctx)
 
     // If ever multiple errors happen, an assertion error will always be the very
-    // first one, so always keep if any (avoid the need to condition the update)
+    // first one, so always keep if any (avoid the need to use conditional updates)
     if(!this.gotBigFail){
       this.isAssertErr ||= ctx.isAssertErr
       this.stdErr        = ctx.stdErr
       this.gotBigFail    = ctx.gotBigFail
     }
     ctx.success = ctx.keepRunningOnAssert && ctx.isAssertErr
+    CONFIG.runningInfos.errorMsg ||= ctx.stdErr
   }
 }
 

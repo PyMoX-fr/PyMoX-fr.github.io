@@ -325,9 +325,12 @@ class PyodideSectionsRunnerBase {
   /**Build the default configuration runtime to use to run the user's code.
    * */
   setupGlobalConfig(){
-    CONFIG.running   = this.running.name
-    CONFIG.runningId = this.id
-    CONFIG.runningAttempts = this.data.attempts_left // Avoiding troubles with non IDEs or no_undefined logisitic in dev.
+    CONFIG.runningInfos = {
+      action: this.running.name,
+      htmlId: this.id,
+      attemptsLeft: this.data.attempts_left,
+      errorMsg: "",
+    }
 
     for(const prop of 'get del set keys'.split(' ')){
       const globName = prop+'Storage'

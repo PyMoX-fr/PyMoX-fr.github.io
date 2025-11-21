@@ -124,12 +124,21 @@ const CONFIG = {
     // automatic redirection for relative urls fetching:
     cutFeedback: null,
     relUrlRedirect : "",
-    running: null,          // Current running profile. Set through lockedRunnerWithBigFailWarningFactory.
-    runningId: null,        // html id of the current IDE, terminal or py_btn running
-    runningAttempts: null,  // number of attempts left for the current IDE
 
     termMessage: null,      // (key, msg, format=null) -> undefined
     loadIdeContent: null,   // (editorId, name, code) -> undefined (used for ZIP imports)
+
+
+    runningInfos: {
+      action: null,         // Current running profile. Set through lockedRunnerWithBigFailWarningFactory.
+      htmlId: null,         // html id of the current IDE, terminal or py_btn running.
+      attemptsLeft: null,   // number of attempts left for the current IDE.
+      errorMsg: "",         // First error message encountered in previous sections (updated once only, at the end of a section).
+    },
+
+    get running()       { return CONFIG.runningInfos.action },          // Backward compatibility
+    get runningId()     { return CONFIG.runningInfos.htmlId },          // Backward compatibility
+    get runningAttempt(){ return CONFIG.runningInfos.attemptsLeft },    // Backward compatibility
 
 
     /* Constants, to archive the  terminal, ace_editors, and all the PythonSectionRunner
