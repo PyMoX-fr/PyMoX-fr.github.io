@@ -21,14 +21,31 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 
 
+let _mathJaxReady = false
+
+export const checkMathJaxReady =()=> (_mathJaxReady = _mathJaxReady || Boolean(
+    window.MathJax.startup
+    && window.MathJax.startup.output
+    && [
+        window.MathJax.startup.output.clearCache,
+        window.MathJax.typesetClear,
+        window.MathJax.texReset,
+        window.MathJax.typesetPromise,
+    ].every( f => typeof(f)=='function' )
+))
+
 /**Isolated version, to make sure it doesn't clash with the original one from
  * mathjax-libs.js.
  * */
 export function perennialMathJaxUpdate(){
-    window.MathJax.startup.output.clearCache()
-    window.MathJax.typesetClear()
-    window.MathJax.texReset()
-    window.MathJax.typesetPromise()
+    // Extra security so that any CDN loading failure doesn't cause crashes when
+    // the function is used in IDEs.
+    if(_mathJaxReady){
+        window.MathJax.startup.output.clearCache()
+        window.MathJax.typesetClear()
+        window.MathJax.texReset()
+        window.MathJax.typesetPromise()
+    }
 }
 
 

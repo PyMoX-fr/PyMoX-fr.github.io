@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { jsLogger } from 'jsLogger'
-import { cancelEvent, getTheme, subscribeWhenReady, perennialMathJaxUpdate } from 'functools'
+import { checkMathJaxReady, getTheme, subscribeWhenReady, perennialMathJaxUpdate } from 'functools'
 
 export const chaining=0;      // To control imports orders when using overrides
 
@@ -393,15 +393,7 @@ document.querySelector("[data-md-color-scheme]")
         maxTries: 50,   // because some useless reschedule before pyodide actually starts
         waitFor: _=>{
           // Use A LOT of extra conditions, trying to avoid potential troubles with chrome scripts scheduling...
-          const ready = Boolean(
-            window.MathJax.startup.output
-            && [
-              window.MathJax.startup.output.clearCache,
-              window.MathJax.typesetClear,
-              window.MathJax.texReset,
-              window.MathJax.typesetPromise,
-            ].every( f => typeof(f)=='function' )
-          )
+          const ready = checkMathJaxReady()
           return ready && (!some_runners || CONFIG.pyodideIsReady)
         }
       }
