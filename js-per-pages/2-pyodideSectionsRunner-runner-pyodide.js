@@ -117,7 +117,9 @@ class PyodideSectionsRunnerBase {
   get whiteList()         { return this.data.white_list }
   //JS_CONFIG_DUMP
 
-
+  // Control stdout display during executions
+  get allowPrint()     { return this._manager.allowPrint }
+  set allowPrint(flag) { this._manager.allowPrint = flag }
 
   constructor(id, callInit=true){
     LOGGER_CONFIG.ACTIVATE && jsLogger('[CheckPoint] - Constructor for', this.constructor.name, id)
@@ -129,7 +131,6 @@ class PyodideSectionsRunnerBase {
     this.data = this._dataPostConversion(PAGE_IDES_CONFIG[id])   // Inner mutable object holding infos coming from mkdocs
     this.getCodeToTest = ()=>"" // If no editor, nothing to test...
     this.running = undefined    // RunningProfile.build output (object of boolean flags, mostly)
-    this.allowPrint = true      // Control stdout display during executions
     this.isGuiCompliant = false // All the GUI makeup has been applied (may not always be, typically for hidden tabbed contents)
 
     this.runners = RunningProfile.buildDefaultRunnersObject() // Hold all the async callbacks related to events (but only

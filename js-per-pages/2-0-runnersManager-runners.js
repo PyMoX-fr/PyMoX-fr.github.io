@@ -46,10 +46,12 @@ class GlobalRunnersManagerBase {
 
   constructor(){
     this.allRunners = {}    // runnerId: runner instance
+    this.allowPrint = true  // Mutated from the runners instances... (see related getter+setter)
   }
 
   registerRunner(runner){
     this.allRunners[runner.id] = runner
+    runner._manager = this
   }
 
   /**Define a global intermediate object transferring silently the calls to the "inner/hidden"
