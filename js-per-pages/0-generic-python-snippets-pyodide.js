@@ -457,7 +457,6 @@ def _hack_uploader_downloader():
     from typing import Callable, Any, Literal
     from argparse import Namespace
 
-
     class ReadAs(Namespace):
         txt = 'readAsText'
         bytes = 'readAsArrayBuffer'
@@ -468,7 +467,6 @@ def _hack_uploader_downloader():
             return ', '.join(
                 repr(p) for p in dir[cls] if not p.startswith('_') and p != 'get_props'
             )
-
 
     def wrapping(
         cbk: Callable[[str],Any],
@@ -501,22 +499,96 @@ def _hack_uploader_downloader():
 
 
     @as_builtin
-    async def pyodide_uploader_async(*args, **kw) -> Any :
-        js_args, out_getter = wrapping(*args, **kw)
+    async def pyodide_uploader_async(
+        cbk: Callable[[str],Any],
+        *,
+        read_as: Literal["txt","bytes","img"] = 'txt',
+        with_name:bool = False,
+        multi:bool = False,
+    ) -> Any :
+        '''
+        Async uploader, to import files into pyodide environment. The files are available right
+        after the function call.
+
+        @cbk: receive the content of a file (as str, bytes or DataURL, depending on @read_as), and
+        possibly the filename (if @with_name is True). It can return an output of any kind.
+
+        @read_as: set the input type of the @cbk first argument:
+        - "txt": sends str
+        - "bytes": sends bytes
+        - "img"; sends the content of an image file as a DataURL, that can be directly inserted
+        into an img tag.
+
+        @with_name=False: if True, @cbk must accept an extra argument, which will be the name of
+        the uploaded file.
+
+        @multi=False: if True, several files can be uploaded at once. In that case, @cbk returns
+        a tuple of the output for each file.
+
+        @returns: the output of @cbk, as a tuple if @multi is True.
+        '''
+
+        js_args, out_getter = wrapping(cbk, read_as=read_as, with_name=with_name, multi=multi)
         await js.uploaderAsync(*js_args)
         out = out_getter()
         if kw.get('multi'):
             return tuple(out)
         return out.pop() if out else None
 
+
+
     @as_builtin
-    def pyodide_uploader(*args, **kw) -> None :
-        js_args, _ = wrapping(*args, **kw)
+    def pyodide_uploader(
+        cbk: Callable[[str],None],
+        *,
+        read_as: Literal["txt","bytes","img"] = 'txt',
+        with_name:bool = False,
+        multi:bool = False,
+    ) -> None :
+        '''
+        Sync version of the uploader, to import files into pyodide environment. The files are
+        available only after the PMT sections have all been completed (meaning, after the post
+        section).
+
+        @cbk: receive the content of a file (as str, bytes or DataURL, depending on @read_as), and
+        possibly the filename (if @with_name is True). Any action related to handling the files
+        content must be done from within this callback.
+
+        @read_as: set the input type of the @cbk first argument:
+        - "txt": sends str
+        - "bytes": sends bytes
+        - "img"; sends the content of an image file as a DataURL, that can be directly inserted
+        into an img tag.
+
+        @with_name=False: if True, @cbk must accept an extra argument, which will be the name of
+        the uploaded file.
+
+        @multi=False: if True, several files can be uploaded at once. In that case, @cbk returns
+        a tuple of the output for each file.
+
+        @returns: Nothing.
+        '''
+        js_args, _ = wrapping(cbk, read_as=read_as, with_name=with_name, multi=multi)
         js.uploader(*js_args)
 
 
+
     @as_builtin
-    def pyodide_downloader(content:str|bytes|list[int], filename:str, type="text/plain"):
+    def pyodide_downloader(
+        content:str|bytes|list[int],
+        filename:str,
+        type="text/plain"
+    ) -> None :
+        '''
+        Send content from pyodide to the user's download directory.
+
+        @content: the content to send to the user (str, bytes, list[int], bytearray).
+
+        @filename: the name of the downloaded file.
+
+        @type_mime: type of the downloaded file. See:
+        https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+        '''
         if not isinstance(content, str):
             content = js.Uint8Array.new(content)
         js.downloader(content, filename, type)

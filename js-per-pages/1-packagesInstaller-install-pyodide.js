@@ -27,7 +27,7 @@ import { pyodideFeatureRunCode } from '0-generic-python-snippets-pyodide'
 
 
 
-/**Explore the user's code to find missing Python packages to install. If some are found, 
+/**Explore the user's code to find missing Python packages to install. If some are found,
  * load micropip (if not done yet), then install all the missing modules.
  * This also imports all the packages present in runner.whiteList and handles python_libs.
  *
@@ -42,13 +42,13 @@ export const installPythonPackages=(function(){
   /*Things are (very) complicated, here...
    *
    * OBSERVATIONS/GOALS:
-   * 
+   *
    *    * Installing packages via micropip doesn't actually import them in the environment (it
    *      works the same for custom python libs).
-   * 
+   *
    *    * The theme needs to know up front what packages are missing or not, to decide when to
    *      display installation messages or not.
-   * 
+   *
    *    * _Installed_ packages can be found through micropip, but NOT loaded python_libs.
    *
    *    So, spotting missing packages relies on picking in sys.modules.
@@ -56,9 +56,9 @@ export const installPythonPackages=(function(){
    *    through `import xxx`.
    *    So far, so good. Problems arise with additional features:
    *
-   * 
+   *
    * ADDITIONNAL CONSTRAINTS:
-   * 
+   *
    *    * White lists:
    *        - their content has to be actually imported in the global scope, so that they are
    *          actually available to the user.
@@ -96,7 +96,7 @@ export const installPythonPackages=(function(){
    * */
 
 
-  
+
 
   const FORBID_EXTERNALS = new Set(['py_lib', 'pylib', 'pylibs', 'py-lib', 'py-libs'])
   const PMT_TOOLS = ['p5', 'vis', 'vis_network']      // GENERATED
@@ -264,8 +264,20 @@ export const installPythonPackages=(function(){
     const isPmtTool   = PMT_TOOLS.includes(libName)
     const rootNoSlash = CONFIG.siteUrl.replace(/\/$/, '')
     const archive     = `${ rootNoSlash }${ isPmtTool?"/assets/javascripts":"" }/${ libName }.zip`
-    const zipResponse = await fetch(archive)
-    const zipBinary   = await zipResponse.arrayBuffer()
+    let zipResponse, oops=false
+    try{
+      zipResponse = await fetch(archive)
+    }catch(e){
+      oops = true
+    }
+    if(oops || !zipResponse.ok){
+      throw Error(
+        `Couldn't fetch a PMT python_lib ressource at ${ archive }.\nPlease check the followings:\n`+
+        "  - The `python_lib` is actually available in the page (see metadata files and markdown headers).\n"+
+        "  - The `site_url` value in the mkdocs.yml config file of your project is correct."
+      )
+    }
+    const zipBinary = await zipResponse.arrayBuffer()
     pyodide.unpackArchive(zipBinary, "zip", {extractDir: libName})
     await conf.post()
   }
@@ -419,7 +431,8 @@ del _hack_imports`  // (not using the auto_run decorator because it might not be
     throwExclusionErrorIfNeeded(ctx, invalid, "'cannot install '" )
 
 
-    // Actual installations:
+    // Actual installations. NOTE: these are ONLY installation, not executions, meaning the order
+    // of the installations has no importance.
     if(pyLibsNeeded.length || externalsNeeded.length){
 
       runner.giveFeedback(CONFIG.lang.installStart.msg, null)
