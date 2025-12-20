@@ -531,7 +531,7 @@ def _hack_uploader_downloader():
         js_args, out_getter = wrapping(cbk, read_as=read_as, with_name=with_name, multi=multi)
         await js.uploaderAsync(*js_args)
         out = out_getter()
-        if kw.get('multi'):
+        if multi:
             return tuple(out)
         return out.pop() if out else None
 
