@@ -1007,9 +1007,10 @@ export var [uploader, uploaderAsync] = (function(){
 
 
 /**Special JS Error: methods calls exclusions are tested from the JS runtime, instead of pyodide.
- * So, JS has to throw a special error that will mimic ("enough"...) the pattern of pyodide errors
- * and hance, will be considered legit errors.
- */
+ * So, JS has to throw a special error that will mimic ("enough", aka starts with Python...) the
+ * pattern of pyodide errors and will be considered legit errors from the JS runtime point of
+ * view, instead of triggering a BigFail error message.
+ * */
 export class PythonError extends Error {
     toString() { return "Python" + super.toString() }
 }

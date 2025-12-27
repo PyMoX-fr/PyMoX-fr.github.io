@@ -148,6 +148,9 @@ if(CONFIG.element.trashCan){ subscribeWhenReady(
           if(todo) codes.forEach(k=>localStorage.removeItem(k))
         }
 
+        // jQuery.terminal history management is mostly trash (no difference between
+        // terminals in different pages: terminals are only identified by their number
+        // in the current page, in order...), so always remove everything unconditionally:
         cmds.forEach(k=>{
           localStorage.setItem(k, "[]")
         })
