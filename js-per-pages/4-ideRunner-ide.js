@@ -830,10 +830,10 @@ export class IdeRunner extends IdeRunnerLogic {
 
 
   _buildAutoSaveOnKeyStroke(){
-    // Content of the editor is saved every `CONFIG.ideKeyStrokesSave` keystrokes:
+    // Content of the editor is saved every `CONFIG.keyStrokesAutoSave` keystrokes:
     let nChange = 0;
     this.editor.addEventListener("input", _=>{
-        if(nChange++ >= CONFIG.ideKeyStrokesSave){
+        if(nChange++ >= CONFIG.keyStrokesAutoSave){
           nChange=0
           this.save()
         }

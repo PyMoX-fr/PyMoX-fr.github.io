@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { jsLogger } from 'jsLogger'
-import { buttonWithTooltip, subscribeWhenReady, txtFormat } from 'functools'
+import { buttonWithTooltip, getStorageEntries, subscribeWhenReady, txtFormat } from 'functools'
 
 export const _DUMMY=null    // Reexport to enforce dependencies order: see PyodideSectionsRunner.
                             // (reminder: the script defining CONFIG is loaded synchronously)
@@ -103,6 +103,8 @@ subscribeWhenReady(
 
 
 
+
+
 /**Insertion of the trash icon/button
  * */
 if(CONFIG.element.trashCan){ subscribeWhenReady(
@@ -130,32 +132,44 @@ if(CONFIG.element.trashCan){ subscribeWhenReady(
         tipText: CONFIG.lang.tipTrash.msg,
       }
 
+      const getMsg = (langProp, n)=>{
+        return CONFIG.lang[ langProp ][ n==1?'msg':'plural' ].replace('{N}',n)
+      }
+
       const trashButton = $(
         buttonWithTooltip(trashBtnOptions, TRASH_SVG)
       ).on('click', function(){
+        const {cmds, ides} = getStorageEntries()
 
-        const data  = Object.keys(localStorage)
-        const codes = data.filter( s => /^editor_[\da-f]{16,}$/.test(s) )
-        const cmds  = data.filter( s => /^\d+_commands$/.test(s) )
+        let codes      = ides.filter( ([_,obj]) => obj.project===CONFIG.projectId)
+        let nUnknown   = ides.filter( ([_,obj]) => obj.project!==CONFIG.projectId).length
+        let complement = !nUnknown ? '' : `\n(${ getMsg('complementTrash',nUnknown) })`
 
-        if(!codes.length){
-          window.alert(`Pas de codes enregistrés sur ce navigateur.`)
-        }else{
-          const todo = window.confirm(
-              `Il y a actuellement ${ codes.length } références enregistrées sur ce `
-            + "navigateur.\nVoulez-vous toutes les effacer ?"
-          )
-          if(todo) codes.forEach(k=>localStorage.removeItem(k))
+        let msg = getMsg('removeTrash', codes.length) + complement
+
+        // `project.id` is not configured, or just got configured, or entries of the current
+        // project already got removed: suggest to remove everything, whatever the source project.
+        if(nUnknown && !codes.length){
+          codes = ides
+          msg = getMsg('allOthersTrash', codes.length)
         }
 
-        // jQuery.terminal history management is mostly trash (no difference between
-        // terminals in different pages: terminals are only identified by their number
-        // in the current page, in order...), so always remove everything unconditionally:
-        cmds.forEach(k=>{
-          localStorage.setItem(k, "[]")
-        })
-      })
-      $(CONFIG.element.searchBtnsRight).append(trashButton)
+        if(!codes.length){
+          window.alert(CONFIG.lang.noCodesTrash.msg + complement)
+
+        }else{
+          const todo = window.confirm(msg)
+          if(todo) codes.forEach( ([k,_])=>localStorage.removeItem(k) )
+        }
+
+        // jQuery.terminal history management is mostly trash (no difference between terminals
+        // in different pages: terminals are only identified by their number in the current page,
+        // in order...), so always remove unconditionally:
+        cmds.forEach( ([k,_])=>localStorage.setItem(k,"[]") )
+
+      }).appendTo(
+        $(CONFIG.element.searchBtnsRight)
+      )
   },
   {waitFor: CONFIG.element.searchBtnsRight, runOnly:true},
 )}

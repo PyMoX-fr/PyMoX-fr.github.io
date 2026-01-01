@@ -1030,6 +1030,30 @@ export const noStorage = function () {
 
 
 
+
+
+export const getStorageEntries=()=>{
+    const data  = Object.entries(localStorage)
+    const cmds  = data.filter( ([id,_]) => /^\d+_commands$/.test(id) )
+    const ides  = data.filter( ([id,_])=>/^editor_[\da-f]{16,}$/.test(id) )
+                      .map( ([k,o])=>[k,JSON.parse(o)] )
+    return {cmds, ides}
+}
+
+
+
+//Update all potential old entries if required:
+if((CONFIG.projectMoveFromOldId??null) !== null){
+  const {ides} = getStorageEntries()
+
+  ides.forEach(([k,o])=>{
+    if(o.project!==CONFIG.projectMoveFromOldId) return;
+    o.project = CONFIG.projectId
+    localStorage.setItem(k, JSON.stringify(o))
+  })
+}
+
+
 /**Forbid writing these properties from pyodide.
  * */
 export const PMT_LOCAL_STORAGE_KEYS_WRITE = Object.freeze(`
@@ -1037,6 +1061,7 @@ export const PMT_LOCAL_STORAGE_KEYS_WRITE = Object.freeze(`
     done
     hash
     name
+    project
 `.trim().split(/\s+/))
 
 
@@ -1064,6 +1089,19 @@ export function getIdeDataFromStorage(editorId, ide=null){
     const upToDate = PMT_LOCAL_STORAGE_KEYS_WRITE.every(k=> k in obj)
     const storage  = upToDate ? obj : freshStore(code, obj, ide)
 
+    if(ide && !CONFIG.projectNoJsWarning && storage.project !== CONFIG.projectId){
+        const msg = [
+            CONFIG.lang.storageIdCollision.msg,
+            '',
+            `Page: ${ document.location }`,
+            `py_name: ${ ide.pyName }`,
+            `Project id: "${ CONFIG.projectId }"`,
+            `Collision id: "${ storage.project }"`,
+            `(id: ${ editorId })`,
+        ]
+        window.alert(msg.join('\n'))
+    }
+
     return [storage, upToDate]
 }
 
@@ -1078,6 +1116,7 @@ export function freshStore(code, storage={}, ide=null){
     storage.code = code || ""
     storage.done ??= 0              // -1: fail, 0: unknown, 1:success
     if(ide) ide.updateGenericStorageData(storage)
+    storage.project ??= CONFIG.projectId
     return storage
 }
 
