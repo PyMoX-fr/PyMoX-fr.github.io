@@ -151,7 +151,7 @@ class QCM {
             perennialMathJaxUpdate()
             renderMermaidGraphs()
         }
-        const [good,all] = this.questions.reduce( (track,quest)=>quest._validate(...track), [0,0])
+        const [good,all] = this.questions.reduce( (track,quest)=>quest._validate(this.reveal, ...track), [0,0])
         this.updateCounter(`${good}/${all}`)
         this.locked = true
     }
@@ -266,21 +266,25 @@ class Question {
         }
     }
 
-    _validate(goods, all){
+    _validate(revealed, goods, all){
         const values = Object.values(this.byId)
 
         /*
         // Count per item:
-        goods += values.reduce( (s,o)=>s+(o.checked === o.correct), 0)
-        all += values.length
+        const localGood = values.reduce( (s,o)=>s+(o.checked === o.correct), 0)
+        const localAll  = values.length
 
         /*/
         // Count per question:
-        goods += values.every( o => o.checked === o.correct )
-        all++
+        const localGood = values.every( o => o.checked === o.correct )
+        const localAll  = true
         //*/
 
-        return [goods, all]
+        if(revealed && this.comment && localGood===localAll){
+            this.comment.prop('open', true)
+        }
+
+        return [goods+localGood, all+localAll]
     }
 
     _reveal(){
@@ -312,7 +316,7 @@ class Question {
 
 
     resetAllItems(always=false){
-        if(this.comment) this.comment.detach()
+        if(this.comment) this.comment.detach().prop('open', false)
         Object.entries(this.byId).forEach(([itemId,it])=>{
             if(always || it.checked) this.updateItem(itemId, false)
         })

@@ -1086,18 +1086,24 @@ export function getIdeDataFromStorage(editorId, ide=null){
       code = obj.code ?? ""
     }catch(_){}
 
-    const upToDate = PMT_LOCAL_STORAGE_KEYS_WRITE.every(k=> k in obj)
-    const storage  = upToDate ? obj : freshStore(code, obj, ide)
+    // If the update to 5.4.0 has occured before the `project.id` was filled by the author,
+    // users might have the localStorage updated with a `project: null` entry. This is not to
+    // be considered "up to date", to avoid basillions of warning for the users (1 per IDE!).
+    const pmt_540_ok = (obj.project??null)!==null
+    const upToDate   = PMT_LOCAL_STORAGE_KEYS_WRITE.every(k=> k in obj) && pmt_540_ok
+    const storage    = upToDate ? obj : freshStore(code, obj, ide)
 
     if(ide && !CONFIG.projectNoJsWarning && storage.project !== CONFIG.projectId){
         const msg = [
             CONFIG.lang.storageIdCollision.msg,
             '',
+            `Project id: "${ CONFIG.projectId }"`,
             `Page: ${ document.location }`,
             `py_name: ${ ide.pyName }`,
-            `Project id: "${ CONFIG.projectId }"`,
-            `Collision id: "${ storage.project }"`,
             `(id: ${ editorId })`,
+            '------------------------\nCollision source:',
+            `Project id: "${ storage.project }"`,
+            `py_name: ${ storage.name }`,
         ]
         window.alert(msg.join('\n'))
     }
