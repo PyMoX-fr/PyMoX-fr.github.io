@@ -1031,12 +1031,39 @@ export const noStorage = function () {
 
 
 
-
+/**Extract all the cmd histories and the IDEs data from the localStorage.
+ *
+ * There is a dirty bug somewhere (unknown for now), where the bare code string can be stored in
+ * a localStorage entry instead of the usual object. Just spot those entries and remove them.
+ * Also warn the user and ask for raising an issue on the repo...
+ */
 export const getStorageEntries=()=>{
+
+    const somethingWrong = []
     const data  = Object.entries(localStorage)
     const cmds  = data.filter( ([id,_]) => /^\d+_commands$/.test(id) )
     const ides  = data.filter( ([id,_])=>/^editor_[\da-f]{16,}$/.test(id) )
-                      .map( ([k,o])=>[k,JSON.parse(o)] )
+                      .map( ([k,s])=>{
+                        try{
+                            return [k,JSON.parse(s)]
+                        }catch(_){
+                            somethingWrong.push([k,s])
+                            localStorage.removeItem(k)
+                        }
+                    })
+
+    if(somethingWrong.length){
+        const msg = `
+Some invalid data have been found in the localStorage.
+Please contact the author of Pyodide-MkDocs-Theme, opening an issue on the repository with the data you may find in the console of your browser (F12).
+
+Repository:
+  ${ CONFIG.pmtUrl }
+`
+        console.error('\nInformation to give on the PMT repository:\n')
+        console.log(somethingWrong.map(([k,s])=>'\n---\n  '+k+':\n'+s).join('\n'))
+        window.alert(msg)
+    }
     return {cmds, ides}
 }
 
@@ -1086,9 +1113,9 @@ export function getIdeDataFromStorage(editorId, ide=null){
       code = obj.code ?? ""
     }catch(_){}
 
-    // If the update to 5.4.0 has occured before the `project.id` was filled by the author,
+    // If the update to 5.4.0 has occurred before the `project.id` was filled by the author,
     // users might have the localStorage updated with a `project: null` entry. This is not to
-    // be considered "up to date", to avoid basillions of warning for the users (1 per IDE!).
+    // be considered "up to date", to avoid bazillions of warning for the users (1 per IDE!).
     const pmt_540_ok = (obj.project??null)!==null
     const upToDate   = PMT_LOCAL_STORAGE_KEYS_WRITE.every(k=> k in obj) && pmt_540_ok
     const storage    = upToDate ? obj : freshStore(code, obj, ide)
