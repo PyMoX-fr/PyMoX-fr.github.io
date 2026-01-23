@@ -10,6 +10,39 @@ Ce dépôt sert donc de point d’entrée pour explorer les différents modules,
   <a href="http://pymox-fr.github.io" target="_blank" rel="noopener">Voir la Doc</a>
 </div>
 
+## Démarrage rapide
+
+### Installatiion locale
+
+```bash
+python -m venv .venv
+pip install -r .\requirements.txt
+```
+
+### Démarrage local
+
+```bash
+python -m venv .venv
+(Pour Win :)
+.\.venv\Scripts\activate
+pip install -r .\requirements.txt
+```
+
+### Démarrage avec suppression des modules
+
+```bash
+mkdocs serve
+```
+
+### Tips
+
+#### Suppression des modules si libs installées dans le système de base
+
+```bash
+# Dans la racine (Deactivate si dans .venv)
+python -m pip uninstall -r .\requirements.txt -y
+```
+
 ## 📦 Dépôts liés
 
 ```mermaid

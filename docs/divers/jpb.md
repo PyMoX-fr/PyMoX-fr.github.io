@@ -4,7 +4,7 @@ Bon, ch'ais bien qu't'es réfractaire à tout ce qui touche le web...
 
 Mais bah, si le :heart: t'en dit, t'as un ch'ti bouton là, en haut à droite pour répondre / &/ou réagir...
 
-Si tu vois pas où, clique [ICI !](https://prnt.sc/yugxvZ1vkMCR)
+Si tu vois pas où, clique [ICI !](https://github.com/PyMoX-fr/PyMoX-fr.github.io/edit/main/docs/divers/jpb.md)
 
 ---
 
