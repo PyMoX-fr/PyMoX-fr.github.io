@@ -7,7 +7,7 @@ title:  🏡 Accueil
 
 <div align="center">
   <img src="assets/images/pymox_logo_tr_001.png" alt="LOGO" width="150"/>
-  <h1>Bienvenue dans l'univers PyMoX 😊 !</h1>
+  <h1>Bienvenue dans l'Univers PyMoX 😊 !</h1>
 </div>
 
 <div style="display: flex; justify-content: flex-end; margin-right:10%">
