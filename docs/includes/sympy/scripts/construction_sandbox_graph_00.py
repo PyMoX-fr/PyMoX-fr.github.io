@@ -1,6 +1,12 @@
 # --- PYODIDE:env --- #
-from unittest import result
-import flet as ft
+import importlib, sys
+
+is_pyodide = sys.platform == "emscripten"
+
+if not is_pyodide:
+    ft = importlib.import_module("flet")
+else:
+    ft = None
 
 # --- PYODIDE:code --- #
 # Ceci est basique, mais ne t'emêche pas de t'amuser ad'libitum en le modifiant 😊 !

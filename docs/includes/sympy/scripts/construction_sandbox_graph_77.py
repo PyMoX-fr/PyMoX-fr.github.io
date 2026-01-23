@@ -1,6 +1,13 @@
 # --- PYODIDE:env --- #
-import flet as ft
+import importlib, sys
 
+is_pyodide = sys.platform == "emscripten"
+
+if not is_pyodide:
+    ft = importlib.import_module("flet")
+else:
+    ft = None
+    
 # --- PYODIDE:code --- #
 # Ceci n'est qu'un humble exemple de code minimaliste...
 # Amuse-toi ad'libitum à le modifier 😊 !
