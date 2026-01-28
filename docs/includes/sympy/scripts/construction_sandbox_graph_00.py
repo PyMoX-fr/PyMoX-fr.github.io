@@ -14,7 +14,7 @@ else:
 
 def multiples(n):
     """Les 10 premiers multiples de n"""
-    ms = []
+    ms: list[str] = []
     for i in range(11):
         ms.append(f"{i*n:>3}")
     return f"- {n}:", *ms
