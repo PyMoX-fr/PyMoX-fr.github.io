@@ -53,7 +53,7 @@ print(*[rd.randint(1,10) for _ in range(7)])"
 
 === "Un ch'ti bac à sable de Python pour patienter ?"
 
-{{ IDE('includes/sympy/scripts/construction_sandbox_graph_00.py') }}
+{{ IDE('includes/sympy/scripts/construction_sandbox_graph_00.py', AUTO_RUN=True) }}
 
 ... Et quand ça finira par te lasser, car, ça finira par te lasser..., alors, pour avoir un regain de motivation et en plus, l'aisance du ***Hot-reload*** [^1] dans la ***CLI*** [^2], il te faudra "**p't'être bien**" [^4] ["***forker*" ce projet**](https://github.com/PyMoX-fr/PyMoX-fr.github.io/fork) [^3], pour un jour, peut-être, devenir capable de faire un '***PR***' [^5]...
 
