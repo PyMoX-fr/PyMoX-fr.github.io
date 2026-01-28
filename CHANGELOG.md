@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.6 (2026-01-28)
+
+### Bug Fixes
+
+- Type vars
+  ([`497bfae`](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/497bfae2848623748943093c55f9e07ef10be2b8))
+
+
 ## v1.0.5 (2025-08-21)
 
 ### Bug Fixes
