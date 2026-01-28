@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.7 (2026-01-28)
+
+### Up
+
+- Var type
+  ([`4f902da`](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4f902dac975e5e7dc8ea3f0d98463a339f331d4a))
+
+
 ## v1.0.6 (2026-01-28)
 
 ### Bug Fixes
