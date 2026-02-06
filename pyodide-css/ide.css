@@ -189,6 +189,9 @@ div[class*='ace-'] .ace_gutter {
   margin-right: calc(var(--marg-split) - 1px);
 }
 
+.dirty-validation > img {
+  border: 3px solid orange;
+}
 
 /*
 -------------------------------------------------------------

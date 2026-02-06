@@ -404,6 +404,13 @@ class IdeTesterGuiManager extends IdeRunner {
 
   _applyConfAndData(onLoad=false){
 
+    // Always reset the "done" state, to make tests independent of each others.
+    this.storage.done = 0
+    if('done' in this.conf){
+      this.storage.done = this.conf.done
+    }
+    this.updateValidationBtnColor()
+
     const hasSetMaxHide = 'set_max_and_hide' in this.conf
     if(onLoad || hasSetMaxHide){
       this.conf.reveal_corr_rems = false

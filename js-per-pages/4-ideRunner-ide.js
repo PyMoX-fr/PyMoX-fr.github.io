@@ -177,12 +177,16 @@ class IdeHistoryManager extends IdeAceManager {
    * */
   updateValidationBtnColor(done=undefined, jElt=undefined){
     done ??= this.storage.done
-    jElt ??= this.global.find("button[btn_kind=check]")
+    jElt ??= this._getJValidationButton()
     if(!this.isDelayedRevelation){
       const color = this.getIdeStateColor(done)
       jElt.css('--ide-btn-color',  color)
     }
     return jElt
+  }
+
+  _getJValidationButton(){
+    return this.global.find("button[btn_kind=check]")
   }
 
 
@@ -192,6 +196,13 @@ class IdeHistoryManager extends IdeAceManager {
 
   clearValidations(){ this.validations.length = 0 }
 
+
+  makeDirty(isDirty=true){
+    super.makeDirty(isDirty)
+    if(isDirty){
+      this._getJValidationButton().addClass("dirty-validation")
+    }
+  }
 
 
   setupHistoryBtn(jHistItem, [done, time, code]){
@@ -262,20 +273,21 @@ class IdeFeedbackManager extends IdeHistoryManager {
     if(runtime.stopped || !step) return
 
     const playing = this.running.isPlaying
-    const intro   = playing ? "" : CONFIG.lang.validation.msg
     const section = CONFIG.lang[step].msg
-    const ok      = CONFIG.lang.successMsg.msg
+    const isDone  = this.storage.done > 0
+    const okMsg   = CONFIG.lang.successMsg.msg
+    const intro   = playing ? "" : CONFIG.lang.validation.msg
 
-    let msg = `${ intro }${ section }: ${ ok }`   // Default section message
-    if(!code) msg = ""                            // No default message if no code in the section...
-    if(playing && !this.hasCheckBtn){             // ...but ensure the default ending message is shown,
-      msg = CONFIG.lang.successMsgNoTests.msg     //    if this is "playing" and nothing else to do after.
+    let msg = `${ intro }${ section }: ${ okMsg }`  // Default section message
+    if(!code) msg = ""                              // No default message if no code in the section...
+    if(playing && !this.hasCheckBtn){               // ...but ensure the default ending message is shown,
+      msg = CONFIG.lang.successMsgNoTests.msg       //    if this is "playing" and nothing else to do after.
     }
 
     if(msg) this.terminalEcho(msg)
 
     // Prepare a "very final" message if needed:
-    if(playing && this.hasCheckBtn){
+    if(playing && this.hasCheckBtn && (!isDone || this.isDirty)){
       // If a validation button is present while running the public tests
       runtime.finalMsg = CONFIG.lang.unforgettable.msg
     }
@@ -718,6 +730,42 @@ class IdeRunnerLogic extends IdeFeedbackManager {
  * */
 export class IdeRunner extends IdeRunnerLogic {
 
+  static KEY_UP_NO_CHANGES = new Set(`
+    Control
+    Alt
+    AltGraph
+    Meta
+    CapsLock
+    NumLock
+    Shift
+    ContextMenu
+    F1
+    F2
+    F3
+    F4
+    F5
+    F6
+    F7
+    F8
+    F9
+    F10
+    F11
+    F12
+    Insert
+    PageUp
+    PageDown
+    End
+    Home
+    Escape
+  `.trim().split(/\s+/g))
+
+  static KEY_UP_ARROWS = new Set(`
+    ArrowLeft
+    ArrowRight
+    ArrowUp
+    ArrowDown
+  `.trim().split(/\s+/g))
+
 
   /**Process to "re-initiate" the internal state of the IDE (useful for testing) */
   _init(){
@@ -852,7 +900,7 @@ export class IdeRunner extends IdeRunnerLogic {
 
     // Add fullscreen activation binding, but NOT through the ACE editor commands
     // cannot control the exit :/ )
-    this.global.on('keyup', this.respondToEscapeKeyUp.bind(this))
+    this.global.on('keyup', this.respondToKeyUp.bind(this))
 
     // Bind editor extra buttons:
     this.global.find(".comment.tooltip" ).on("click", this.toggleComments.bind(this))
@@ -930,22 +978,32 @@ export class IdeRunner extends IdeRunnerLogic {
   }
 
 
-  async respondToEscapeKeyUp(event){
-    if(
-      event.key == 'Escape'
+  async respondToKeyUp(event){
+
+    const goFullScreen = (event.key == 'Escape'
       && !IdeFullScreenGlobalManager.someMenuOpened
       && !this.guiIdeFlags.escapeIdeSearch
       && !somethingFullScreen()
-    ){
+    )
+    const justMoving = (
+      this.constructor.KEY_UP_NO_CHANGES.has(event.key) ||
+      this.constructor.KEY_UP_ARROWS.has(event.key) && !event.altKey ||
+      event.ctrlKey && "acfhs Enter".includes(event.key) ||
+      event.key == 'Escape'
+    )
+
+    if(goFullScreen){
       this.requestFullScreen()
-      // The browser already handles on its own going out of fullscreen with escape => no else needed
+      // The browser already handles on its own going out of fullscreen with escape
+      // => no "else" needed for that
 
     }else if(event.altKey && event.key==':'){
       this.switchSplitScreenFromButton(event)
 
-    }else{
+    }else if(!justMoving){
       this.makeDirty()
     }
+
     this.guiIdeFlags.escapeIdeSearch = false
   }
 

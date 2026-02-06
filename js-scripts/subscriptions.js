@@ -119,7 +119,7 @@ CONFIG.ACE_COLOR_THEME.aceStyle = {
 
   /**Automatically define the position of the tooltip around the hovered element by mutation of pos
    * */
-  const getAnchorPoint=({width, height, top, left}, pagePos)=>{
+  const getAnchorPoint=({width, height, top, left}, pagePos, obj)=>{
     const pos   = defaultPos()
 
     pos.anchorX = Math.round(pagePos.left + width/2)
@@ -135,6 +135,10 @@ CONFIG.ACE_COLOR_THEME.aceStyle = {
     }else if (pointer.isRight){
       pos.translateX = -100
     }
+
+    const w = obj.dataset.tipWidth
+    if (w!==undefined) pos.width = w+'em'
+
     return pos
   }
 
@@ -167,9 +171,9 @@ CONFIG.ACE_COLOR_THEME.aceStyle = {
       // Positions & dimensions in viewport:
       const rect = this.getBoundingClientRect()
 
-      pos = getAnchorPoint(rect, pagePos)
+      pos = getAnchorPoint(rect, pagePos, this)
     }
-    tipSpan.text(this.dataset.tipTxt)
+    tipSpan.html(this.dataset.tipTxt)
     placement(pos)
   })
 

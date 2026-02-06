@@ -277,6 +277,7 @@ class PyodideSectionsRunnerBase {
       LOGGER_CONFIG.ACTIVATE && jsLogger(loggerName)
 
       CONFIG.calledMermaid = false
+      const wasDirty = this.isDirty
       this.makeDirty(false)       // Assume executions will go well (see note in finally block)
       this.running = runningMan
       let runtime
@@ -307,8 +308,14 @@ class PyodideSectionsRunnerBase {
         // For isDirty update, DO NOT only rely on `this.isDirty = runtime.stopped`, so that the
         // runner itself can set the value on a success if needed, and it won't be overridden here
         // (useful if a valid "play" is still considered dirty when a validation exists...).
-        if(!runtime || runtime.stopped){
+        if(!runtime || runtime.stopped || runningMan.isPlaying && wasDirty){
           this.makeDirty()
+        }
+
+        // AFTER updating isDirty, remove the validation button border if the current execution
+        // is a validation:
+        if(runningMan.isValidating){
+          this._getJValidationButton().removeClass("dirty-validation")
         }
 
         if(runtime){
@@ -544,7 +551,7 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
     super(id)
 
     this.rotateTerminalMessage = true
-    this.isDirty = true         // Tell if the last run wa successful or not, or if the content has been modified
+    this.isDirty = true         // Tell if the last run was successful or not, or if the content has been modified
                                 // without being run (handled unconditionally for all elements, even if they aren't
                                 // "in sequential run". The RUNNERS_MANAGER handles what is actually to be run or not).
   }
