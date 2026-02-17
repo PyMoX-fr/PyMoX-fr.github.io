@@ -1,10 +1,10 @@
 <div style="text-align: center;">
-    <img src="docs/assets/images/pymox_shadow.png" alt="PyMoX" width="480">
+    <img src="docs/assets/images/pymox_shadow.png" alt="PyMoX">
 </div>
 
 # 🧭 Projet Central – Portail des Dépôts
 
-Bienvenue7 dans le Dépôt Officiel et Central de l'écosystème **PyMoX**-fr, pour des études et projets liés aux langages tels que **Py**thon, Django, **Mo**jo, Flet et Flet**X** (Liste non exhaustive...).
+Bienvenue dans le Dépôt Officiel et Central de l'écosystème **PyMoX**-fr, pour des études et projets liés aux langages tels que **Py**thon, Django, **Mo**jo, Flet et Flet**X** (Liste non exhaustive...).
 
 Ce Dépôt Central regroupe les dépôts indépendants liés à ces sujets, ainsi que ce projet lui-même, entièrement open-source (sous licence MIT), composé principalement de son application mobile, de son site web et d’une documentation collaborative.
 
