@@ -1,5 +1,6 @@
-
-<img src="docs/assets/images/pymox_shadow.png" alt="PyMoX" width="480">
+<div style="text-align: center;">
+    <img src="docs/assets/images/pymox_shadow.png" alt="PyMoX" width="480">
+</div>
 
 # 🧭 Projet Central – Portail des Dépôts
 
