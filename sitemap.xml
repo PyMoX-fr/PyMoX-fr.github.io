@@ -129,11 +129,15 @@
          <lastmod>2026-02-27</lastmod>
     </url>
     <url>
-         <loc>https://PyMoX-fr.github.io/outils/technos/languages/python/</loc>
+         <loc>https://PyMoX-fr.github.io/outils/technos/languages/sql/</loc>
          <lastmod>2026-02-27</lastmod>
     </url>
     <url>
-         <loc>https://PyMoX-fr.github.io/outils/technos/languages/sql/</loc>
+         <loc>https://PyMoX-fr.github.io/outils/technos/languages/python/core/</loc>
+         <lastmod>2026-02-27</lastmod>
+    </url>
+    <url>
+         <loc>https://PyMoX-fr.github.io/outils/technos/languages/python/libs/</loc>
          <lastmod>2026-02-27</lastmod>
     </url>
 </urlset>
