@@ -1,6 +1,5 @@
 nav:
-
-  - python.md
+  - python
   - fletx.md
   - mojo.md
   - php.md
