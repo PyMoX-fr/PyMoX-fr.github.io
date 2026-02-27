@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.8 (2026-02-27)
+
+### Up
+
+- Lib PyMoX-Kit
+  ([`ca21d70`](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/ca21d70ef52f1e5661666dfca38aa0d8b3c09f54))
+
+
 ## v1.0.7 (2026-01-28)
 
 ### Up
