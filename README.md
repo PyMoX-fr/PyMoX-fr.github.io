@@ -76,7 +76,8 @@ flowchart TD
   click Mj "https://github.com/PyMoX-fr/Mojo" _blank
 ```
 
-Cette structure traduit aussi la structure des dossiers.
+<!-- ❌ Add Kit -->
+<!-- ❌ Add Kit_Test -->
 
 ### 🧰 Scripts de gestion des sous-modules
 
