@@ -73,6 +73,6 @@ C’est donc plus une boîte à outils versionnées collaborative.
 Car, autant, **PyMoX.fr** (le présent site de base, doc générale), **PyMox-Kit** (La lib sur **Pypi.org**) que le **Kit_Test** : Tous sont des dépôts **GH *Open source*** 🙂 !
 **Chacun peut** y **prendre ce qu'il veut, et** éventuellement @ terme, **y apporter aussi une brique** ;-)..
 
-Et pour commencer facilement à 'jouer' avec :
+Et pour commencer facilement & rapidement à 'jouer' avec :
 
 [![GH](https://img.shields.io/badge/GitHub-Kit_Test-0EA5E9)](https://github.com/PyMoX-fr/Kit_Test)
