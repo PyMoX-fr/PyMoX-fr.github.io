@@ -64,6 +64,10 @@ flowchart TD
   Langs --> Fx("🧩 <b>FletX</b> & 🎨 <b>Flet</b>")
   Langs --> Mj("🧬 <b>Mojo</b>")
 
+  CD --> K("📚 <b>Kit</b>")
+
+  CD --> KT("📚 <b>Kit Test</b>")
+
   class CD,App,WebSite,Doc,Langs,Py,Dj,Fx,Mj repo
 
   click CD "https://github.com/PyMoX-fr/PyMoX" _blank
@@ -74,10 +78,9 @@ flowchart TD
   click Dj "https://github.com/PyMoX-fr/Django" _blank
   click Fx "https://github.com/PyMoX-fr/FletX" _blank
   click Mj "https://github.com/PyMoX-fr/Mojo" _blank
+  click K "https://github.com/PyMoX-fr/Kit" _blank
+  click KT "https://github.com/PyMoX-fr/Kit_Test" _blank
 ```
-
-<!-- ❌ Add Kit -->
-<!-- ❌ Add Kit_Test -->
 
 ### 🧰 Scripts de gestion des sous-modules
 
