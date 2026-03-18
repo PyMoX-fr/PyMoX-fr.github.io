@@ -29,22 +29,33 @@ import {
 
 
 
+const removeEmptyParagraphsFrom = rule => $(rule).filter(':empty').remove()
 
-const shuffleDomInPlace=(shufflable)=>{
-
-    const parent = $($(shufflable.shuffleParentPath)[0])
-    const items  = [...parent.find(shufflable.shuffleChildrenPath).detach()]
-
+const shuffleChildrenInPlace = (shufflable) => {
+    const items = [...shufflable.children().detach()]
     const shuffledItems = _.shuffle(items)
-    shuffledItems.forEach(item=>parent.append(item))
+    shufflable.append(shuffledItems)
 }
 
-const removeEmptyParagraphsFrom = rule => $(rule).filter(':empty').remove()
+
+
 
 
 
 
 class QCM {
+
+    constructor(id, shuffle, reveal){
+        this.qcmClass     = id      // this class is actually used only once, so equivalent to an id
+        this.shuffle      = shuffle
+        this.reveal       = reveal
+        this.questions    = []      // Question[]
+        this.locked       = false
+        this.jCounter     = null    // JQuery element of the counter (results)
+        this.jItemsHolder = null    // Jquery list holding the questions
+    }
+
+    //------------------------------------------------------------------------
 
     static buildQcms(){
 
@@ -114,20 +125,6 @@ class QCM {
 
     //------------------------------------------------------------------------
 
-    constructor(id, shuffle, reveal){
-        this.qcmClass     = id      // this class is actually used only once, so equivalent to an id
-        this.shuffle      = shuffle
-        this.reveal       = reveal
-        this.questions    = []      // Question[]
-        this.locked       = false
-
-        this.counterPath  = `.${ id } p${ CONFIG.element.qcmCounterCls }`
-        this.shuffleParentPath = `.${ id } .py_mk_questions_list_qcm`
-        this.shuffleChildrenPath = "> li.py_mk_question_qcm"
-    }
-
-    //------------------------------------------------------------------------
-
     addQuestion(question){
         this.questions.push(question)
         question._inject(this)
@@ -157,7 +154,7 @@ class QCM {
     }
 
     updateCounter(content=""){
-        $(this.counterPath).text(content)
+        this.jCounter.text(content)
     }
 
 
@@ -165,10 +162,10 @@ class QCM {
      * */
     randomize(){
         if(this.shuffle){
-            shuffleDomInPlace(this)
+            shuffleChildrenInPlace(this.jItemsHolder)
         }
         this.questions.forEach(quest=>{
-            if(quest.shuffle) shuffleDomInPlace(quest)
+            if(quest.shuffle) shuffleChildrenInPlace(quest.jItemsHolder)
         })
     }
 
@@ -198,6 +195,10 @@ class QCM {
 
         const layoutWrapper = $(`<div class="layout-qcm-wrapper"></div>`)
         layoutWrapper.append(innerDiv, btnWrapper)
+
+        // Ths list holding the questions may be ul or ol, so make the request more generic:
+        this.jItemsHolder = layoutWrapper.find(".inner > * > li").parent()
+        this.jCounter = counter
 
         if(no_admo){
             divAdmo.replaceWith(layoutWrapper)
@@ -238,11 +239,8 @@ class Question {
         this.isMulti = isMulti
         this.shuffle = q_shuffled
         this.qcm     = null
-        this.byId    = {}       /* itemId: { checked:boolean, correct:boolean } */
-
-        this.shuffleParentPath=`#${ this.questId }>ul.py_mk_item_qcm`
-        this.shuffleChildrenPath = ">li.py_mk_item_qcm"
-
+        this.byId    = {}           // itemId: { checked:boolean, correct:boolean } 
+        this.jItemsHolder = null    // Defined on the fly when registering items (dirty, but...)
         this.comment = this.jThis.find(".py_mk_comment_qcm")
         if(this.comment.length){
             this.comment.detach()
@@ -330,6 +328,7 @@ class Question {
 
 
     registerItem(jLiItem, iItem){
+        this.jItemsHolder = jLiItem.parent()        // Dirty, but whatever...
         const itemId = this.questId + '-'+iItem
 
         // Build the new/augmented <li> tag, bind behaviors and replace the original with it:

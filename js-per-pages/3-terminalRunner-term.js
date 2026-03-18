@@ -161,10 +161,10 @@ function getSelectionText(){
  * GENERIC STRATEGY:
  *    1. If there are multiple ranges, merge them all together in a unique Range.
  *    2. Depending on the common ancestor, decide what to extract, and how.
- *          - If the common ancestor is "too wide", just return "" (this will trigger the
- *            default copy behavior)
- *          - Otherwise, extract the terminal-output on one side (if any), then the terminal
- *            command on the other side.
+ *      - If the common ancestor is "too wide" (as in, outside of the temrinal), just return ""
+ *        (this will trigger the default copy behavior).
+ *      - Otherwise, extract the terminal-output on one side (if any), then the terminal
+ *        command on the other side.
  *
  *    DO NOT rely on the ranges themselves, but only on the actual DOM structure.
  * */
@@ -218,10 +218,10 @@ assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
 
     // Merge all ranges into one, BUT... the selection could contain an extra empty Range
     // that will make a total mess of the extraction.
-    // This range MUST be ignored and can be identified as following:
+    // This range MUST be ignored and can be identified as follow:
     //    - Having a startContainer node being `div.cmd`
     //    - Its offset is greater than 0
-    //    - It's always the last range, even if the user started by clicking to much on
+    //    - It's always the last range, even if the user started by clicking too much on
     //      the left of the line.
     let closingIdx = selection.rangeCount-1
     let closingRng = selection.getRangeAt(closingIdx)
@@ -233,8 +233,8 @@ assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
       this.rng.setEnd(endRng.endContainer, endRng.endOffset)
     }
 
-    // Fix the endContainer and rebuild a new Range if needed:
-    //    - iF the cursor is on the very end of the current command line...
+    // Fix the endContainer and rebuild a new Range in the following case:
+    //    - If the cursor is on the very end of the current command line...
     //    - and depending on the initial the user's mouse click in the terminal (as in,
     //      enough on the right or the left of the text)...
     let elder = $(this.rng.commonAncestorContainer)
@@ -283,13 +283,13 @@ assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
 
 
 
-  _getParentTag(side, stopUpOn){
+  _getParentTag(side, stopUpon){
     const node   = $(this.rng[side+'Container'])
     const offset = Math.max(0, this.rng[side+'Offset'] - (side=='end'))
     let   elt    = node[0].nodeName=='#text' ? node : node.children().eq(offset)
     if(!elt.length) elt = node   // (resulted in negative index...)
 
-    while(!stopUpOn(elt)){
+    while(!stopUpon(elt)){
       elt = elt.parent()
     }
     return elt
@@ -304,7 +304,7 @@ assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
 
   /**Extract the string content of the given Range, if it's not collapsed.
    *
-   * @on:       If given, must be a jQuery identifier string: the content Range is then cloned and
+   * @rng:      If given, must be a jQuery identifier string: the content Range is then cloned and
    *            copy the innerText data of all the elements matching the @on rule.
    * @stripOne: When extracting the terminal current command lines, those hold a trailing space,
    *            that has to be removed.
