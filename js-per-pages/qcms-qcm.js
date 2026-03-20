@@ -239,9 +239,12 @@ class Question {
         this.isMulti = isMulti
         this.shuffle = q_shuffled
         this.qcm     = null
-        this.byId    = {}           // itemId: { checked:boolean, correct:boolean } 
+        this.byId    = {}           // itemId: { checked:boolean, correct:boolean }
         this.jItemsHolder = null    // Defined on the fly when registering items (dirty, but...)
+
+        this.reveal_rems = false
         this.comment = this.jThis.find(".py_mk_comment_qcm")
+
         if(this.comment.length){
             this.comment.detach()
         }else{
@@ -252,6 +255,7 @@ class Question {
             const txt = this.comment.text().trim()
             const unCompressed = decompressLZW(txt, "qcms.encrypt_comments")
             this.comment.html(unCompressed).prepend(summary)
+            this.reveal_rems = this.comment.hasClass("qcm_reveal_rems")
         }
     }
 
@@ -278,7 +282,8 @@ class Question {
         const localAll  = true
         //*/
 
-        if(revealed && this.comment && localGood===localAll){
+        const allGood = localGood===localAll
+        if(this.comment && revealed && (allGood || this.reveal_rems)){
             this.comment.prop('open', true)
         }
 
