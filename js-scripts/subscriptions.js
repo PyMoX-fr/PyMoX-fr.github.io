@@ -263,6 +263,11 @@ document.querySelector("[data-md-color-scheme]")
   }
 
 
+  /**Warning: order is important, because it defined in what order the macros types with AUTO_RUN
+   * will execute. Note that there are no guarantees on the execution order when there are several
+   * macros of hte same kind using AUTO_RUN (probably directly tied to the declaration order of the
+   * elements in the page).
+   * */
   const TO_BUILD_CONFIG = [
     ["span[id^=auto_run_]", "PyBtn"],
     ["[id^=btn_only_]",     "PyBtn"],
@@ -353,9 +358,10 @@ document.querySelector("[data-md-color-scheme]")
     const to_build = TO_BUILD_CONFIG.map(
       ([query, className, transformId]) => [$(query), className, transformId]
     )
-    const some_runners = to_build.some( ([jCollection,]) => jCollection.length>0 )
 
+    const some_runners = to_build.some( ([jCollection,]) => jCollection.length>0 )
     if(some_runners){
+
       to_build.forEach( ([jCollection, className, transformId])=>{
         jCollection.each(function(){
           const id  = transformId ? transformId(this.id) : this.id

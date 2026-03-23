@@ -73,32 +73,46 @@ export const observeResizeOf=(function(){
 
 
 
-
+/**Spaces in the terminal are not "normal" space chars -> they have to be replaced on the fly when
+ * extracting content for copy/paste. */
 const TERMINAL_CRAZY_SPACE = "\\u00a0"
+
+/**RegExp used to do the all terminal spaces replacements. */
 const TERMINAL_SPACES_REGEXP = new RegExp(TERMINAL_CRAZY_SPACE, "ug")
+
+/** Regexp to use to "right strip" any terminal space character. */
 const TERMINAL_RSTRIP_SPACE_REGEXP = new RegExp(`${ TERMINAL_CRAZY_SPACE }$`, "u")
+
+/**Regexp to identify the prompt content (starting of continuation: ">>>" or "...". Also identify
+ * partial selection). */
 const TERMINAL_PROMPT_REGEX = /^(?:[.]{0,3}>{0,3})$/
 
 
-function getSelectionText(){
-  // Code inspired by https://stackoverflow.com/questions/5379120/get-the-highlighted-selected-text
 
+
+/**Extract and reformat any selection content in the terminal, handling all the crazy things
+ * jQuery.terminal are throwing in...
+ *
+ * (inspired by https://stackoverflow.com/questions/5379120/get-the-highlighted-selected-text)
+ * */
+function getSelectionText(){
   let text = "";
+
+  // Use window.getSelection only if available on the platform:
   if(window.getSelection){
     if(!window.getSelection().toString()){
       return ""     // Avoid some mess when no selection!
     }
-    text = new TermSelectionExtractor().extract()
+    text = new TermSelectionExtractor().extract_as_text()
 
+  // Warn the user if something goes wrong/cannot use `window.getSelection`, then use default behavior:
   }else if(document.selection && document.selection.type != "Control") {
       console.warn("Unsupported copy from PMT terminal (fallback to default/simplified behavior).")
       text = document.selection.createRange().text;
   }
 
-  // Just like usual, jQuery terminals are messing with the content, replacing spaces
-  // with "\u00a0" characters... x/
+  // Cleanup jQuery terminals spaces mess...:
   text = text.replace(TERMINAL_SPACES_REGEXP, " ")
-  // console.log(text)
   return text;
 }
 
@@ -154,14 +168,15 @@ function getSelectionText(){
  * WARNING:
  *    - The DocumentFragment objects may at most overlap on both `div.terminal-output` AND
  *      the `div.cmd-wrapper`.
- *    - The number of Range objects IS NOT guaranteed. Might 1 to... more (there are more than
+ *    - The number of Range objects IS NOT guaranteed. Might be 1 to... more (there are more than
  *      one when the current command line is multiline, independently of the cursors position).
  *
  *
  * GENERIC STRATEGY:
- *    1. If there are multiple ranges, merge them all together in a unique Range.
- *    2. Depending on the common ancestor, decide what to extract, and how.
- *      - If the common ancestor is "too wide" (as in, outside of the temrinal), just return ""
+ *    1. If there are multiple ranges, merge them all together in a unique Range, removing
+ *       potential empty ranges at the end first.
+ *    2. Depending on the common ancestor, decide what to extract, and how:
+ *      - If the common ancestor is "too wide" (as in, outside of the terminal), just return ""
  *        (this will trigger the default copy behavior).
  *      - Otherwise, extract the terminal-output on one side (if any), then the terminal
  *        command on the other side.
@@ -169,188 +184,241 @@ function getSelectionText(){
  *    DO NOT rely on the ranges themselves, but only on the actual DOM structure.
  * */
 class TermSelectionExtractor {
-  /*
-  Code usable in the sandbox to test the behaviors :
 
-N = 1
-import js
-getattr(js.window,"$").terminal.active().set_command(("print(43)\n"*N).strip())
-assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
-  */
+
+  /**Debugging purpose method. */
+  show(title, ...stuff){
+    if(!window.DEBUG_TERM_COPY) return;
+
+    console.log("*******************\n"+title)
+
+    stuff.forEach(o=>{
+      if(o!==null && Object.is(o.constructor, Object)){
+        for(const name in o){
+          const elt = o[name]
+          console.log(name+':', elt)
+        }
+        console.log("-------")
+      }else{
+        console.log(o)
+      }
+    })
+  }
+
+  //--------------------------------------------------------------------------------
 
   constructor(){
-    this.rng   = null
-    this.conf  = this._analyze()    // Set this.rng on the fly
+    if(window.DEBUG_TERM_COPY) console.clear()    // (debugging helper)
     this.lines = []
+    this.conf = null
+    this.rng = null
+    this.commonAncestor = null
   }
 
 
-  /**Debugging purpose only.
-   * */
-  show(title, elts={}, rngs={}){
-    console.log("*******************\n"+title)
-    for(const name in elts){
-      const elt = elts[name]
-      console.log(name+':', elt)
-    }
-    console.log("----")
-    for(const name in rngs){
-      const rng = rngs[name]
-      console.log(name+':', rng.toString())
-      console.log(rng)
-    }
-  }
+  extract_as_text(){
 
+    const baseSelection = window.getSelection()
+    this.rng = baseSelection.getRangeAt(0).cloneRange()    // Initial value. Modified on the fly
 
-  _analyze(){
+    this.removeTrailingInvalidRangeIfNeeded(baseSelection)
+    this.commonAncestor = $(this.rng.commonAncestorContainer)
 
-    const findDivOfInterest = (elt)=> elt.closest([
-      'cmd-wrapper',         // command only
-      'cmd',                 // command only
-      'terminal-output',     // output only
-      'terminal-wrapper',    // Cmd for sure, but output??? -> need to rebuild a Range
-      'terminal-scroller',   // Cmd for sure, but output??? -> need to rebuild a Range
-    ].map(rule=>'div.'+rule).join(', '))
-
-
-    const selection = window.getSelection()
-    this.rng = selection.getRangeAt(0).cloneRange()
-
-    // Merge all ranges into one, BUT... the selection could contain an extra empty Range
-    // that will make a total mess of the extraction.
-    // This range MUST be ignored and can be identified as follow:
-    //    - Having a startContainer node being `div.cmd`
-    //    - Its offset is greater than 0
-    //    - It's always the last range, even if the user started by clicking too much on
-    //      the left of the line.
-    let closingIdx = selection.rangeCount-1
-    let closingRng = selection.getRangeAt(closingIdx)
-    const isOutRng = $(closingIdx.startContainer).is('div.cmd') && closingRng.startOffset > 0
-    if(isOutRng) closingIdx--
-
-    if(closingIdx > 0){
-      const endRng = selection.getRangeAt(selection.rangeCount-1)
-      this.rng.setEnd(endRng.endContainer, endRng.endOffset)
+    if(this.commonAncestor.is("body, main, article")){
+      return ""       // Selection is too wide => going out of the terminal:
     }
 
-    // Fix the endContainer and rebuild a new Range in the following case:
-    //    - If the cursor is on the very end of the current command line...
-    //    - and depending on the initial the user's mouse click in the terminal (as in,
-    //      enough on the right or the left of the text)...
-    let elder = $(this.rng.commonAncestorContainer)
-    let jEnd  = $(this.rng.endContainer)
-    let end   = findDivOfInterest(jEnd)
+    this.fixRngEndContainerForFullCmdSelection()
+    this.conf = this.getExtractionConfig()
 
-    const isWrongEnd = end.is('.terminal-scroller, .terminal-wrapper, .cmd') || jEnd.is('.cmd-wrapper')
-      // Do NOT test .cmd-wrapper on end: it would systematically extend selections to the end
-      // of the current command, il any.
-
-    if(isWrongEnd){
-      if(end.is('.cmd-wrapper')) end = end.parent()
-      const tail = end.find('div.cmd-wrapper > :last-child')[0]
-      this.rng.setEndAfter(tail)
-      elder = $(this.rng.commonAncestorContainer)
-      if(!tail){
-        throw new Error("Couldn't find div.cmd-wrapper from "+elder.toString())
-      }
-    }
-
-    // Too wide => selection going out of the terminal:
-    if(elder.is("body, main, article")){
-      return {invalid:true}
-    }
-
-    // Get lowest possible meaningful div to identify what kind of content(s) is to be copied:
-    const div = findDivOfInterest(elder)
-    if(div.is('.cmd, .cmd-wrapper')) return {hasCmd: true}
-    if(div.is('.terminal-output'))   return {hasOutput: true}
-    if(div.is('.terminal-wrapper'))  return {hasOutput: true, hasCmd: true}
-    return {invalid:true}
-  }
-
-
-
-  extract(){
-    // console.log('conf', this.conf)
-    // Selection out of bounds of the div.terminal-wrapper
-    if(this.conf.invalid) return ""
+    // Selection out of bounds of the div.terminal-wrapper: return empty string instead
+    if(this.conf.invalid)   return ""
 
     if(this.conf.hasOutput) this._extractOutput()
     if(this.conf.hasCmd)    this._extractCmd()
+
     const out = this.lines.join('\n')
+    this.show('Copied content:', '"'+out+'"')
     return out
   }
 
 
 
-  _getParentTag(side, stopUpon){
+  /**When selecting the command line up to the end, there might an empty Range object at the end
+   * (depends on where the mouse actually starts/ends: the endContainer might end up at different
+   * depths in the DOM, resulting in some extra stuff). This empty Range is causing a total mess
+   * of the extraction logic, so it has to be removed/ignored.
+   *
+   * The problematic empty range can be identified as follow:
+   *    - Having a startContainer node being `div.cmd`
+   *    - Its offset is greater than 0
+   *    - It's always the last range, even if the user started by clicking too much on
+   *      the left of the line.
+   *
+   * (NOTE: next time, write down how to reproduce that thing...!)
+   * */
+  removeTrailingInvalidRangeIfNeeded(baseSelection){
+    let endRngIdx = baseSelection.rangeCount - 1
+    let lastRng   = baseSelection.getRangeAt(endRngIdx)
+
+    // Find last actual range to consider:
+    const tooLarge = $(endRngIdx.startContainer).is('div.cmd') && lastRng.startOffset > 0
+
+    // Mutate this.rng to get one single range of all the text to extract, if there is more than
+    // one (valid) Range in the selection:
+    const thisRngEndNeedsUpdate = endRngIdx - tooLarge > 0
+    if(thisRngEndNeedsUpdate){
+      const endRng = baseSelection.getRangeAt(baseSelection.rangeCount-1)
+        // WARNING: WHY NOT baseSelection.getRangeAt(endRngIdx) ??? -> what's the point, then??
+        // (currently, this will exclude the last range when there are 2 of them and the last
+        // one is invalid, because this.rng.endContainer won't get updated. It IS updated WITH
+        // THE LAST Range endContainer in other cases, though...)
+        //   => If I remember correctly, this is a dirty FIX for some jQuery.terminal non sense...
+
+        // This will update the commonAncestor and "shrink" the Range automatically if needed
+        // (aka, if only cmd stuff is selected while the mouse selected some external elements
+        // on the way...).
+        this.rng.setEnd(endRng.endContainer, endRng.endOffset)
+        this.commonAncestor = $(this.rng.commonAncestorContainer)
+
+        this.show("endRngIdx", "invalid=",tooLarge, endRngIdx, endRng)
+    }
+  }
+
+
+  /**Fix this.rng.endContainer to make sure to exclude any extra/useless lines coming from empty
+   * contents generated when iterating on the Range:
+   *
+   * When some command elements are selected, the commonAncestor might be "too large" and
+   * contain upper level tags (div.cmd, div.cmd-wrapper) that would generate empty lines
+   * when iterating on the range, during extractions.
+   */
+  fixRngEndContainerForFullCmdSelection(){
+
+    let endContainer     = $(this.rng.endContainer)
+    let relevantAncestor = this._findAncestorDivOfInterest(endContainer)
+
+    const isFullCmd = (
+      relevantAncestor.is('.terminal-scroller, .terminal-wrapper, .cmd')
+      || endContainer.is('.cmd-wrapper')
+    )   // DO NOT test relevantAncestor.is('.cmd-wrapper') here: it would systematically extend
+        // the range to the full command content, while maybe only a part of it is selected.
+
+    if(isFullCmd){
+      // Make sur to work with div.cmd as relevantAncestor (ease spotting the last child later):
+      if(relevantAncestor.is('div.cmd-wrapper')){
+        relevantAncestor = relevantAncestor.parent()      // -> div.cmd
+      }
+      const lastCmdChild = relevantAncestor.find('div.cmd-wrapper > :last-child')[0]
+      if(!lastCmdChild){     // Internal security
+        throw new Error("Couldn't find div.cmd-wrapper from "+this.commonAncestor.toString())
+      }
+
+      this.rng.setEndAfter(lastCmdChild)
+      this.commonAncestor = $(this.rng.commonAncestorContainer)
+    }
+  }
+
+
+
+  /**Determines what kind of content(s) has to be extracted, end return an object giving
+   * informations about how the selection is structured (Some fields may be missing,
+   * leading to `undefined`):         `{hasCmd, hasOutput, invalid}`
+   * */
+  getExtractionConfig(){
+
+    // Get deepest possible meaningful div that wraps the selection, to identify what kind
+    // of content(s) is to be copied:
+    const div = this._findAncestorDivOfInterest(this.commonAncestor)
+
+    if(div.is('.cmd, .cmd-wrapper')) return {hasCmd: true}
+    if(div.is('.terminal-output'))   return {hasOutput: true}
+    if(div.is('.terminal-wrapper'))  return {hasOutput: true, hasCmd: true}
+
+    return {invalid:true}   // Security/default case
+  }
+
+
+
+  /**Extract the closest parent div of the given jQuery element, that is matching any of the critical
+   * elements to consider when handling copy/paste selection logic.
+   * */
+  _findAncestorDivOfInterest(elt){
+    return elt.closest([
+      'div.cmd-wrapper',         // command only
+      'div.cmd',                 // command only
+      'div.terminal-output',     // output only
+      'div.terminal-wrapper',    // Cmd for sure, but output??? -> need to rebuild a Range
+      'div.terminal-scroller',   // Cmd for sure, but output??? -> need to rebuild a Range
+    ].join(', '))
+  }
+
+
+
+/**Starting from the `{side}Container` of this.rng, extract the deepest jQuery parent element
+ * that matches the given predicate.
+ *
+ * NOTES:
+ *  - Range.offSet is included for the startContainer, but excluded for the endContainer.
+ *  - The `{side}Container` _really_ is the container of the ending element. Meaning the offset
+ *    has to be considered to know on what child the selection actually starts/begin.
+ *  - ...BUT if the `{side}Container` is a text tag,
+ * */
+  _getFirstParentMatchingOnSide(side, desiredPredicate){
     const node   = $(this.rng[side+'Container'])
     const offset = Math.max(0, this.rng[side+'Offset'] - (side=='end'))
-    let   elt    = node[0].nodeName=='#text' ? node : node.children().eq(offset)
-    if(!elt.length) elt = node   // (resulted in negative index...)
+    let   elt    = node[0].nodeName=='#text' /* || offset < 0  ? */ ? node : node.children().eq(offset)
+    if(!elt.length) elt = node   // (resulted in negative index or no actual match)
 
-    while(!stopUpon(elt)){
+    while(!desiredPredicate(elt)){
       elt = elt.parent()
     }
     return elt
   }
 
-  pushLine(line, stripOneSpace=false){
-    const txt =  stripOneSpace ? line.replace(TERMINAL_RSTRIP_SPACE_REGEXP,'') : line
+
+  /**Add the current line/content to this.lines, trimming it on the right side if needed.
+   * */
+  pushLine(line, trimRight=false){
+    const txt =  trimRight ? line.replace(TERMINAL_RSTRIP_SPACE_REGEXP,'') : line
     this.lines.push(txt)
   }
 
 
-
-  /**Extract the string content of the given Range, if it's not collapsed.
+  /**Split this.rng into 3 separated Ranges, each handling a specifiksc segment of the selected text:
+   *    - `head`:   The very first line/beginning of the selection. Often empty if the line is
+   *                completely selected, or if only the end of the line is selected.
+   *    - `center`: The central elements/texts. This covers only full lines to extract (simplifying
+   *                a bit the extraction machinery for this part).
+   *    - `tail`:   Equivalent of `head`, but at the end.
    *
-   * @rng:      If given, must be a jQuery identifier string: the content Range is then cloned and
-   *            copy the innerText data of all the elements matching the @on rule.
-   * @stripOne: When extracting the terminal current command lines, those hold a trailing space,
-   *            that has to be removed.
-   */
-  _getRangeTxt(rng, stripOneSpace, options=null){
-    if(rng.collapsed) return;
-
-    if(!options || options.centerAsOneLine){
-      // `head` and `tail` ranges are _supposed_ to be single line contents, so extract directly:
-      this.pushLine(rng.toString(), stripOneSpace)
-
-    }else{
-      // The `center` Range may be multiline, so extract the whole content, then pick complete
-      // lines inside the fragment, when found:
-      const extractor = this
-      $(rng.cloneContents()).find(options.centerJRule).each(function(){
-        const txt = this.innerText
-        extractor.pushLine(txt, stripOneSpace)
-      })
-    }
-  }
-
-
-  _extractRanges(head, center, tail, options={}){
-    options = {
-      centerJRule:null, centerAsOneLine:false, stripOneSpace:false, ...options
-    }
-    this._getRangeTxt(head,   options.stripOneSpace)
-    this._getRangeTxt(center, options.stripOneSpace, options)
-    this._getRangeTxt(tail,   options.stripOneSpace)
-  }
-
-
-  _workoutBaseRange(IsLine, spotLine){
-    const top          = $(this.rng.commonAncestorContainer)
-    const topTag       = top[0].nodeName    // Don't use jQuery for this....
+   * If one single line is selected, only the `center` range should be used (head and tail are
+   * collapsed).
+   *
+   * @isLinePredicate(elt):
+   *    Return true if the given element is holding a line of content (potentially partial)
+   *
+   * @parentLinePredicate(elt):
+   *    Return true if the given element matches the first parent on which one wants to stop, when
+   *    ascending the hierarchy from the commonAncestor of this.rng.
+   * */
+  splitAndStudyBaseRangeWith(isExtractingOutput, isLinePredicate, parentLinePredicate){
+    const top          = this.commonAncestor
+    const topTag       = top[0].nodeName    // Don't use jQuery for this... x/
 
     const isTxtOnly    = topTag == '#text'
     const isSpan       = topTag == 'SPAN'
-    const isMultiSpan  = topTag == 'DIV' && IsLine(top)
+    const isMultiSpan  = topTag == 'DIV' && isLinePredicate(top)
     const isSingleLine = isTxtOnly || isSpan || isMultiSpan
 
     let headLine, tailLine
     let [head, center, tail] = [0,0,0].map(_=>this.rng.cloneRange())
 
-    if(!isSingleLine){
+    if(isSingleLine){
+      head.collapse(true)
+      tail.collapse()
+
+    }else{
       // At this point:
       //    - The given Range IS (supposed to be) multiline, but "dunno where"
       //    - It could be in the terminal-output div only,
@@ -366,16 +434,63 @@ assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
       // These will then be cut further if need by caller (to extract the output or cmd
       // parts solely.)
 
-      headLine = this._getParentTag('start', spotLine)
-      tailLine = this._getParentTag('end', spotLine)
+      headLine = this._getFirstParentMatchingOnSide('start', parentLinePredicate)
       head.setEndAfter(headLine[0])
       center.setStartAfter(headLine[0])
+
+      tailLine = this._getFirstParentMatchingOnSide('end', parentLinePredicate)
       center.setEndBefore(tailLine[0])
       tail.setStartBefore(tailLine[0])
     }
-    // this.show('BASE', {top, headLine, tailLine, isSingleLine}, {rng:this.rng, head, center, tail})
+
+    this.show('analyze', this.conf, {top, headLine, tailLine, isTxtOnly, isSpan, isMultiSpan, isSingleLine})
+
+    // Adapt center and collapse tail if there is a Cmd part while extracting the output only:
+    if(isExtractingOutput && (this.conf.hasCmd || tailLine && tailLine.is('div.terminal-wrapper'))){
+      tail.collapse()   // Remove any Cmd part
+
+      // If the head is covering the last output line, center must also be collapsed:
+      const headIsEnd = $(head.cloneContents()).find("div > span, div:empty").parent().is('div.cmd-end-line')
+      if(headIsEnd){
+        center.collapse(true)
+      }else{
+        const out = top.find('div.terminal-output')
+        center.setEndAfter(out[0])
+        center.setStart(head.endContainer, head.endOffset)
+      }
+    }
 
     return {top, head, center, tail, headLine, tailLine, isSingleLine}
+  }
+
+
+  _extractRanges(head, center, tail, options={}){
+
+    const extractor = this
+    options = {
+      centerJRule: null, stripOneSpace: false, ...options
+    }
+
+    let i=0
+    for(const rng of [head, center, tail]){
+      i++
+
+      if(rng.collapsed){
+        continue
+
+      }else if(i===2 && options.centerJRule){
+        // The `center` Range may be multiline, so extract the whole content, then pick complete
+        // lines inside the fragment, when found:
+        $(rng.cloneContents()).find(options.centerJRule).each(function(){
+          const txt = this.innerText
+          extractor.pushLine(txt, options.stripOneSpace)
+        })
+
+      }else{
+        // `head` and `tail` or the `center` ranges are single line contents, so extract directly:
+        extractor.pushLine(rng.toString(), options.stripOneSpace)
+      }
+    }
   }
 
 
@@ -385,41 +500,31 @@ assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
   _extractOutput(){
     let {
       top, head, center, tail, headLine, tailLine, isSingleLine
-    }=this._workoutBaseRange(
+    }=this.splitAndStudyBaseRangeWith(
+      true,
       (elt) => elt.parent().attr('data-index'),
       (elt) => elt.is('div.terminal-wrapper') || elt.parent().is('div[data-index]')
     )
 
+    // Shortcut if one single line is showing up in the selection:
     if(isSingleLine){
       this.pushLine(this.rng.toString())
-      return
+
+    }else{
+      this._extractRanges(head, center, tail, {centerJRule: "div > span, div:empty"})
     }
 
-    // Adapt center and collapse tail if there is a Cmd part:
-    if(this.conf.hasCmd || tailLine.is('div.terminal-wrapper')){
-      tail.collapse()   // Remove any Cmd part
-      const out = top.find('div.terminal-output')
-      center.setEndAfter(out[0])
-      center.setStart(head.endContainer, head.endOffset)
-    }
-
-    let centerAsOneLine = false
-    let centerJRule = "div[data-index] > div"
-    const topCenter   = $(center.commonAncestorContainer)
-    if(!topCenter.is('div[class]')){
-      centerAsOneLine = true
-      centerJRule = null
-    }
-    // this.show('OUT', {head, center, tail})
-
-    this._extractRanges(head, center, tail, {centerAsOneLine, centerJRule})
+    this.show('Output extraction', {head, center, tail})
   }
+
+
 
 
   _extractCmd(){
     let {
       top, head, center, tail, headLine, tailLine, isSingleLine
-    }=this._workoutBaseRange(
+    }=this.splitAndStudyBaseRangeWith(
+      false,
       (elt) => elt.is('div[role=presentation], span.cmd-prompt'),
       (elt) => elt.is('div[role=presentation], span.cmd-prompt, div.terminal-wrapper'),
       true
@@ -447,9 +552,9 @@ assert False, 'slgjkhjkgfhd\n\nlkhsgkjhsdg'
       head.collapse(true)     // Collapse on start, to keep the info to handle the prompt later
       const cmd = top.is('div.cmd-wrapper') ? top : top.find('div.cmd-wrapper')
       center.setStartBefore(cmd[0])
-      center.setEnd(tail.startContainer, tail.startOffset)
+      center.setEnd(tail.startContainer, tail.startOffset)    // redundant...?
     }
-    // this.show('CMD', {head, center, tail})
+    this.show('CMD extraction', {head, center, tail})
 
     const iPromptMaybe = this.lines.length
     this._extractRanges(head, center, tail, {
@@ -814,7 +919,7 @@ export class TerminalRunner extends _TerminalHandler {
   }
 
   async applyAutoRun(){
-    await this.runners.cmd(this.prefillTerm)
+    await this.terminal.exec(this.prefillTerm)
   }
 
 
