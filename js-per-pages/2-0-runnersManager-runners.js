@@ -96,7 +96,39 @@ class GlobalRunnersManagerBase {
 
 
 
-class GlobalSequentialRunner extends GlobalRunnersManagerBase {
+class GlobalAutoRunManager extends GlobalRunnersManagerBase {
+
+  constructor(){
+    super()
+    this.autoRuns = []      // Sparse defined (but values are actually contiguous except for index 0)
+  }
+
+  registerRunner(runner){     // Cap override
+    super.registerRunner(runner)
+    if(runner.autoRun){
+      this.autoRuns[runner.autoRun] = runner
+    }
+  }
+
+  async autoRunInOrder(){
+    for(const runner of this.autoRuns){
+      if(runner){         // 'of' extracts undefined for the empty slot at index 0.
+        await runner.applyAutoRun()
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+class GlobalSequentialRunner extends GlobalAutoRunManager {
 
   constructor(){
     super()

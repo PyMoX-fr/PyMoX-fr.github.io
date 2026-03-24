@@ -21,6 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 import { checkMathJaxReady, getTheme, subscribeWhenReady, perennialMathJaxUpdate } from 'functools'
 
+import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
+
 export const chaining=0;      // To control imports orders when using overrides
 
 
@@ -377,11 +379,14 @@ document.querySelector("[data-md-color-scheme]")
       })
     }
 
-    const runner = CONFIG.CLASSES_POOL.Ide
-    if(runner){
+    const IdeRunnerClass = CONFIG.CLASSES_POOL.Ide
+    if(IdeRunnerClass){
       // On next tick because the DOM isn't up to date yet:
-      setTimeout(runner.enforceAceGutterFillAfterHeightsTroubles.bind(runner))
+      setTimeout(IdeRunnerClass.enforceAceGutterFillAfterHeightsTroubles.bind(IdeRunnerClass))
     }
+
+    RUNNERS_MANAGER.autoRunInOrder()
+
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscriptions] - Subscriptions done')
 
     if(CONFIG.CLASSES_POOL.Qcm){                          // Building qcms only if the class is defined in the page

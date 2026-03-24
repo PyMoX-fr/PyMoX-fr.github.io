@@ -179,12 +179,6 @@ class PyodideSectionsRunnerBase {
 
   build(){
     this.buildRunners()
-
-    // Using setTimeout to be sure the `build` step will be complete (some children classes
-    // may have subsequent operations after the super method, aka, has been called here).
-    if(this.autoRun){
-      setTimeout(async ()=>await this.applyAutoRun())
-    }
   }
 
 

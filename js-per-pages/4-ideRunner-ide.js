@@ -515,7 +515,7 @@ class IdeRunnerLogic extends IdeFeedbackManager {
    * */
   prefillTermIfAny(){}
 
-  // @OVERRIDE
+  // @OVERRIDE terminal behavior
   async applyAutoRun(){
     await this._defaultAutoRun()
   }
