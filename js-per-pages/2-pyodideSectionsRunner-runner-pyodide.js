@@ -317,7 +317,7 @@ class PyodideSectionsRunnerBase {
         }
         this.running = undefined
       }
-    })
+    }, RUNNERS_MANAGER, this)
   }
 
 

@@ -101,6 +101,7 @@ class GlobalAutoRunManager extends GlobalRunnersManagerBase {
   constructor(){
     super()
     this.autoRuns = []      // Sparse defined (but values are actually contiguous except for index 0)
+    this.currentAutoRun = null
   }
 
   registerRunner(runner){     // Cap override
@@ -113,9 +114,18 @@ class GlobalAutoRunManager extends GlobalRunnersManagerBase {
   async autoRunInOrder(){
     for(const runner of this.autoRuns){
       if(runner){         // 'of' extracts undefined for the empty slot at index 0.
+        this.currentAutoRun = runner
         await runner.applyAutoRun()
       }
     }
+    this.autoRuns = []
+  }
+
+  /**Forbid executions of any runner, as long as all the autoRuns have been executed, EXCEPT if
+   * the runner asking for permission" is the one supposed to be run automatically.
+   * */
+  waitForAutoRunFinished(runner){
+    return this.autoRuns.length && this.currentAutoRun !== runner
   }
 }
 

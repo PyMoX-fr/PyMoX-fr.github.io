@@ -385,7 +385,8 @@ document.querySelector("[data-md-color-scheme]")
       setTimeout(IdeRunnerClass.enforceAceGutterFillAfterHeightsTroubles.bind(IdeRunnerClass))
     }
 
-    RUNNERS_MANAGER.autoRunInOrder()
+    // Trigger all the elements using `AUTO_RUN=True`:
+    await RUNNERS_MANAGER.autoRunInOrder()
 
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscriptions] - Subscriptions done')
 

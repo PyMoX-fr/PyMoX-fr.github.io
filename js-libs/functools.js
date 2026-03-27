@@ -126,25 +126,41 @@ export const withPyodideAsyncLock = (_=>{
 
     /**Function factory ("decorator like"), managing the global pyodide lock.
      * If a call is done while pyodide is locked, it is delayed until the lock is available.
+     * Also allow to force some PyodideRunners to wait for the end of the RUNNER_MANAGER.autoRuns
+     * executions, to ensure executions order are always predictable (aka, AUTO_RUN always first).
      *
      * @name: Logging purpose only
      *
      * @asyncCallback: async function or method to wrap with the Lock. The calls are:
      *      - Passing in the current `@this` context.
      *      - And ofc the arguments (any number)
+     *
+     * @runnerManager=null: if given, this is the RUNNER_MANAGER instance. See @runner argument.
+     *
+     * @runner=null: if @runnerManager is given, this is the runner opbject currently "asking for
+     * permission" to run. The RUNNER_MANAGER qill auhorize the execution or not, depending on
+     * AUTO_RUNs being completed or not (and if AUTO_RUNs are going on, authorize the current
+     * runner).
      * */
-    return function withPyodideAsyncLock(name, asyncCallback){
+    return function withPyodideAsyncLock(
+        name,
+        asyncCallback,
+        runnerManager = null,
+        runner = null,
+    ){
         const logName = asyncCallback.name || name
+        const logData = runner && " - Executing:\n"+(runner.prefillTerm || runner.envContent) || ""
 
         const wrapper = async function(...args){
             await waitForPyodideReady()
 
-            LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK?] -", logName, pyodideLocked)
-            while(pyodideLocked){
+            LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK?] -", logName, "is waiting:", pyodideLocked)
+            while(pyodideLocked || runnerManager && runnerManager.waitForAutoRunFinished(runner)){
                 await sleep(60)
+                LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK?] -", logName, "is waiting:", pyodideLocked)
             }
             pyodideLocked = true
-            LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK ACQUIRE] -", logName)
+            LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK ACQUIRE] -", logName, logData)
             let ret;
             try{
                 ret = await asyncCallback.apply(this, args)
