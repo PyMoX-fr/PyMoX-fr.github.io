@@ -284,3 +284,10 @@ mais sans lien dessus */
 
 #floating-tip { position: absolute; z-index: 1 }
 #floating-tip > span { visibility: unset; }
+
+
+input#playground-url {
+  border: 2px solid var(--main-theme);
+  width: 100%;
+  font-size: 1.1em;
+}

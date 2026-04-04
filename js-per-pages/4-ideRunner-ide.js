@@ -980,27 +980,29 @@ export class IdeRunner extends IdeRunnerLogic {
 
   async respondToKeyUp(event){
 
-    const goFullScreen = (event.key == 'Escape'
+    const goFullScreen = (
+      event.key == 'Escape'
       && !IdeFullScreenGlobalManager.someMenuOpened
       && !this.guiIdeFlags.escapeIdeSearch
       && !somethingFullScreen()
     )
-    const justMoving = (
-      this.constructor.KEY_UP_NO_CHANGES.has(event.key) ||
-      this.constructor.KEY_UP_ARROWS.has(event.key) && !event.altKey ||
-      event.ctrlKey && "acfhs Enter".includes(event.key) ||
-      event.key == 'Escape'
+    const noChanges = (
+      this.constructor.KEY_UP_NO_CHANGES.has(event.key)
+      || this.constructor.KEY_UP_ARROWS.has(event.key) && !event.altKey
+      || event.ctrlKey && "acfhs Enter".includes(event.key)    // Ctrl+V or X _are_ modifying the content!
+      || event.key == 'Escape'
     )
+    const inAceEditor = $(event.target).parent().is(".ace_editor")
 
     if(goFullScreen){
       this.requestFullScreen()
       // The browser already handles on its own going out of fullscreen with escape
-      // => no "else" needed for that
+      // => no "else" secifically needed for that case.
 
     }else if(event.altKey && event.key==':'){
       this.switchSplitScreenFromButton(event)
 
-    }else if(!justMoving){
+    }else if(!noChanges && inAceEditor){
       this.makeDirty()
     }
 

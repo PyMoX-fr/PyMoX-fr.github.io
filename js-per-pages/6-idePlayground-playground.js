@@ -78,6 +78,9 @@ class IdePlayground extends IdeRunner {
   async setupRuntimeIDE() {
     this.getAll()
 
+    const url = $('input#playground-url').prop("value")
+    this.setupFetchers(url, false)
+
     // WARNING: this.getCodeToTest may have been rotated by the corrBtn already, but not a problem...
     this.archiveCodeGetter = this.getCodeToTest;
     this.getCodeToTest = ()=>{
@@ -92,6 +95,7 @@ class IdePlayground extends IdeRunner {
   async teardownRuntimeIDE(runtime) {
     await super.teardownRuntimeIDE(runtime)
     this.getCodeToTest = this.archiveCodeGetter
+    this.teardownFetchers()
   }
 
 
@@ -104,6 +108,7 @@ class IdePlayground extends IdeRunner {
   }
 
   resetAll(){
+    this.applyCodeToEditorAndSave("", false)
     divs.each(function(){
         set(this.id, "")
     })
@@ -121,6 +126,7 @@ class IdePlayground extends IdeRunner {
 
   upload(){
     uploader(txt=>{
+        this.resetAll()
         this._applyAllCodesFromFileContent(txt)
         this.makeDirty()
         this.focusEditor()
@@ -150,7 +156,13 @@ class IdePlayground extends IdeRunner {
 
   _applyAllCodesFromFileContent(txt){
     const parts = txt.split(/#\s*-+\s*(?:PMT|PYODIDE):(\w+)\s*-+\s*#/)
-    parts.splice(0,1)   // remove leading empty element
+
+    if(parts.length == 1){    // no PMT headers => consider it is a `code` section
+      parts.unshift("code")
+    }else{
+      parts.splice(0,1)   // remove leading empty element
+    }
+
     let codeContent=""
 
     const pairs = _.chunk(parts, 2)

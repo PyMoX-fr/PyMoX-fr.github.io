@@ -108,6 +108,101 @@ _hack_start_pyodide()
 del _hack_start_pyodide     # (no auto_run tool yet)
 `,
 
+
+    /**Replace on the fly pyodide.http.pyfetch and js.fetch with wrappers that will consider any
+     * value set in `CONFIG.relUrlRedirect` to prepend it to the urls given as arguments to the
+     * wrappers, before actually fetching the address. Only relative urls are affected.
+     *
+     * `{FORMAT_TOKEN}` must be given as a python boolean string.
+     *   - If False, accessing js.fetch will return a wrapper equivalent to the `pyfetch` one.
+     *   - If True, this behavior is also added: any access to the js.document and subsequent
+     *     accesses will return a Mock object.
+     * */
+    relUrlsRedirections: `
+def __hack_redirection_and_fake_js():
+    import re, js
+    from functools import wraps
+    import pyodide.http as http
+
+    with_js_mock = {FORMAT_TOKEN}
+    pure_pyfetch = http.pyfetch
+    pure_import  = __import__
+    js_config = js.config()
+
+
+    def get_url(url:str):
+        if isinstance(url,str) and not re.match(r'(https?|ftps?|file)://|www[.]', url):
+            url = js.config().relUrlRedirect + url
+        # print(url)
+        return url
+
+
+    @wraps(pure_pyfetch)
+    async def fake_pyfetch(url, *a, **kw):
+        url = get_url(url)
+        return await pure_pyfetch(url, *a, **kw)
+
+    http.pyfetch = fake_pyfetch
+
+
+    async def fake_js_fetch(url, *a):
+        url = get_url(url)
+        return await js.fetch(url, *a)
+
+
+    class JsMock(int):
+        """
+        Extends int so that computations when pyplot tries to update the DOM do not crash
+        (even if wrong...!)
+        """
+
+        # ASYNC_CALLS = set('uploaderAsync'.split())
+
+        def __getattr__(self, k):
+            if k=='fetch':
+                return fake_js_fetch
+
+            # if k in self.ASYNC_CALLS:
+            #     return self.async_sink_js
+
+            if with_js_mock and (k=='document' or self is sink_js ):
+                return sink_js
+
+            return getattr(js, k)
+
+        async def async_sink_js(self, *a,**kw):
+            return sink_js
+
+        def __call__(self, *a, **kw):
+            return sink_js
+
+        def __setattr__(self, k,v):     # (why is that needed?)
+            setattr(js, k, v)
+
+
+    fake_js = JsMock(1)
+    sink_js = JsMock(1)  # Using another instance, to get the fetch behavior at top level only
+
+    def fake_import(name, *a, **kw):
+        if name == 'js':
+            return fake_js
+        return pure_import(name, *a, **kw)
+
+    __builtins__.__import__ = fake_import
+
+
+    def teardown_url_redirections():
+        js_config.relUrlRedirect = ''
+        http.pyfetch = pure_pyfetch
+        __builtins__.__import__ = pure_import
+
+    __builtins__.teardown_url_redirections = teardown_url_redirections
+
+
+__hack_redirection_and_fake_js()
+del __hack_redirection_and_fake_js
+`,
+
     autoRun: `
 def _hack_auto_run():
     import inspect
@@ -879,7 +974,7 @@ __builtins__._stdout_value
 
 /*
 ------------------------------------------------------------------
-          Manage python stdout redirection in terminal
+          Various helpers, centralizing some logic
 ------------------------------------------------------------------
 */
 
@@ -888,6 +983,30 @@ export const pyodideFeatureRunCode=(name, repl=null)=>{
     const code = pyodideFeatureCode(name, repl)
     return pyodide.runPython(code)
 }
+
+
+export const pyodideFeatureSetupRedirections=(relUrlRedirection, withJsMock)=>{
+
+    // Replace "//"" to ease the way for the user: no need to care about adding or not trailing
+    // or leading slashes.
+    CONFIG.relUrlRedirect = `${ CONFIG.baseUrl }/${ relUrlRedirection||"" }/`.replace(/[/]{2}/g, '/')
+
+    const code = pyodideFeatureCode("relUrlsRedirections", withJsMock ? "True":"False")
+    pyodide.runPython(code)
+}
+
+
+
+
+
+
+
+
+/*
+------------------------------------------------------------------
+          Manage python stdout redirection in terminal
+------------------------------------------------------------------
+*/
 
 
 /**Use a StringIO stdout, so that the full content can be extracted later.

@@ -31,7 +31,7 @@ import {
 } from 'functools'
 import { _DUMMY } from 'process_and_gui'   // Enforce dependencies order (if ever a runner is needed)
 
-import { pyodideFeatureRunCode } from '0-generic-python-snippets-pyodide'
+import { pyodideFeatureRunCode, pyodideFeatureSetupRedirections } from '0-generic-python-snippets-pyodide'
 import { RuntimeManager } from '1-runtimeManager-runtime-pyodide'
 import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
 
@@ -520,6 +520,25 @@ class PyodideSectionsRunnerBase {
       )
     }
     renderMermaidGraphs()
+  }
+
+
+
+  /**Setup the pyodide environment so that requests to relative urls are automatically redirected
+   * to the correct (original) locations, and setup various sinks to avoids DOM interactions to
+   * fail, typically when trying to update img tags through `PyodidePlot` or `mermaid_figure`.
+   *
+   * @withJsMock: if true, any access to a property of the js module other than
+   *
+   * NOTE: this may be run outside of the usual runtime logistic, so no @auto_run decorator used.
+   * */
+  setupFetchers(url, withJsMock){
+    pyodideFeatureSetupRedirections(url, withJsMock)
+  }
+
+
+  teardownFetchers(){
+    pyodide.runPython("teardown_url_redirections()")
   }
 }
 

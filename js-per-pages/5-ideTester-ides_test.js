@@ -26,7 +26,7 @@ import {
   waitForPyodideReady,
   RunningProfile,
 } from 'functools'
-import { clearPyodideScope } from '0-generic-python-snippets-pyodide'
+import { clearPyodideScope, pyodideFeatureSetupRedirections } from '0-generic-python-snippets-pyodide'
 import { IdeRunner } from '4-ideRunner-ide'
 
 
@@ -425,7 +425,7 @@ class IdeTesterGuiManager extends IdeRunner {
 
     this.setAttemptsCounter(this.attemptsLeft, true)
     this._clearStateIfNeededAndReinit(onLoad)
-    this.setupFetchers()
+    this.setupFetchers(this.conf.rel_dir_url, true)
     this.clearLibsIfNeeded()
   }
 
@@ -443,10 +443,6 @@ class IdeTesterGuiManager extends IdeRunner {
   save(_){}
 
   async runAllTests(start, end, forceRun=false){ throw new Error('Not implemented') }
-
-  setupFetchers(){ throw new Error('Not implemented') }
-
-  clearLibsIfNeeded(){ throw new Error('Not implemented') }
 
 
 
@@ -805,94 +801,6 @@ ${ runtime.stdErr || "No error raised, but..." }
 
 ${ msg.join('\n') }`
     return msg
-  }
-
-
-
-  /**Setup the pyodide environment so that requests to relative urls are automatically redirected
-   * to the correct (original) locations, and setup various sinks to avoids DOM interactions to
-   * fail, typically when trying to update img tags through `PyodidePlot` or `mermaid_figure`.
-   * */
-  setupFetchers(){
-
-    CONFIG.relUrlRedirect = `${ CONFIG.baseUrl }/${ this.conf.rel_dir_url }/`.replace(/[/]{2}/g, '/')
-
-    pyodide.runPython(`
-
-def __hack_pyfetch():
-    import re, js
-    from functools import wraps
-    import pyodide.http as http
-
-    pure_pyfetch = http.pyfetch
-    pure_import  = __import__
-
-
-    @wraps(pure_pyfetch)
-    async def pyfetch(url, *a, **kw):
-        if isinstance(url,str) and not re.match(r'(https?|ftps?|file)://|www[.]', url):
-            url = js.config().relUrlRedirect + url
-        #print(url)
-        return await pure_pyfetch(url, *a, **kw)
-    http.pyfetch = pyfetch
-
-
-    async def fake_fetch(url, *a):
-        if isinstance(url,str) and not re.match(r'(https?|ftps?|file)://|www[.]', url):
-            url = js.config().relUrlRedirect + url
-        #print(url)
-        return await js.fetch(url, *a)
-
-
-    class JsMock(int):
-        """ Extends int so that computations when pyplot tries to update the DOM do not
-            crash (even if wrong)
-        """
-
-        # ASYNC_CALLS = set('uploaderAsync'.split())
-
-        def __getattr__(self, k):
-            if k=='fetch':  return fake_fetch
-
-            # if k in self.ASYNC_CALLS:  return self.async_sink_js
-
-            if self is sink_js or k in ('document',):
-                return sink_js
-            return getattr(js,k)
-
-        async def async_sink_js(self, *a,**kw):
-            return sink_js
-
-        def __call__(self, *a, **kw):
-            return sink_js
-
-        def __setattr__(self, k,v):
-            setattr(js, k, v)
-
-    fake_js = JsMock(1)
-    sink_js = JsMock(1)  # HAS to be another instance than fake_js!
-
-    def fake_import(name, *a, **kw):
-        if name == 'js':
-            return fake_js
-        return pure_import(name, *a, **kw)
-    __builtins__.__import__ = fake_import
-
-
-    def teardown_tests():
-        http.pyfetch = pure_pyfetch
-        __builtins__.__import__ = pure_import
-    __builtins__.teardown_tests = teardown_tests
-
-
-__hack_pyfetch()
-del __hack_pyfetch`)
-  }
-
-
-  teardownFetchers(){
-    CONFIG.relUrlRedirect = ''
-    pyodide.runPython("teardown_tests()")
   }
 
 
