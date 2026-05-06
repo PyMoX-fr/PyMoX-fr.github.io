@@ -1,7 +1,5 @@
 nav:
 
-  - todo.md
   - CHANGELOG.md
   - deploy_info.md
   - citations.md
-  - hebdo.md

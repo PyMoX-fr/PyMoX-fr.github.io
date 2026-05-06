@@ -32,10 +32,6 @@ theme:
   # name: material  # 👀 pour la validation
   # custom_dir: pyodide-mkdocs-theme  # 👈 ton vrai thème  # ✅ thème installé via pip, reconnu par mkdocs
 
-  # playground:
-  #   include: null
-  # ide: false
-
   ## name: material
   ##   features:
   ##       - navigation.instant   # /!\ Cette option est incompatible avec le thème !
@@ -195,6 +191,14 @@ plugins:
   - pyodide_macros:
       # Vous pouvez ajouter ici tout réglage que vous auriez ajouté concernant les macros:
       on_error_fail: true # Il est conseillé d'ajouter celui-ci si vous ne l'utilisez pas.
+      playground:
+        include: serve
+      testing:
+        include: serve
+        # include: none désactiver complètement
+        # include: serve       # défaut : visible seulement en serve
+        # include: site        # inclus dans le site buildé (sans nav)
+        # page: test_ides      # nom de la page (URL: /test-ides/)
       build:
         # python_libs:
         #   - turtle
