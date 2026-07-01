@@ -39,6 +39,8 @@ uv venv
 uv pip install -r requirements.txt
 ```
 
+Puis
+
 ```bash
 uv run mkdocs serve
 ```
