@@ -32,6 +32,17 @@ python -m venv .venv
 pip install -r .\requirements.txt
 ```
 
+### Démarrage avec uv
+
+```bash
+uv venv
+uv pip install -r requirements.txt
+```
+
+```bash
+uv run mkdocs serve
+```
+
 ### Démarrage avec suppression des modules
 
 ```bash
