@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.1.1 (2026-07-01)
+
+### Doc
+
+- Add uv starter
+  ([`8601d91`](https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/8601d911a97acd46223b975337985f528d47d90c))
+
+
 ## v1.0.8 (2026-02-27)
 
 ### Up
