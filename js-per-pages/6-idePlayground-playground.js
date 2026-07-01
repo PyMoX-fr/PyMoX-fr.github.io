@@ -155,12 +155,12 @@ class IdePlayground extends IdeRunner {
   }
 
   _applyAllCodesFromFileContent(txt){
-    const parts = txt.split(/#\s*-+\s*(?:PMT|PYODIDE):(\w+)\s*-+\s*#/)
+    const parts = txt.split(/#\s*-+\s*(?:PMT|PYODIDE)\s*:\s*(\w+)\s*-+\s*#/)
 
     if(parts.length == 1){    // no PMT headers => consider it is a `code` section
       parts.unshift("code")
     }else{
-      parts.splice(0,1)   // remove leading empty element
+      parts.shift()           // remove leading empty element
     }
 
     let codeContent=""

@@ -39,14 +39,22 @@ const SEQ_MODES = Object.freeze({
 
 
 /**Singleton object managing interactions between IDEs in the current page.
- *      - zip (import/export)
- *      - sequential run (in a version to come)
+ *    - zip (import/export)
+ *    - sequential run (in a version to come)
  * */
 class GlobalRunnersManagerBase {
 
   constructor(){
-    this.allRunners = {}    // runnerId: runner instance
-    this.allowPrint = true  // Mutated from the runners instances... (see related getter+setter)
+
+    /**Holds all the Runner instances in the page, as `{runnerId: object}`
+     * */
+    this.allRunners = {}
+
+    /**Control if contents printed to the stdout should be actually visible in the terminal or
+     * not. This value is mutated from the runners instances... (see related getter & setter
+     * in PyodideSectionsRunnerBase).
+     * */
+    this.allowPrint = true
   }
 
   registerRunner(runner){
@@ -54,10 +62,12 @@ class GlobalRunnersManagerBase {
     runner._manager = this
   }
 
+
   /**Define a global intermediate object transferring silently the calls to the "inner/hidden"
    * RunnerManager, without exposing it directly.
-   */
-  static _defineIdesManagerProxyLike(){
+   * All methods not starting with an underscore (except the constructor) will be exposed.
+   * */
+  static _defineIdesManagerProxyLikeAndStore_MANAGER_InConfig(){
 
     const IdesManagerClass = CONFIG.CLASSES_POOL.GlobalRunnersManager
     const IDE_MANAGER_SRC  = new IdesManagerClass()
@@ -84,6 +94,12 @@ class GlobalRunnersManagerBase {
         (...args) => IDE_MANAGER_SRC[method](...args)
       )(method)
     }
+
+    // Store the RUNNERS_MANAGER "proxy" on the CONFIG object, to avoid having the subscriptions
+    // script importing pyodide/runners related files directly.
+    // The fact that the GlobalRunnersManager is stored in the CLASSES_POOL will ensure proper
+    // resolution order anyway.
+    CONFIG.RUNNERS_MANAGER = RUNNERS_MANAGER
   }
 }
 
@@ -100,7 +116,20 @@ class GlobalAutoRunManager extends GlobalRunnersManagerBase {
 
   constructor(){
     super()
-    this.autoRuns = []      // Sparse defined (but values are actually contiguous except for index 0)
+
+    /**Sparse defined array of each runner currently in the page that should run automatically.
+     *    - Index 0 will always stay `undefined`.
+     *    - All other indices will be contiguous & defined (in the end)
+     * See `MaestroMacros.get_auto_run_rank(...)` for details about the indices values.
+     *
+     * Once the AUTO_RUN phase is finished, this array is empty.
+     * */
+    this.autoRuns = []
+
+    /**Keep track of the runner instance currently "auto-running", if any. This allows to authorize
+     * the current runner to actually run during the AUTO_RUN phase, while the executions of all
+     * other runners is forbidden.
+     * */
     this.currentAutoRun = null
   }
 
@@ -113,7 +142,7 @@ class GlobalAutoRunManager extends GlobalRunnersManagerBase {
 
   async autoRunInOrder(){
     for(const runner of this.autoRuns){
-      if(runner){         // 'of' extracts undefined for the empty slot at index 0.
+      if(runner){       // Because 'for ... of' extracts undefined for the empty slot at index 0...
         this.currentAutoRun = runner
         await runner.applyAutoRun()
       }
@@ -142,10 +171,29 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
 
   constructor(){
     super()
-    this.priority = []    // [ (has_priority_but_not_run_yet | run_last), ...]
-    this.groups = []      // [ [runners,...], ...] (ordered²), as "list of groups"
-    // The groups array is built in a sparse way, because the order of the initializations
-    // of the runners is not guaranteed. So rely on the ordering of the groups in the page.
+
+    /**All groups of runners in the current page, in "top->bottom" DOM order.
+     * Groups are stored as an ordered² 2d array [ [runners,...], ...].
+     *
+     * Note: The `this.groups` array is sparse defined, because the order of the initializations
+     * of the runners is not guaranteed because of the `run` macros, which actually end up at the
+     * bottom of the html page. So we rely instead on the ordering of the groups in the page, as
+     * defined in the python layer (see: `PageConfiguration.get_run_group_data(...)` in
+     * `pyodide_mkdocs_theme/pyodide_macros/plugin_tools/pages_and_macros_py_configs.py`).
+     * */
+    this.groups = []
+
+    /**Array (ordered) of all runners which have the priority in a given group. Can be seen as:
+     *
+     *    [ (has_priority_but_not_run_yet | last_run_or_used_instance), ...]
+     *
+     * Note: this array is sparse defined, because the order of the initializations of the runners
+     * is not guaranteed because of the `run` macros, which actually end up at the bottom of the
+     * html page. So we rely instead on the ordering of the groups in the page, as defined in the
+     * python layer (see: `PageConfiguration.get_run_group_data(...)` in
+     * `pyodide_mkdocs_theme/pyodide_macros/plugin_tools/pages_and_macros_py_configs.py`).
+     * */
+    this.priority = []
   }
 
   registerRunner(runner){     // Cap override
@@ -174,6 +222,38 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
     }
   }
 
+  /**Takes an array of runners id, which are contained in a tabbed-block that got revealed by the
+   * user, clicking on the corresponding label, then give the priority to any runner that is:
+   *  1. Part of a group
+   *  2. The only runner of the group in the tabbed-block (this is to not change the priority for
+   *     nested tabbed contents).
+   */
+  grantPriorityIfAloneInTab(runnersId){
+
+    const runnersInGroups = runnersId
+        .map(id=>this.allRunners[id])
+        .filter(runner=>runner && this.groups[runner.runGroup].length > 1)
+
+    const runnersByGroups = {}
+    runnersInGroups.forEach(runner=>{
+      runnersByGroups[runner.runGroup] = runnersByGroups[runner.runGroup] ?? []
+      runnersByGroups[runner.runGroup].push(runner)
+    })
+
+    Object.values(runnersByGroups)
+          .filter(group=>group.length==1)
+          .forEach(group=>this.overridePriorityElement(group[0]))
+  }
+
+
+  // Testing purposes (see selenium tests)
+  restoreDefaultPriorities(){
+    for(const runner of Object.values(this.allRunners)){
+      if(runner.isStarredGroup) this.overridePriorityElement(runner)
+    }
+  }
+
+
   /**Takes a "routine" running the python code related to the given pyoRunner (see
    * pyoRunner.runners object), and wraps it to handle:
    *
@@ -181,15 +261,15 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
    *     the RuntimeManager object will never be sent back to the event handler.
    *  2. Add on the way the logistic for sequential runs, if this element  is in the sequence.
    *
-   * @pyoRunner: Macro related instance
-   * @actionName: kind of runner used
-   * @routine:   A pyodide locked callback, returning a RuntimeManager object.
+   * @pyoRunner:     Macro related instance
+   * @actionName:    kind of runner used
+   * @routine:       A pyodide locked callback, returning a RuntimeManager object.
    * @sequentialRun: The sequential mode used in the page (if any)
-   * @returns:   A new callback to use for events binding only.
+   * @returns:       A new callback, to use for events binding only.
    */
   wrapForEventAndSequentialRunIfNeeded(pyoRunner, actionProp, routine, sequentialRun){
 
-    const allRunners = this.priority
+    const thisManager = this
     const runningMan = RunningProfile.build(RunningProfile.PROFILE[actionProp])
     const useSequential = (
       sequentialRun && pyoRunner.isInSequentialRun && (
@@ -206,10 +286,22 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
 
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Sequence] - Wrapped', pyoRunner.pyName)
 
-    return async function sequentialAndNoReturn(...args){
+           /**args: generally: [sectionName, Runtime], but might be ["command"] for terminals. */
+    return async function sequentialAndNoReturn(...srcArgs){
+
+      // Always give the current runner the priority, first, in case it is not "the one"...
+      thisManager.overridePriorityElement(pyoRunner)
+
+      /**In dirty mode, previous IDEs are run from the first "dirty" one only. All other runners
+       * are always run whatever their state.*/
+      let runIdes = sequentialRun == SEQ_MODES.ALL
+
+      /**Flag to know when to use or not the announcement about what runner will execute
+       * in the terminal. */
       let ranSome = false
-      let runThem = sequentialRun == SEQ_MODES.ALL
+
       let success = true
+
       let previousRunner
 
       pyoRunner.running = runningMan    // Dirty override, but needed here or there... :rolleyes:
@@ -217,35 +309,27 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
       pyoRunner.lockDisplay()
       pyoRunner.setupTerminalMessageRoutine()
 
+      const iTrigger = thisManager.priority.findIndex( runner => runner===pyoRunner)
       try{
-        for(previousRunner of allRunners){
+        for(previousRunner of thisManager.priority.slice(0,iTrigger)){
 
-          const isTriggerRunner = previousRunner===pyoRunner
-          if(isTriggerRunner){
-            break
-          }
-
-          runThem = runThem || previousRunner.isDirty
-          if(!runThem){
-            continue
+          // IDE without validation button are not considered
+          if(previousRunner.isIde && previousRunner.hasCheckBtn){
+            runIdes ||= (
+              previousRunner.isDirty
+              || runningMan.isValidating && previousRunner.storage.done < 1
+            )
+            if(!runIdes){
+              continue
+            }
           }
 
           ranSome = true
           pyoRunner.showWillRunThis(previousRunner)
-
           previousRunner.activateFocus(false)
           const prevRoutine = previousRunner.runners[actionProp] ?? previousRunner.runners.default
-          let runtime
-          try{
-            previousRunner.rotateTerminalMessage = false
-            if(previousRunner.isTerminal){
-              args = [ previousRunner.prefillTerm || '' ]
-            }
-            runtime = await prevRoutine(...args)
-          }finally{
-            previousRunner.rotateTerminalMessage = true
-
-          }
+          const args = previousRunner.isTerminal ? [ previousRunner.prefillTerm || '' ] : srcArgs
+          const runtime = await prevRoutine(...args)
           if(runtime.stopped){
             previousRunner.scrollIntoView()
             success = false
@@ -264,15 +348,18 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
 
       // If no error so far, run the current/triggering element (no return!)
       if(success){
-
-        if(ranSome) pyoRunner.showWillRunThis(pyoRunner)
+        if(ranSome) pyoRunner.showWillRunThis()
         const oldClearConfig = pyoRunner.clearTerminalWhenLocking
         try{
           pyoRunner.clearTerminalWhenLocking = false
-          await routine(...args)
+          await routine(...srcArgs)
         }finally{
           pyoRunner.clearTerminalWhenLocking = oldClearConfig
         }
+
+      }else{
+        // Make sure the selenium tests won't hang if a previous runner raised an error:
+        pyoRunner.seleniumRunningFlag = false
       }
     }
   }

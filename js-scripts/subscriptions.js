@@ -19,231 +19,24 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { jsLogger } from 'jsLogger'
-import { checkMathJaxReady, getTheme, subscribeWhenReady, perennialMathJaxUpdate } from 'functools'
+import {
+  checkMathJaxReady,
+  subscribeWhenReady,
+  perennialMathJaxUpdate,
+} from 'functools'
+import {
+  handlePmtTooltips,
+  setupChromeFixAceGutterInDetailsElements,
+  setupTabbedContentsOnClickFixer,
+} from 'functoolsUi'
+import { showIdCollisionsIfAny } from 'functoolsStorage'
 
-import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
-
-export const chaining=0;      // To control imports orders when using overrides
-
-
-
-
-
-
-// Gather color theme data and create ACE theme (once only).
-
-const getRGBChannels=colorString=>[
-    colorString.slice(1, 3), colorString.slice(3, 5), colorString.slice(5, 7),
-].map(s=>parseInt(s,16));
-
-
-const bodyStyles = window.getComputedStyle(document.body);
-const primaryColor = bodyStyles.getPropertyValue("--md-primary-fg-color");
-
-document.documentElement.style.setProperty(
-    "--main-color", getRGBChannels(primaryColor)
-);
-
-const _slate   = document.getElementById("ace_palette").dataset.aceDarkMode;
-const _default = document.getElementById("ace_palette").dataset.aceLightMode;
-let [default_ace_style, customLightTheme] = _default.split("|")
-let [slate_ace_style,   customDarkTheme ] = _slate.split("|")
-customLightTheme ||= "default"
-customDarkTheme  ||= "slate"
-
-// Correspondance between the custom and the classic palettes
-CONFIG.ACE_COLOR_THEME.customThemeDefaultKey = customLightTheme
-CONFIG.ACE_COLOR_THEME.customTheme = {
-    [customLightTheme]: "default",
-    [customDarkTheme]:  "slate",
-};
-
-// ACE style getter
-CONFIG.ACE_COLOR_THEME.aceStyle = {
-    default: default_ace_style,
-    slate: slate_ace_style,
-};
+export const chaining=0     // To control imports orders when using overrides (used for Playground)
 
 
 
 
 
-
-/**Logistic for PMT "bare tooltips": They are automatically put in place when an element holds at
- * the same time the ".tooltip" class and a "data-tip-txt" attribute.
- *
- * - The width of the tooltip can be set using "data-tip-width" (value in em)
- * - The text cannot contains any html code, only text.
- * */
-;(function(){
-
-  const tips = $(".tooltip[data-tip-txt]")
-  if(!tips.length) return;
-
-  const DELTA    = 10
-  const tipSpan  = $('<span class="tooltiptext"></span>')
-  const floating = $(`<div id="floating-tip" class="md-header md-typeset tooltip"></div>`)
-  floating.append(tipSpan)
-  floating.appendTo('body')
-
-
-  const defaultPos=()=>({
-    translateX:-50, translateY:0, anchorX:0, anchorY:0, width:'auto',
-  })
-
-  const pointerInfos=(top, left, right)=>{
-    const viewW   = document.documentElement.clientWidth
-    const viewH   = document.documentElement.clientHeight
-    const isDown  = top   > viewH * 0.85
-    const isLeft  = left  < viewW * 0.10
-    const isRight = right > viewW * 0.90
-    return {isDown, isLeft,isRight}
-  }
-
-  /**Place the anchor point just below the mouse pointer by mutation of pos
-   * */
-  const getMovingPosition=(e, obj)=>{
-    const pos = defaultPos()
-
-    const w = obj.dataset.tipWidth
-    if (w!==undefined) pos.width = w+'em'
-
-    e = e.originalEvent
-    const pointer = pointerInfos(e.clientY, e.clientX, e.clientX)
-
-    pos.translateX = pointer.isRight ? -100 : 0
-    pos.translateY = pointer.isDown  ? -100 : 0
-    pos.anchorX = e.pageX
-    pos.anchorY = e.pageY + DELTA * (pointer.isDown ? -1:1)
-
-    return pos
-  }
-
-  /**Automatically define the position of the tooltip around the hovered element by mutation of pos
-   * */
-  const getAnchorPoint=({width, height, top, left}, pagePos, obj)=>{
-    const pos   = defaultPos()
-
-    pos.anchorX = Math.round(pagePos.left + width/2)
-    pos.anchorY = pagePos.top + height + DELTA
-
-    const pointer = pointerInfos(top + height, left, left+width)
-    if(pointer.isDown){
-      pos.anchorY    = pagePos.top - DELTA
-      pos.translateY = -100
-    }
-    if(pointer.isLeft){
-      pos.translateX = 0
-    }else if (pointer.isRight){
-      pos.translateX = -100
-    }
-
-    const w = obj.dataset.tipWidth
-    if (w!==undefined) pos.width = w+'em'
-
-    return pos
-  }
-
-  const placement=function(pos){
-    floating.css({
-      display: 'unset',
-      top:  `${ pos.anchorY }px`,
-      left: `${ pos.anchorX }px`,
-    })
-    tipSpan.css({
-      width: pos.width,
-      transform: `translate(${ pos.translateX }%, ${ pos.translateY }%)`,
-    })
-  }
-
-  tips.on('mouseleave', function(e){
-    floating.css({display: 'none'})
-    tipSpan.text("")
-
-  }).on('mouseenter', function(e){
-    let pos
-
-    if(this.dataset.tipMove!==undefined){
-      pos = getMovingPosition(e, this)
-
-    }else{
-      // Floating must be positioned relative to the _page_, not the viewport (absolute position):
-      const pagePos = $(this).position()
-
-      // Positions & dimensions in viewport:
-      const rect = this.getBoundingClientRect()
-
-      pos = getAnchorPoint(rect, pagePos, this)
-    }
-    tipSpan.html(this.dataset.tipTxt)
-    placement(pos)
-  })
-
-  // Put in place the moving tooltips:
-  ;[...tips]
-    .filter(tip=>tip.dataset.tipMove!==undefined)
-    .forEach(moving=>{
-      $(moving).on('mousemove', function(e){
-        const pos = getMovingPosition(e, this)
-        placement(pos)
-      })
-    })
-})()
-
-
-
-
-
-
-
-
-/**Define a MutationObserver to modify on the fly all the figures, when content is added to them:
- *
- * Whatever the figure, at some point, the content is removed, then replaced.
- * When the figure is low enough in the page, when it disappears, the page might scroll down
- * because it's not high enough anymore to fill the viewport.
- * This observer automatically sets a min-height on the figure div so that it doesn't shrink
- * anymore when its content is removed. This avoids the damn "flickering page scroll".
- * */
-const FIGURE_HEIGHT_OBSERVER = new MutationObserver((entries)=>{
-  for(const entry of entries){
-    if(entry.addedNodes.length){
-      // Wait for a long time so that the DOM has been updated (needed because of mermaid...)
-      setTimeout(_=>{
-        const target = $(entry.target)
-        const actualHeight = Math.min(1500, target.height())
-        target.css('min-height', actualHeight+'px')
-      }, 150)
-    }
-  }
-})
-
-
-$("div.py_mk_figure").each(function(){
-  FIGURE_HEIGHT_OBSERVER.observe(this, {childList:true})
-})
-
-
-
-//-----------------------------------------------------------------
-
-
-/**Setup reactivity for the day/night button, repainting ACE editors.
- * NOTE: yet again, jQuery didn't work on a "change" event.
- * */
-document.querySelector("[data-md-color-scheme]")
-        .addEventListener("change", _=>{
-          LOGGER_CONFIG.ACTIVATE && jsLogger("[Paint_ACEs]")
-
-          const theme = getTheme();
-          for(const id of CONFIG.element.allEditors){
-            for (let theEditor of document.querySelectorAll(`div[id^="${ id }"]`)) {
-              let editor = ace.edit(theEditor.id);
-              editor.setTheme(theme);
-              editor.getSession().setMode("ace/mode/python");
-            }
-          }
-        });
 
 
 ;await (async function(){
@@ -257,6 +50,15 @@ document.querySelector("[data-md-color-scheme]")
    * */
   const ALL_TERMINALS = []
 
+  setupTabbedContentsOnClickFixer(ALL_TERMINALS, TABBED_TO_MAKE_UP_GUI)
+
+  setupChromeFixAceGutterInDetailsElements()
+
+
+  setupTabbedContentsOnClickFixer(ALL_TERMINALS, TABBED_TO_MAKE_UP_GUI)
+
+  setupChromeFixAceGutterInDetailsElements()
+
 
   const idePrefixToClass = {
     editor_: "Ide",
@@ -264,80 +66,16 @@ document.querySelector("[data-md-color-scheme]")
     playground_: "IdePlayground",
   }
 
-
-  /**Warning: order is important, because it defined in what order the macros types with AUTO_RUN
-   * will execute. Note that there are no guarantees on the execution order when there are several
-   * macros of hte same kind using AUTO_RUN (probably directly tied to the declaration order of the
-   * elements in the page).
-   * */
-  const TO_BUILD_CONFIG = [
+  const to_build = [
     ["span[id^=auto_run_]", "PyBtn"],
     ["[id^=btn_only_]",     "PyBtn"],
     ["div[id^=term_only_]", "Terminal"],
     ...CONFIG.element.allEditors.map(id=>
       [`div[id^=global_${ id }]`, idePrefixToClass[id], id=>id.slice('global_'.length)]
     )
-  ]
-
-
-  //------------------------------------------------------------------------
-
-
-  // Add tabbed content manager/fixxxer (transformations to apply when tabs become visible
-  // or are clicked on).
-  $("div.tabbed-labels label").on('click', function(){
-
-    // Handle the terminal crazy shit: loosing segments of the current command when clicking
-    // tabs somewhere else in the page...
-    for(const term of ALL_TERMINALS){
-      term[1] = term[0].get_command()
-      term[0].disable()
-    }
-
-    // On next tick, so that the UI is up to date (mainly : the IDE isn't hidden anymore...)
-    setTimeout(_=>{
-      if(TABBED_TO_MAKE_UP_GUI.size){
-        for(const obj of [...TABBED_TO_MAKE_UP_GUI]){
-          if(obj.isGuiCompliant || obj.makeUpYourGui()){
-            TABBED_TO_MAKE_UP_GUI.delete(obj)
-          }
-        }
-      }
-      for(const [term,cmd] of ALL_TERMINALS) if(cmd) term.set_command(cmd)
-    })
-  })
-
-
-
-
-
-  /**Add a dirty patch to fix troubles with IDE layout in details on CHROME (only):
-   * The code area might slightly overlap the gutter, in some cases (happens if the gutter has
-   * more than 9 lines, because the "more than one digit" line number creates a width increase,
-   * that is not always properly reported on the code area with Chrome...).
-   * */
-  if(navigator.userAgent.includes('Chrome')){
-
-    $('details').each(function(){
-
-      const details = $(this)
-      const ides = details.find("div[id^=global_editor]")
-      if(!ides.length) return;
-
-      details.on('click', _=>setTimeout(_=>{ ides.each(function(){
-        const ide      = $(this)
-        const codeArea = ide.find('div.ace_scroller')
-        const gutter   = codeArea.prev()
-        codeArea.css('left', gutter.css('width'))
-      })}))
-
-    })
-  }
-
-
-
-  //------------------------------------------------------------------------
-
+  ].map(
+    ([query, className, transformId]) => [$(query), className, transformId]
+  )
 
 
   const waitForOverlord = async()=>{
@@ -349,20 +87,11 @@ document.querySelector("[data-md-color-scheme]")
     }
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscriptions] - Done waiting: starting subscriptions')
 
+    const managerClass = CONFIG.CLASSES_POOL.GlobalRunnersManager
+    const isPageWithRunners = Boolean(managerClass)
+    if(isPageWithRunners){
 
-    const ideManagerClass = CONFIG.CLASSES_POOL.GlobalRunnersManager
-    if(ideManagerClass){
-      ideManagerClass._defineIdesManagerProxyLike()
-    }
-
-
-
-    const to_build = TO_BUILD_CONFIG.map(
-      ([query, className, transformId]) => [$(query), className, transformId]
-    )
-
-    const some_runners = to_build.some( ([jCollection,]) => jCollection.length>0 )
-    if(some_runners){
+      managerClass._defineIdesManagerProxyLikeAndStore_MANAGER_InConfig()
 
       to_build.forEach( ([jCollection, className, transformId])=>{
         jCollection.each(function(){
@@ -377,25 +106,39 @@ document.querySelector("[data-md-color-scheme]")
           if(!elt.isGuiCompliant) TABBED_TO_MAKE_UP_GUI.add(elt)
         })
       })
+
+      const IdeClass = CONFIG.CLASSES_POOL.Ide
+      if(IdeClass){
+        // NOTES:
+        //    1. On next tick because the DOM isn't up to date yet
+        //    2. Binding with the class itself because for a static method
+        const guttersFixer = IdeClass.enforceAceGutterFillAfterHeightsTroubles.bind(IdeClass)
+        setTimeout(guttersFixer)
+      }
+
+
+      // Show ids collisions BEFORE the AUTO_RUN step, otherwise selenium tests cannot resolve the
+      // waiting operations in proper order (the alert interleaves itself with the executions).
+      showIdCollisionsIfAny()
+
+      // AFTER showing html ids collisions. See above, trigger all the elements that are using
+      // `AUTO_RUN=True`, if some runners are defined:
+      await CONFIG.RUNNERS_MANAGER.autoRunInOrder()
     }
 
-    const IdeRunnerClass = CONFIG.CLASSES_POOL.Ide
-    if(IdeRunnerClass){
-      // On next tick because the DOM isn't up to date yet:
-      setTimeout(IdeRunnerClass.enforceAceGutterFillAfterHeightsTroubles.bind(IdeRunnerClass))
-    }
-
-    // Trigger all the elements using `AUTO_RUN=True`:
-    await RUNNERS_MANAGER.autoRunInOrder()
 
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscriptions] - Subscriptions done')
 
-    if(CONFIG.CLASSES_POOL.Qcm){                          // Building qcms only if the class is defined in the page
-      subscribeWhenReady("QCM", function(){
+    handlePmtTooltips()
+
+
+    subscribeWhenReady("QCM", function(){
+      if(CONFIG.CLASSES_POOL.Qcm){                    // Building qcms only if the class is defined in the page
         LOGGER_CONFIG.ACTIVATE && jsLogger('[QCM]')
         CONFIG.CLASSES_POOL.Qcm.buildQcms()
-      }, {now:true, runOnly:true})
-    }
+        handlePmtTooltips()
+      }
+    }, {now:true, runOnly:true})
 
 
     // Done _LATE_ because of chrome troubles in Capytale: subscribing after everything has been
@@ -410,12 +153,11 @@ document.querySelector("[data-md-color-scheme]")
         waitFor: _=>{
           // Use A LOT of extra conditions, trying to avoid potential troubles with chrome scripts scheduling...
           const ready = checkMathJaxReady()
-          return ready && (!some_runners || CONFIG.pyodideIsReady)
+          return ready && (!isPageWithRunners || CONFIG.pyodideIsReady)
         }
       }
     )
   }
 
   await waitForOverlord()   // Start waiting...
-
 })()

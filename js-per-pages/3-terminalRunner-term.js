@@ -20,12 +20,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { jsLogger } from 'jsLogger'
-import {
-  textShortener,
-  txtFormat,
-  withPyodideAsyncLock,
-  RunningProfile
- } from 'functools'
+import { withPyodideAsyncLock, RunningProfile } from 'functools'
+import { textShortener, txtFormat } from 'functoolsTxt'
 import { PyodideSectionsRunner } from "2-pyodideSectionsRunner-runner-pyodide"
 import { RuntimeManager } from '1-runtimeManager-runtime-pyodide'
 
@@ -83,10 +79,6 @@ const TERMINAL_SPACES_REGEXP = new RegExp(TERMINAL_CRAZY_SPACE, "ug")
 /** Regexp to use to "right strip" any terminal space character. */
 const TERMINAL_RSTRIP_SPACE_REGEXP = new RegExp(`${ TERMINAL_CRAZY_SPACE }$`, "u")
 
-/**Regexp to identify the prompt content (starting of continuation: ">>>" or "...". Also identify
- * partial selection). */
-const TERMINAL_PROMPT_REGEX = /^(?:[.]{0,3}>{0,3})$/
-
 
 
 
@@ -100,10 +92,7 @@ function getSelectionText(){
 
   // Use window.getSelection only if available on the platform:
   if(window.getSelection){
-    if(!window.getSelection().toString()){
-      return ""     // Avoid some mess when no selection!
-    }
-    text = new TermSelectionExtractor().extract_as_text()
+    text = extractSelection()
 
   // Warn the user if something goes wrong/cannot use `window.getSelection`, then use default behavior:
   }else if(document.selection && document.selection.type != "Control") {
@@ -126,6 +115,11 @@ function getSelectionText(){
  * empty lines...
  * That's... UNFORTUNATE!!!!!  DX
  *
+ * (One year later: actually, it is. But with some tricks! The following is kept as archived
+ * knowledge)
+ *
+ * -------------------------------------------------------------------------------------------
+ *
  * Terminal output/contents are organized in the following way (ignoring top levels elements):
  *
  *        div.terminal-wrapper
@@ -144,23 +138,20 @@ function getSelectionText(){
  *                      │     └── span
  *                      │           └── ">>> " or "... "
  *                      ├── div.cmd-end-line          // One div per command line.
- *                      │     ├── span                // One span PER CHAR
- *                      │     ├── ...
- *                      │     └── span                // Always ending with an extra space! (allows to show the blinking cursor at the end of the line...)
+ *                      │     ├── span                // One span PER CHAR. Always ending with an extra space!
+ *                      │     └── ...
  *                      ├── ...
- *                      ├── div.cmd-cursor-line       // Cmd line  holding the cursor (might be first or last)
- *                      │     ├── span                // before cursor, MAY BE EMPTY
- *                      │     │     ├── span          // One span PER CHAR
- *                      │     │     ├── ...
- *                      │     │     └── span
- *                      │     ├── span.cmd-cursor.cmd-end-line
+ *                      ├── div.cmd-cursor-line       // Cmd line currently holding the cursor
+ *                      │     ├── span                // Content BEFORE the cursor. MAY BE EMPTY / 1 char per inner span.
+ *                      │     │     ├── span
+ *                      │     │     └──  ...
+ *                      │     ├── span.cmd-cursor.cmd-end-line  // Character holding the cursor
  *                      │     │     └── span
  *                      │     │         └── span
  *                      │     │             └── span  // One char, or a space if at the end of the line (then the next bunch of spans IS EMPTY)
- *                      │     └── span                // after cursor, MAY BE EMPTY
- *                      │           ├── span          // One span PER CHAR
- *                      │           ├── ...
- *                      │           └── span          // Always ending with an extra space, IF not empty (cursor already at the end of the line)
+ *                      │     └── span                // Content AFTER the cursor. MAY BE EMPTY / 1 char per inner span.
+ *                      │           ├── span
+ *                      │           └── ...
  *                      ├── ...
  *                      └── div.cmd-end-line
  *                            └── (various spans)
@@ -170,9 +161,15 @@ function getSelectionText(){
  *      the `div.cmd-wrapper`.
  *    - The number of Range objects IS NOT guaranteed. Might be 1 to... more (there are more than
  *      one when the current command line is multiline, independently of the cursors position).
+ *    - The command lines may add extra trailing whitespaces... or not... (pfff... :rolleyes: ).
+ *      An _EXTRA_ trailing whitespace is present:
+ *        - At the end of any non last line of a multiline command.
+ *        - At the end of the last command line...:
+ *            - IF the cursor is there.
+ *            - IF there is NO cursor in the terminal... (PFFFF!!! DX )
  *
  *
- * GENERIC STRATEGY:
+ * GENERIC STRATEGY (was...):
  *    1. If there are multiple ranges, merge them all together in a unique Range, removing
  *       potential empty ranges at the end first.
  *    2. Depending on the common ancestor, decide what to extract, and how:
@@ -183,395 +180,119 @@ function getSelectionText(){
  *
  *    DO NOT rely on the ranges themselves, but only on the actual DOM structure.
  * */
-class TermSelectionExtractor {
-
-
-  /**Debugging purpose method. */
-  show(title, ...stuff){
-    if(!window.DEBUG_TERM_COPY) return;
-
-    console.log("*******************\n"+title)
-
-    stuff.forEach(o=>{
-      if(o!==null && Object.is(o.constructor, Object)){
-        for(const name in o){
-          const elt = o[name]
-          console.log(name+':', elt)
-        }
-        console.log("-------")
-      }else{
-        console.log(o)
-      }
-    })
-  }
-
-  //--------------------------------------------------------------------------------
-
-  constructor(){
-    if(window.DEBUG_TERM_COPY) console.clear()    // (debugging helper)
-    this.lines = []
-    this.conf = null
-    this.rng = null
-    this.commonAncestor = null
-  }
-
-
-  extract_as_text(){
-
-    const baseSelection = window.getSelection()
-    this.rng = baseSelection.getRangeAt(0).cloneRange()    // Initial value. Modified on the fly
-
-    this.removeTrailingInvalidRangeIfNeeded(baseSelection)
-    this.commonAncestor = $(this.rng.commonAncestorContainer)
-
-    if(this.commonAncestor.is("body, main, article")){
-      return ""       // Selection is too wide => going out of the terminal:
-    }
-
-    this.fixRngEndContainerForFullCmdSelection()
-    this.conf = this.getExtractionConfig()
-
-    // Selection out of bounds of the div.terminal-wrapper: return empty string instead
-    if(this.conf.invalid)   return ""
-
-    if(this.conf.hasOutput) this._extractOutput()
-    if(this.conf.hasCmd)    this._extractCmd()
-
-    const out = this.lines.join('\n')
-    this.show('Copied content:', '"'+out+'"')
-    return out
-  }
 
 
 
-  /**When selecting the command line up to the end, there might an empty Range object at the end
-   * (depends on where the mouse actually starts/ends: the endContainer might end up at different
-   * depths in the DOM, resulting in some extra stuff). This empty Range is causing a total mess
-   * of the extraction logic, so it has to be removed/ignored.
-   *
-   * The problematic empty range can be identified as follow:
-   *    - Having a startContainer node being `div.cmd`
-   *    - Its offset is greater than 0
-   *    - It's always the last range, even if the user started by clicking too much on
-   *      the left of the line.
-   *
-   * (NOTE: next time, write down how to reproduce that thing...!)
-   * */
-  removeTrailingInvalidRangeIfNeeded(baseSelection){
-    let endRngIdx = baseSelection.rangeCount - 1
-    let lastRng   = baseSelection.getRangeAt(endRngIdx)
-
-    // Find last actual range to consider:
-    const tooLarge = $(endRngIdx.startContainer).is('div.cmd') && lastRng.startOffset > 0
-
-    // Mutate this.rng to get one single range of all the text to extract, if there is more than
-    // one (valid) Range in the selection:
-    const thisRngEndNeedsUpdate = endRngIdx - tooLarge > 0
-    if(thisRngEndNeedsUpdate){
-      const endRng = baseSelection.getRangeAt(baseSelection.rangeCount-1)
-        // WARNING: WHY NOT baseSelection.getRangeAt(endRngIdx) ??? -> what's the point, then??
-        // (currently, this will exclude the last range when there are 2 of them and the last
-        // one is invalid, because this.rng.endContainer won't get updated. It IS updated WITH
-        // THE LAST Range endContainer in other cases, though...)
-        //   => If I remember correctly, this is a dirty FIX for some jQuery.terminal non sense...
-
-        // This will update the commonAncestor and "shrink" the Range automatically if needed
-        // (aka, if only cmd stuff is selected while the mouse selected some external elements
-        // on the way...).
-        this.rng.setEnd(endRng.endContainer, endRng.endOffset)
-        this.commonAncestor = $(this.rng.commonAncestorContainer)
-
-        this.show("endRngIdx", "invalid=",tooLarge, endRngIdx, endRng)
-    }
-  }
-
-
-  /**Fix this.rng.endContainer to make sure to exclude any extra/useless lines coming from empty
-   * contents generated when iterating on the Range:
-   *
-   * When some command elements are selected, the commonAncestor might be "too large" and
-   * contain upper level tags (div.cmd, div.cmd-wrapper) that would generate empty lines
-   * when iterating on the range, during extractions.
-   */
-  fixRngEndContainerForFullCmdSelection(){
-
-    let endContainer     = $(this.rng.endContainer)
-    let relevantAncestor = this._findAncestorDivOfInterest(endContainer)
-
-    const isFullCmd = (
-      relevantAncestor.is('.terminal-scroller, .terminal-wrapper, .cmd')
-      || endContainer.is('.cmd-wrapper')
-    )   // DO NOT test relevantAncestor.is('.cmd-wrapper') here: it would systematically extend
-        // the range to the full command content, while maybe only a part of it is selected.
-
-    if(isFullCmd){
-      // Make sur to work with div.cmd as relevantAncestor (ease spotting the last child later):
-      if(relevantAncestor.is('div.cmd-wrapper')){
-        relevantAncestor = relevantAncestor.parent()      // -> div.cmd
-      }
-      const lastCmdChild = relevantAncestor.find('div.cmd-wrapper > :last-child')[0]
-      if(!lastCmdChild){     // Internal security
-        throw new Error("Couldn't find div.cmd-wrapper from "+this.commonAncestor.toString())
-      }
-
-      this.rng.setEndAfter(lastCmdChild)
-      this.commonAncestor = $(this.rng.commonAncestorContainer)
-    }
-  }
-
-
-
-  /**Determines what kind of content(s) has to be extracted, end return an object giving
-   * informations about how the selection is structured (Some fields may be missing,
-   * leading to `undefined`):         `{hasCmd, hasOutput, invalid}`
-   * */
-  getExtractionConfig(){
-
-    // Get deepest possible meaningful div that wraps the selection, to identify what kind
-    // of content(s) is to be copied:
-    const div = this._findAncestorDivOfInterest(this.commonAncestor)
-
-    if(div.is('.cmd, .cmd-wrapper')) return {hasCmd: true}
-    if(div.is('.terminal-output'))   return {hasOutput: true}
-    if(div.is('.terminal-wrapper'))  return {hasOutput: true, hasCmd: true}
-
-    return {invalid:true}   // Security/default case
-  }
-
-
-
-  /**Extract the closest parent div of the given jQuery element, that is matching any of the critical
-   * elements to consider when handling copy/paste selection logic.
-   * */
-  _findAncestorDivOfInterest(elt){
-    return elt.closest([
-      'div.cmd-wrapper',         // command only
-      'div.cmd',                 // command only
-      'div.terminal-output',     // output only
-      'div.terminal-wrapper',    // Cmd for sure, but output??? -> need to rebuild a Range
-      'div.terminal-scroller',   // Cmd for sure, but output??? -> need to rebuild a Range
-    ].join(', '))
-  }
-
-
-
-/**Starting from the `{side}Container` of this.rng, extract the deepest jQuery parent element
- * that matches the given predicate.
+/**Extract all the ranges in the current selection.
  *
- * NOTES:
- *  - Range.offSet is included for the startContainer, but excluded for the endContainer.
- *  - The `{side}Container` _really_ is the container of the ending element. Meaning the offset
- *    has to be considered to know on what child the selection actually starts/begin.
- *  - ...BUT if the `{side}Container` is a text tag,
+ * WARNING: Trailing spaces _IN THE SELECTION_ are automatically removed when they are in a
+ * command line.
+ *    Reason: the terminal often adds one space at the end of command lines (not always, but...)
+ *    Problem: the trimming also happen is the selection ends on a space that is not at the end
+ *    of the line...
  * */
-  _getFirstParentMatchingOnSide(side, desiredPredicate){
-    const node   = $(this.rng[side+'Container'])
-    const offset = Math.max(0, this.rng[side+'Offset'] - (side=='end'))
-    let   elt    = node[0].nodeName=='#text' /* || offset < 0  ? */ ? node : node.children().eq(offset)
-    if(!elt.length) elt = node   // (resulted in negative index or no actual match)
+const extractSelection=()=>{
 
-    while(!desiredPredicate(elt)){
-      elt = elt.parent()
+  const selection = document.getSelection()
+  const out = []
+  let prompt = ""
+
+  for(let i=0 ; i < selection.rangeCount ; i++){
+
+    const rngOut = []
+    const rng = selection.getRangeAt(i)
+    const docFragment = $(rng.cloneContents())
+
+    // Extract everything that looks like a "line" or a "fraction of a line", in a multiline selection
+    prompt = storeMultilineContents(docFragment, rngOut, prompt)
+
+    // If `rngOut` is empty at this point, it means the selection is a single line one, so just
+    // extract its content directly:
+    if(!rngOut.length){
+      storeSingleLineContents(docFragment, rngOut, prompt)
     }
-    return elt
+
+    out.push(...rngOut)
   }
 
+  const copied = out.join('\n')
 
-  /**Add the current line/content to this.lines, trimming it on the right side if needed.
-   * */
-  pushLine(line, trimRight=false){
-    const txt =  trimRight ? line.replace(TERMINAL_RSTRIP_SPACE_REGEXP,'') : line
-    this.lines.push(txt)
+  if(window.DEBUG_TERM_COPY) {
+    console.log("*******************\ncopied content:\n\n"+copied)
   }
+  return copied
+}
 
 
-  /**Split this.rng into 3 separated Ranges, each handling a specifiksc segment of the selected text:
-   *    - `head`:   The very first line/beginning of the selection. Often empty if the line is
-   *                completely selected, or if only the end of the line is selected.
-   *    - `center`: The central elements/texts. This covers only full lines to extract (simplifying
-   *                a bit the extraction machinery for this part).
-   *    - `tail`:   Equivalent of `head`, but at the end.
-   *
-   * If one single line is selected, only the `center` range should be used (head and tail are
-   * collapsed).
-   *
-   * @isLinePredicate(elt):
-   *    Return true if the given element is holding a line of content (potentially partial)
-   *
-   * @parentLinePredicate(elt):
-   *    Return true if the given element matches the first parent on which one wants to stop, when
-   *    ascending the hierarchy from the commonAncestor of this.rng.
-   * */
-  splitAndStudyBaseRangeWith(isExtractingOutput, isLinePredicate, parentLinePredicate){
-    const top          = this.commonAncestor
-    const topTag       = top[0].nodeName    // Don't use jQuery for this... x/
+const storeMultilineContents=(docFragment, rngOut, prompt)=>{
 
-    const isTxtOnly    = topTag == '#text'
-    const isSpan       = topTag == 'SPAN'
-    const isMultiSpan  = topTag == 'DIV' && isLinePredicate(top)
-    const isSingleLine = isTxtOnly || isSpan || isMultiSpan
+  docFragment.find([
+    "div:not([ role=presentation ]) > span[data-text]",   // Output lines
+    "div[style]:empty",                                   // Output: empty lines
+    "div[ role=presentation ]:not( .terminal-command )",  // Cmd lines (excluding previous commands now displayed in the output)
+    "div.cmd-cursor-line",                                // Cmd line, holding the cursor... :rolleyes:
+    "span.cmd-prompt"                                     // Prompt element...
+  ].join()).each(function(){
+    const jThis = $(this)
 
-    let headLine, tailLine
-    let [head, center, tail] = [0,0,0].map(_=>this.rng.cloneRange())
-
-    if(isSingleLine){
-      head.collapse(true)
-      tail.collapse()
-
-    }else{
-      // At this point:
-      //    - The given Range IS (supposed to be) multiline, but "dunno where"
-      //    - It could be in the terminal-output div only,
-      //    - ...or in the current command line(s) only,
-      //    - ...or covering both.
-      //
-      // So, the idea is to create 3 new Ranges:
-      //      - The head Range covers only the first line (potentially incomplete)
-      //      - All the lines in the middle (potentially collapsed Range, that
-      //        may cover both output and cmd-wrapper)
-      //      - The tail Range covers the last line (potentially incomplete)
-      //
-      // These will then be cut further if need by caller (to extract the output or cmd
-      // parts solely.)
-
-      headLine = this._getFirstParentMatchingOnSide('start', parentLinePredicate)
-      head.setEndAfter(headLine[0])
-      center.setStartAfter(headLine[0])
-
-      tailLine = this._getFirstParentMatchingOnSide('end', parentLinePredicate)
-      center.setEndBefore(tailLine[0])
-      tail.setStartBefore(tailLine[0])
-    }
-
-    this.show('analyze', this.conf, {top, headLine, tailLine, isTxtOnly, isSpan, isMultiSpan, isSingleLine})
-
-    // Adapt center and collapse tail if there is a Cmd part while extracting the output only:
-    if(isExtractingOutput && (this.conf.hasCmd || tailLine && tailLine.is('div.terminal-wrapper'))){
-      tail.collapse()   // Remove any Cmd part
-
-      // If the head is covering the last output line, center must also be collapsed:
-      const headIsEnd = $(head.cloneContents()).find("div > span, div:empty").parent().is('div.cmd-end-line')
-      if(headIsEnd){
-        center.collapse(true)
-      }else{
-        const out = top.find('div.terminal-output')
-        center.setEndAfter(out[0])
-        center.setStart(head.endContainer, head.endOffset)
-      }
-    }
-
-    return {top, head, center, tail, headLine, tailLine, isSingleLine}
-  }
-
-
-  _extractRanges(head, center, tail, options={}){
-
-    const extractor = this
-    options = {
-      centerJRule: null, stripOneSpace: false, ...options
-    }
-
-    let i=0
-    for(const rng of [head, center, tail]){
-      i++
-
-      if(rng.collapsed){
-        continue
-
-      }else if(i===2 && options.centerJRule){
-        // The `center` Range may be multiline, so extract the whole content, then pick complete
-        // lines inside the fragment, when found:
-        $(rng.cloneContents()).find(options.centerJRule).each(function(){
-          const txt = this.innerText
-          extractor.pushLine(txt, options.stripOneSpace)
-        })
-
-      }else{
-        // `head` and `tail` or the `center` ranges are single line contents, so extract directly:
-        extractor.pushLine(rng.toString(), options.stripOneSpace)
-      }
-    }
-  }
-
-
-
-
-
-  _extractOutput(){
-    let {
-      top, head, center, tail, headLine, tailLine, isSingleLine
-    }=this.splitAndStudyBaseRangeWith(
-      true,
-      (elt) => elt.parent().attr('data-index'),
-      (elt) => elt.is('div.terminal-wrapper') || elt.parent().is('div[data-index]')
-    )
-
-    // Shortcut if one single line is showing up in the selection:
-    if(isSingleLine){
-      this.pushLine(this.rng.toString())
-
-    }else{
-      this._extractRanges(head, center, tail, {centerJRule: "div > span, div:empty"})
-    }
-
-    this.show('Output extraction', {head, center, tail})
-  }
-
-
-
-
-  _extractCmd(){
-    let {
-      top, head, center, tail, headLine, tailLine, isSingleLine
-    }=this.splitAndStudyBaseRangeWith(
-      false,
-      (elt) => elt.is('div[role=presentation], span.cmd-prompt'),
-      (elt) => elt.is('div[role=presentation], span.cmd-prompt, div.terminal-wrapper'),
-      true
-    )
-
-    // Shortcuts to avoid a fucking mess when possible...
-    const cmdWrapper = $(this.rng.startContainer).closest('div.terminal-scroller').find('div.cmd-wrapper')
-    const children   = cmdWrapper.children()
-    isSingleLine   ||= !this.conf.hasOutput && children.length == 2
-
-    if(isSingleLine){
-      this.pushLine(this.rng.toString(), true)
+    // Store the prompt for later use
+    if(jThis.is('span.cmd-prompt')){
+      prompt = this.textContent
       return
     }
 
-    const headIsTail = headLine.is('div[role=presentation') && headLine[0]===tailLine[0]
-    if(headIsTail){
-      head.collapse(true)
-      // DO NOT merge this part of the logic within the next `if` condition (they aren't
-      // equivalent/common...).
+    let txt = jThis.text()
+
+    // Strip any trailing space added by jQueryTerminal, making sure to not strip the prompt...
+    if(txt && jThis.is('div.cmd-end-line, div.cmd-cursor-line')){
+      txt = txt.replace(TERMINAL_RSTRIP_SPACE_REGEXP, "")
     }
 
-    // Adapt center and collapse head if there is an output part:
-    if(this.conf.hasOutput || headLine.is('div.terminal-wrapper')){
-      head.collapse(true)     // Collapse on start, to keep the info to handle the prompt later
-      const cmd = top.is('div.cmd-wrapper') ? top : top.find('div.cmd-wrapper')
-      center.setStartBefore(cmd[0])
-      center.setEnd(tail.startContainer, tail.startOffset)    // redundant...?
+    // Consume prompt data if any
+    if(prompt){
+      txt = prompt+txt
+      prompt = ""
     }
-    this.show('CMD extraction', {head, center, tail})
 
-    const iPromptMaybe = this.lines.length
-    this._extractRanges(head, center, tail, {
-      centerJRule: "div[role=presentation], span.cmd-prompt",
-      stripOneSpace: true,
-    })
+    rngOut.push(txt)
+  })
 
-    // Merge the prompt (if any) in the next string:
-    const prompt = this.lines[iPromptMaybe]
-    const promptWithNext = iPromptMaybe+1 < this.lines.length && TERMINAL_PROMPT_REGEX.test(prompt)
-    if(promptWithNext){
-      this.lines.splice(iPromptMaybe, 1)
-      this.lines[iPromptMaybe] = prompt + ' ' + this.lines[iPromptMaybe]
+  return prompt
+}
+
+
+const storeSingleLineContents=(docFragment, rngOut, prompt)=>{
+
+  // Handle any prompt left over... (shouldn't happen...? Just in case. => no trimming)
+  if(prompt){
+    rngOut.push(prompt)
+
+  }else{
+    let txt = docFragment.text()
+
+    /*  If ever the parent is a div from the command line, check if a trailing space must be
+        removed or not.
+
+    WARNING:
+      * When one line of a multiline command is selected, and this line doesn't contain the
+      cursor, the extra/trailing space is not selectable, so nothing to do in that case.
+      * On the other hand, if the current and only line holds the cursor, it _MAY_ contain
+      the last space, _IF AND ONLY IF_ the cursor is currently on the last char and this char
+      is in the selection. this case is easily spotted by checking if the current fragment
+      contains a `span.cmd-cursor.cmd-end-line` element, which exist only if the cursor is on
+      that extra/trailing space.
+    */
+    if(docFragment.find('span.cmd-cursor.cmd-end-line').length){
+      txt = txt.replace(TERMINAL_RSTRIP_SPACE_REGEXP, "")
+    }
+
+    // The Selection might occasionally contain an extra empty range (depends on where exactly
+    // the mouse finishes the selection...), so store only existing content.
+    if(txt){
+      rngOut.push(txt)
     }
   }
 }
-
 
 
 
@@ -786,6 +507,15 @@ class _TerminalHandler extends PyodideSectionsRunner {
   }
 
 
+  getTermSelectedText(){
+    let txt = getSelectionText()
+    if(this.joinTerminalLines){
+      txt = txt.replace(/\n/g, '')
+    }
+    return txt
+  }
+
+
 
   /**Hook returning the configuration for terminal keyboard shortcuts bindings.
    * To override in child classes when needed.
@@ -798,13 +528,10 @@ class _TerminalHandler extends PyodideSectionsRunner {
       "CTRL+C": async (e) => {
 
         // Skip if some text is selected (=> copy!)
-        let txt = getSelectionText()
+        const txt = this.getTermSelectedText()
         if (txt) {
           e.preventDefault()
           e.stopPropagation()
-          if(this.joinTerminalLines){
-            txt = txt.replace(/\n/g, '')
-          }
           await navigator.clipboard.writeText(txt)
           return
         }
@@ -822,7 +549,7 @@ class _TerminalHandler extends PyodideSectionsRunner {
 
 
   prefillTermIfAny(){
-    if(this.prefillTerm){
+    if(this.prefillTerm && !this.autoRun){
       const history = this.terminal.history()
       history.append(this.prefillTerm)
       this.terminal.set_command(this.prefillTerm)
@@ -919,7 +646,9 @@ export class TerminalRunner extends _TerminalHandler {
   }
 
   async applyAutoRun(){
-    await this.terminal.exec(this.prefillTerm)
+    if(this.prefillTerm){
+      await this.terminal.exec(this.prefillTerm)
+    }
   }
 
 
@@ -1069,7 +798,7 @@ export class TerminalRunner extends _TerminalHandler {
       code: this.cmdOnTheRun,
       isEnvSection: false,
       applyExclusionsIfAny: true,
-      method: this.pyodideConsoleRunner,
+      method: this.pyodideConsoleRunner,    // This is the bound version of this.runPyodideConsole
       logConfig: {
         code: this.cmdOnTheRun,
         autoAssertExtraction: false,
@@ -1088,7 +817,8 @@ export class TerminalRunner extends _TerminalHandler {
     }
   }
 
-
+  /**Send the current command line to the internal PyodideConsole, and check for the resulting state.
+   * */
   async runPyodideConsole(){
     let state='syntax-error'
     try{

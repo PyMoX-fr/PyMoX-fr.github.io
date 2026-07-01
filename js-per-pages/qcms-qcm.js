@@ -18,13 +18,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-import {
-    decompressLZW,
-    makeIdeJqButton,
-    perennialMathJaxUpdate,
-    renderMermaidGraphs,
-} from 'functools'
-
+import { perennialMathJaxUpdate, renderMermaidGraphs } from 'functools'
+import { makeIdeJqButton } from 'functoolsUiBuilder'
+import { decompressLZW } from 'functoolsTxt'
 
 
 
@@ -180,8 +176,20 @@ class QCM {
         const btnWrapper = $(`<div class="${ CONFIG.element.qcmWrapper.slice(1) } ${ this.reveal?'give-away':'hidden' }"></div>`)
         const counter    = $(`<p class="${ CONFIG.element.qcmCounterCls.slice(1) }"></p>`)
         const mask       = $(createSvgMask(95, 1.1, CONFIG.lang.qcmMaskTip.msg, CONFIG.lang.qcmMaskTip.em))
-        const checkBtn   = makeIdeJqButton('check',   {shift:95, tipWidth: CONFIG.lang.qcmCheckTip.em, tipText: CONFIG.lang.qcmCheckTip.msg})
-        const restartBtn = makeIdeJqButton('restart', {shift:95, tipWidth: CONFIG.lang.qcmRedoTip.em,  tipText: CONFIG.lang.qcmRedoTip.msg })
+        const checkBtn   = makeIdeJqButton('check',   {
+            shift:95,
+            tipWidth: CONFIG.lang.qcmCheckTip.em,
+            tipText: CONFIG.lang.qcmCheckTip.msg,
+            tagClass: 'vertical check-btn',
+            bareTip: true,
+        })
+        const restartBtn = makeIdeJqButton('restart', {
+            shift: 95,
+            tipWidth: CONFIG.lang.qcmRedoTip.em,
+            tipText: CONFIG.lang.qcmRedoTip.msg,
+            tagClass: 'vertical restart-btn',
+            bareTip: true,
+        })
         btnWrapper.append(counter, mask, checkBtn, restartBtn)
 
         checkBtn.on('click', this.check.bind(this))
@@ -201,6 +209,7 @@ class QCM {
         this.jCounter = counter
 
         if(no_admo){
+            layoutWrapper.addClass('qcm_no_admo')       // To ease testing/finding the element with selenium
             divAdmo.replaceWith(layoutWrapper)
             return layoutWrapper
         }else{

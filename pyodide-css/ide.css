@@ -215,9 +215,6 @@ div[class*='ace-'] .ace_gutter {
   overflow: hidden; /*FIX: avoid scrollbar when height computations gets slightly wrong*/
 }
 
-/*Remove IDE buttons tooltips, otherwise they mess with the global div height*/
-#pmt-top-div div.py_mk_ide.split .ide_buttons_div_wrapper span.tooltiptext { display: none; }
-
 /* Fix weird behavior of material...*/
 #pmt-top-div div.py_mk_ide.split .ide_buttons_div_wrapper { font-size: 160%; }
 
@@ -236,6 +233,11 @@ div[class*='ace-'] .ace_gutter {
   box-shadow: 0 0 10px var(--main-theme);
 }
 
+#pmt-slider-div {
+  position: relative;
+  width: 0;
+  height: 0;
+}
 #pmt-slider-div-div {
   justify-self: center;
   align-self: center;
@@ -244,11 +246,6 @@ div[class*='ace-'] .ace_gutter {
   background-color: var(--main-theme);
   display: grid;
   align-content: center;
-}
-#pmt-slider-div {
-  position: relative;
-  width: 0;
-  height: 0;
 }
 #pmt-split-slider:hover {
   cursor: grab;

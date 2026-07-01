@@ -21,21 +21,19 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { jsLogger } from 'jsLogger'
 import {
-  buildJqHistoryBtn,
-  cancelEvent,
   choice,
-  decompressLZW,
   downloader,
-  getIdeOptions,
   perennialMathJaxUpdate,
   PythonError,
   renderMermaidGraphs,
   sleep,
   subscribeWhenReady,
-  txtFormat,
   uploader,
   RunningProfile,
 } from 'functools'
+import { getIdeOptions } from 'functoolsUi'
+import { buildJqHistoryBtn, cancelEvent } from 'functoolsUiBuilder'
+import { decompressLZW, txtFormat } from 'functoolsTxt'
 import { observeResizeOf } from '3-terminalRunner-term'
 import {
   IdeSplitScreenManager,
@@ -61,6 +59,31 @@ import {
  * see IdeRunner about that).
  * */
 class IdeAceManager extends IdeSplitScreenManager {
+
+  constructor(editorId){
+    super(editorId)
+    this._validationBtn = this.global.find("button[btn_kind=check]")
+  }
+
+
+  makeDirty(isDirty=true){
+    super.makeDirty(isDirty)
+    if(isDirty){
+      this.setOrangeBox(true)
+    }
+  }
+
+  setOrangeBox(add){
+    if(add){
+      this._validationBtn.addClass('dirty-validation')
+    }else{
+      this._validationBtn.removeClass('dirty-validation')
+    }
+  }
+
+  hasOrangeBox(){
+    return this._validationBtn.hasClass('dirty-validation')
+  }
 
 
   /**Add the `tests` section to the given code, joining them with the appropriated
@@ -177,7 +200,7 @@ class IdeHistoryManager extends IdeAceManager {
    * */
   updateValidationBtnColor(done=undefined, jElt=undefined){
     done ??= this.storage.done
-    jElt ??= this._getJValidationButton()
+    jElt ??= this._validationBtn
     if(!this.isDelayedRevelation){
       const color = this.getIdeStateColor(done)
       jElt.css('--ide-btn-color',  color)
@@ -185,23 +208,14 @@ class IdeHistoryManager extends IdeAceManager {
     return jElt
   }
 
-  _getJValidationButton(){
-    return this.global.find("button[btn_kind=check]")
-  }
-
 
   getIdeStateColor(done){     // CodCap
     return !done ? "unset" : done<0 ? 'red' : 'green'
   }
 
-  clearValidations(){ this.validations.length = 0 }
 
-
-  makeDirty(isDirty=true){
-    super.makeDirty(isDirty)
-    if(isDirty){
-      this._getJValidationButton().addClass("dirty-validation")
-    }
+  clearValidations(){
+    this.validations.length = 0
   }
 
 
@@ -267,32 +281,39 @@ class IdeFeedbackManager extends IdeHistoryManager {
 
 
   /**If the current action has been successful until now, display the appropriate
-   * message in the terminal.
+   * message in the terminal. This method is called at the _VERY END_ of the
+   * lockedRunnerWithBigFailWarningFactory generated callback.
    * */
   codeSnippetEndFeedback(runtime, step, code){
     if(runtime.stopped || !step) return
 
-    const playing = this.running.isPlaying
-    const section = CONFIG.lang[step].msg
-    const isDone  = this.storage.done > 0
-    const okMsg   = CONFIG.lang.successMsg.msg
-    const intro   = playing ? "" : CONFIG.lang.validation.msg
+    const isPlaying = this.running.isPlaying
+    const isCheck   = this.running.isValidating
+    const section   = CONFIG.lang[step].msg
+    const okMsg     = CONFIG.lang.successMsg.msg
+    const intro     = isPlaying ? "" : CONFIG.lang.validation.msg
 
     let msg = `${ intro }${ section }: ${ okMsg }`  // Default section message
     if(!code) msg = ""                              // No default message if no code in the section...
-    if(playing && !this.hasCheckBtn){               // ...but ensure the default ending message is shown,
-      msg = CONFIG.lang.successMsgNoTests.msg       //    if this is "playing" and nothing else to do after.
+    if(isPlaying && !this.hasCheckBtn){               // ...but ensure the default ending message is shown, ...
+      msg = CONFIG.lang.successMsgNoTests.msg       // ...if this is "playing" and nothing else to do after.
     }
 
     if(msg) this.terminalEcho(msg)
 
     // Prepare a "very final" message if needed:
-    if(playing && this.hasCheckBtn && (!isDone || this.isDirty)){
-      // If a validation button is present while running the public tests
+
+    // During public tests, if a validation button is present while running the public tests,
+    // remind the user to try the validations if the IDE has the orange box or was not a success
+    // on the last validation (keeping that consistent with the visuals, rather than the isDirty
+    // implementation. This is because, for example, the starting state for isDirty and the box
+    // are not aligned at all, so sequential runs cannot rely on the orange box and vice versa):
+    if(isPlaying && this.hasCheckBtn && (this.hasOrangeBox() || !this.lastValidationWasSuccess())){
       runtime.finalMsg = CONFIG.lang.unforgettable.msg
-    }
-    else if(this.isDelayedRevelation && this.attemptsLeft>0 && this.running.isValidating){
-      // If a validation button is present while running the public tests
+
+    // If validation with `MODE="delayed_reveal"`, announce the number of attempts left, as long
+    // as there are some:
+    }else if(isCheck && this.isDelayedRevelation && this.attemptsLeft > 0){
       runtime.finalMsg = CONFIG.lang.delayedReveal.msg.replace('{N}', this.attemptsLeft-1+"")
     }
   }
@@ -408,7 +429,7 @@ class IdeFeedbackManager extends IdeHistoryManager {
       }
       this.hiddenDivContent = false     // Never reveal again (last in case of errors...)
 
-      // Enforce formattings of REM contents
+      // Enforce formatting of REM contents
       renderMermaidGraphs()
 
       if(!waitForMathJax){
@@ -820,14 +841,18 @@ export class IdeRunner extends IdeRunnerLogic {
 
 
   handleResize(obsEntry){
-    const width = this.isVert ? (obsEntry.contentRect.width - 3) / 2  // -3px because borders
-                              : obsEntry.contentRect.width - 2        // -2px because borders
+    const width = this.isVert ? (obsEntry.contentRect.width - 3) / 2  // -3px because 3 borders
+                              : obsEntry.contentRect.width - 2        // -2px because 2 borders
 
     const innerTermWidth = this.termWrapper.width()
     if(width != innerTermWidth){
       this.termWrapper.width(width)
     }
-    if(this.isInSplit) this.ideScreenModeVerticalResize()
+    if(this.isFullScreen){
+      this.ideScreenModeVerticalResize({viewFullScreen: true})
+    }else if(this.isInSplit){
+      this.ideScreenModeVerticalResize()
+    }
   }
 
 
@@ -902,6 +927,8 @@ export class IdeRunner extends IdeRunnerLogic {
     // cannot control the exit :/ )
     this.global.on('keyup', this.respondToKeyUp.bind(this))
 
+    this.global.on('click', this.activateIde.bind(this) )
+
     // Bind editor extra buttons:
     this.global.find(".comment.tooltip" ).on("click", this.toggleComments.bind(this))
     this.global.find(".ide-full-screen" ).on("click", this.switchFullScreenFromButton.bind(this))
@@ -915,9 +942,9 @@ export class IdeRunner extends IdeRunnerLogic {
 
     this.global.find("button").each(function(){
 
+      let callback
       const btn  = $(this)
       const kind = btn.attr('btn_kind')
-      let callback
 
       switch(kind){
         case 'play':      callback = ideThis.runners.play.asEvent ; break
@@ -934,13 +961,15 @@ export class IdeRunner extends IdeRunnerLogic {
         case 'upload':    callback = _=>{ ideThis.upload() } ; break
 
         case 'restart':   callback = _=>{ ideThis.restart() } ; break
-        case 'save':      callback = _=>{ ideThis.save(); ideThis.focusEditor() } ; break
+        case 'save':      callback = _=>{ ideThis.saveEvent() } ; break
         case 'zip':       callback = ideThis.buildZipExportsToolsAndCbk(btn) ; break
 
         case 'corr_btn':  if(!corrStuff) return;
                           callback = ideThis.runners.validateCorr.asEvent ; break
         case 'show':      if(!corrStuff) return;
-                          callback = ()=>ideThis.revealSolutionAndRems({show:true}) ; break
+                          callback = ()=>{
+                            ideThis.revealSolutionAndRems({show:true})
+                          }; break
 
         default:          throw new Error(`Y'should never get there, mate... (${ kind })`)
       }
@@ -969,15 +998,20 @@ export class IdeRunner extends IdeRunnerLogic {
     return bindings
   }
 
-
-
-
-  respondToKeyDown(_event){   // CodCap
-    // Doesn't work to catch the Esc applying "exit full screen"... :/
+  activateIde(){
+    LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "activate IDE")
+    this.takesGroupPriority()
     IdeFullScreenGlobalManager.currentIde = this  // Register the IDE currently in use
   }
 
 
+  // Doesn't work to catch the Esc applying "exit full screen"... :/
+  respondToKeyDown(_event){   // CodCap
+    this.activateIde()
+  }
+
+
+  // Doesn't work to catch the Esc applying "exit full screen"... :/
   async respondToKeyUp(event){
 
     const goFullScreen = (
@@ -986,6 +1020,7 @@ export class IdeRunner extends IdeRunnerLogic {
       && !this.guiIdeFlags.escapeIdeSearch
       && !somethingFullScreen()
     )
+    const goSplitScreen = event.altKey && event.key==':'
     const noChanges = (
       this.constructor.KEY_UP_NO_CHANGES.has(event.key)
       || this.constructor.KEY_UP_ARROWS.has(event.key) && !event.altKey
@@ -994,12 +1029,14 @@ export class IdeRunner extends IdeRunnerLogic {
     )
     const inAceEditor = $(event.target).parent().is(".ace_editor")
 
+    LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "Respond to key up:", {goFullScreen, noChanges, inAceEditor, someMenuOpened:IdeFullScreenGlobalManager.someMenuOpened, escapeIdeSearch:this.guiIdeFlags.escapeIdeSearch, somethingFullScreen:somethingFullScreen()})
+
     if(goFullScreen){
       this.requestFullScreen()
       // The browser already handles on its own going out of fullscreen with escape
-      // => no "else" secifically needed for that case.
+      // => no "else" specifically needed for that case.
 
-    }else if(event.altKey && event.key==':'){
+    }else if(goSplitScreen){
       this.switchSplitScreenFromButton(event)
 
     }else if(!noChanges && inAceEditor){
@@ -1065,6 +1102,12 @@ export class IdeRunner extends IdeRunnerLogic {
   }
 
 
+  saveEvent(){
+    this.save()
+    this.focusEditor()
+    this.seleniumRunningFlag = false
+  }
+
 
   /**Reset the content of the editor to its initial content, and reset the localStorage for
    * this editor on the way.
@@ -1081,8 +1124,10 @@ export class IdeRunner extends IdeRunnerLogic {
     return doReset
   }
 
-  resetElement(){
-    super.resetElement()
+  resetElement(doFocus=true){
+    super.resetElement()    // This marks the runner as dirty
+    // Cancel the orange box on resets (coming with this.makeDirty() in the super call)
+    this.setOrangeBox(false)
     this.setStartingCode({extractFromLocalStorage: false, saveOnceApplied: false})
     this.updateValidationBtnColor()
     this.clearValidations()
@@ -1091,8 +1136,10 @@ export class IdeRunner extends IdeRunnerLogic {
     }
     $("#solution_" + this.id).addClass('py_mk_hidden')
     this.hiddenDivContent = true
-    this.focusEditor()
-    // clearPyodideScope()    // v4.2.0: no scope cleaning anymore.
+    if(doFocus) this.focusEditor()
+    // clearPyodideScope()    // v4.2.0+: no scope cleaning anymore.
+    this.takesGroupPriority() // Keep this one because the method may be triggered from some code
+                              // during the tests, without clicking on the IDE
   }
 }
 

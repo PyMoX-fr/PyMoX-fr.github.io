@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-import { escapePyodideCodeForJsTemplates, youAreInTroubles } from 'functools'
+import { escapePyodideCodeForJsTemplates, youAreInTroubles } from 'functoolsTxt'
 
 
 

@@ -21,92 +21,14 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 
 
-let _mathJaxReady = false
-
-export const checkMathJaxReady =()=> (_mathJaxReady = _mathJaxReady || Boolean(
-    window.MathJax.startup
-    && window.MathJax.startup.output
-    && [
-        window.MathJax.startup.output.clearCache,
-        window.MathJax.typesetClear,
-        window.MathJax.texReset,
-        window.MathJax.typesetPromise,
-    ].every( f => typeof(f)=='function' )
-))
-
-/**Isolated version, to make sure it doesn't clash with the original one from
- * mathjax-libs.js.
- * */
-export function perennialMathJaxUpdate(){
-    // Extra security so that any CDN loading failure doesn't cause crashes when
-    // the function is used in IDEs.
-    if(_mathJaxReady){
-        window.MathJax.startup.output.clearCache()
-        window.MathJax.typesetClear()
-        window.MathJax.texReset()
-        window.MathJax.typesetPromise()
-    }
-}
 
 
+/*
+-------------------------------------
+ Various async synchronization tools
+-------------------------------------
+*/
 
-
-export function getTheme(){
-    // automatically load current palette
-    const palette = __md_get("__palette")
-    let curPalette = palette === null ? CONFIG.ACE_COLOR_THEME.customThemeDefaultKey
-        : palette.color["scheme"]
-
-    const style = CONFIG.ACE_COLOR_THEME.customTheme[curPalette]
-    return "ace/theme/" + CONFIG.ACE_COLOR_THEME.aceStyle[style];
-}
-
-
-
-export function getIdeOptions(ide={}){
-    // https://github.com/ajaxorg/ace/wiki/Configuring-Ace
-    return {
-        autoScrollEditorIntoView: false,
-        copyWithEmptySelection:   true,               // active alt+flèches pour déplacer une ligne, aussi
-        enableBasicAutocompletion:true,
-        enableLiveAutocompletion: false,
-        enableSnippets:           true,
-        tabSize:                  4,
-        useSoftTabs:              true,               // Spaces instead of tabs
-        navigateWithinSoftTabs:   false,              // this is _fucking_ actually "Atomic Soft Tabs"...
-        printMargin:              false,              // hide ugly margins...
-        maxLines:                 ide.maxIdeLines ?? 30,
-        minLines:                 ide.minIdeLines ?? 10,
-        mode:                     "ace/mode/python",
-        theme:                    getTheme(),
-        fontSize:                 CONFIG.editorFontSize,
-        fontFamily:               [CONFIG.editorFontFamily, "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
-                                   "Source Code pro", "source-code-pro", "monospace"],   // Fix apple troubles...
-    }
-}
-
-
-
-
-/**Randomly pick a value from an array.
- * @throws Error if the array is empty.
- * */
-export function choice(arr){
-    if(!arr.length){
-        throw new Error("Cannot pick from an empty array")
-    }
-    const i = Math.random() * arr.length | 0
-    return arr[i]
-}
-
-
-
-
-/**Async sleep (time given in milliseconds / must be awaited by the caller)
- * */
-export function sleep(ms=0){
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 
 
@@ -118,69 +40,66 @@ export function sleep(ms=0){
  * */
 export const withPyodideAsyncLock = (_=>{
 
-    /**Everything is run async but single threaded, so a global lock can be added, using a simple
-     * boolean flag, declared inside a closure to avoid a user messing with the variable...
-     * */
-    let pyodideLocked = false
+  /**Everything is run async but single threaded, so a global lock can be added, using a simple
+   * boolean flag, declared inside a closure to avoid a user messing with the variable...
+   * */
+  let pyodideLocked = false
 
 
-    /**Function factory ("decorator like"), managing the global pyodide lock.
-     * If a call is done while pyodide is locked, it is delayed until the lock is available.
-     * Also allow to force some PyodideRunners to wait for the end of the RUNNER_MANAGER.autoRuns
-     * executions, to ensure executions order are always predictable (aka, AUTO_RUN always first).
-     *
-     * @name: Logging purpose only
-     *
-     * @asyncCallback: async function or method to wrap with the Lock. The calls are:
-     *      - Passing in the current `@this` context.
-     *      - And ofc the arguments (any number)
-     *
-     * @runnerManager=null: if given, this is the RUNNER_MANAGER instance. See @runner argument.
-     *
-     * @runner=null: if @runnerManager is given, this is the runner opbject currently "asking for
-     * permission" to run. The RUNNER_MANAGER qill auhorize the execution or not, depending on
-     * AUTO_RUNs being completed or not (and if AUTO_RUNs are going on, authorize the current
-     * runner).
-     * */
-    return function withPyodideAsyncLock(
-        name,
-        asyncCallback,
-        runnerManager = null,
-        runner = null,
-    ){
-        const logName = asyncCallback.name || name
-        const logData = runner && " - Executing:\n"+(runner.prefillTerm || runner.envContent) || ""
+  /**Function factory ("decorator like"), managing the global pyodide lock.
+   * If a call is done while pyodide is locked, it is delayed until the lock is available.
+   * Also allow to force some PyodideRunners to wait for the end of the RUNNERS_MANAGER.autoRuns
+   * executions, to ensure executions order are always predictable (aka, AUTO_RUN always first).
+   *
+   * @name: Logging purpose only
+   *
+   * @asyncCallback: async function or method to wrap with the Lock. The calls are:
+   *      - Passing in the current `@this` context.
+   *      - And ofc the arguments (any number)
+   *
+   * @runnerManager=null: if given, this is the RUNNERS_MANAGER instance. See @runner argument.
+   *
+   * @runner=null: if @runnerManager is given, this is the runner opbject currently "asking for
+   * permission" to run. The RUNNERS_MANAGER qill auhorize the execution or not, depending on
+   * AUTO_RUNs being completed or not (and if AUTO_RUNs are going on, authorize the current
+   * runner).
+   * */
+  return function withPyodideAsyncLock(
+      name,
+      asyncCallback,
+      runnerManager = null,
+      runner = null,
+  ){
+    const logName = asyncCallback.name || name
+    const logData = runner && " - Executing:\n"+(runner.data.prefill_term || runner.data.env_content) || ""
 
-        const wrapper = async function(...args){
-            await waitForPyodideReady()
+    const wrapper = async function(...args){
+      await waitForPyodideReady()
 
-            LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK?] -", logName, "is waiting:", pyodideLocked)
-            while(pyodideLocked || runnerManager && runnerManager.waitForAutoRunFinished(runner)){
-                await sleep(60)
-                LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK?] -", logName, "is waiting:", pyodideLocked)
-            }
-            pyodideLocked = true
-            LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK ACQUIRE] -", logName, logData)
-            let ret;
-            try{
-                ret = await asyncCallback.apply(this, args)
-            }catch(e){
-                console.error(e)
-                    // Always keep that to be warned when something goes wrong, otherwise
-                    // errors in JS are just swallowed (impossible to rethrow them, because
-                    // of the async context).
-            }finally{
-                LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK RELEASE] -", logName)
-                pyodideLocked = false
-            }
-            return ret
-        }
-        return wrapper
+      LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK?] -", logName, "is waiting:", pyodideLocked)
+      while(pyodideLocked || runnerManager && runnerManager.waitForAutoRunFinished(runner)){
+        await sleep(60)
+        LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK?] -", logName, "is waiting:", pyodideLocked)
+      }
+      pyodideLocked = true
+      LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK ACQUIRE] -", logName, logData)
+      let ret;
+      try{
+        ret = await asyncCallback.apply(this, args)
+      }catch(e){
+        console.error(e)
+            // Always keep that to be warned when something goes wrong, otherwise
+            // errors in JS are just swallowed (impossible to rethrow them, because
+            // of the async context).
+      }finally{
+        LOGGER_CONFIG.ACTIVATE && jsLogger("[LOCK RELEASE] -", logName)
+        pyodideLocked = false
+      }
+      return ret
     }
+    return wrapper
+  }
 })()
-
-
-
 
 
 
@@ -196,27 +115,26 @@ export const withPyodideAsyncLock = (_=>{
  * */
 export const waitForPyodideReady = async()=>{
 
-    const maxWaitingTime = 20  // in seconds
-    const attempts = 80
-    const step_ms = Math.round(1000 * maxWaitingTime / attempts)
+  const maxWaitingTime = 20  // in seconds
+  const attempts = 80
+  const step_ms = Math.round(1000 * maxWaitingTime / attempts)
 
-    LOGGER_CONFIG.ACTIVATE && jsLogger(`[Wait4Pyodide] with ${ step_ms } ms in between attempts`)
-    let counter = 0
-    while(!CONFIG.pyodideIsReady){
-        await sleep(step_ms);
-        counter++
-        LOGGER_CONFIG.ACTIVATE && jsLogger("[Wait4Pyodide] -", counter,'/',attempts, "attempts")
-        if(counter == attempts){
-            throw new Error(`Couldn't access to pyodide environment in time (${maxWaitingTime}s)`)
-        }
+  LOGGER_CONFIG.ACTIVATE && jsLogger(`[Wait4Pyodide] with ${ step_ms } ms in between attempts`)
+  let counter = 0
+  while(!CONFIG.pyodideIsReady){
+    await sleep(step_ms);
+    counter++
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Wait4Pyodide] -", counter,'/',attempts, "attempts")
+    if(counter == attempts){
+      throw new Error(`Couldn't access to pyodide environment in time (${maxWaitingTime}s)`)
     }
+  }
 }
 
 
 
 
-
-// NOTE: Don't convert the `setTimeout+recursive` logic inside subscribeWhenReady to a setInterval
+// NOTE: DO NOT convert the `setTimeout+recursive` logic inside subscribeWhenReady to a setInterval
 //       thing: it causes troubles when reloading pages (I'm not sure why...)
 
 /**Auto-subscription routine to document changes.
@@ -252,83 +170,81 @@ export const waitForPyodideReady = async()=>{
  *        is false.
  * */
 export function subscribeWhenReady(subscriptionId, callback, options={}){
-    LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscribing] - Enter', subscriptionId)
+  LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscribing] - Enter', subscriptionId)
 
 
-    let {now, delay, waitFor, runOnly, maxTries, ignoreMultipleSubscriptions} = {
-        delay: 50,
-        now: false,
-        waitFor: null,  // or string or boolean provider
-        runOnly: false,
-        maxTries: 20,
-        ignoreMultipleSubscriptions: false, // If true, do not raise if a registration has already been done and skip the current call.
-        ...options
-    }
+  let {now, delay, waitFor, runOnly, maxTries, ignoreMultipleSubscriptions} = {
+      delay: 50,
+      now: false,
+      waitFor: null,  // or string or boolean provider
+      runOnly: false,
+      maxTries: 20,
+      ignoreMultipleSubscriptions: false, // If true, do not raise if a registration has already been done and skip the current call.
+      ...options
+  }
 
-    if(subscriptionId in CONFIG.subscriptionReady){
-        if(ignoreMultipleSubscriptions){
-            return
+  if(subscriptionId in CONFIG.subscriptionReady){
+      if(ignoreMultipleSubscriptions){
+          return
+      }
+      throw new Error(`Cannot subscribe several times to "${ subscriptionId }".`)
+  }
+
+  now = now && !waitFor                   // Has to wait if waitFor is used (... XD )
+  CONFIG.subscriptionReady[subscriptionId] = now
+
+  const waitForProp = typeof (waitFor)=='string'
+  const checkReady  = !waitFor    ? ()=>null
+                    : waitForProp ? ()=>{ CONFIG.subscriptionReady[subscriptionId] = $(waitFor).length > 0 }
+                                  : ()=>{ CONFIG.subscriptionReady[subscriptionId] = waitFor() }
+
+  const isNotReady =()=>{
+      checkReady()
+      return !( CONFIG.subscriptionReady[subscriptionId] && globalThis.document$ )
+  }
+
+  function autoSubscribe(){
+
+    LOGGER_CONFIG.ACTIVATE && jsLogger(
+      '[Subscribing] - Attempt', subscriptionId,'Tries:', CONFIG.subscriptionsTries[subscriptionId]
+    )
+    if(isNotReady()){
+      const nTries = CONFIG.subscriptionsTries[subscriptionId]+1 || 1
+      if(nTries > maxTries){
+          throw new Error(`Impossible to subscribe to ${ subscriptionId } in time: too many tries.`)
+      }
+      CONFIG.subscriptionsTries[subscriptionId] = nTries
+      setTimeout(autoSubscribe, delay)
+
+    }else{
+      const wrapper=function(){
+        try{
+          LOGGER_CONFIG.ACTIVATE && jsLogger(
+            '[Subscribing] - Running', subscriptionId, 'runOnly', runOnly,'Tries:', CONFIG.subscriptionsTries[subscriptionId]
+          )
+          callback()
+          CONFIG.subscriptionDone[subscriptionId] = true
+        }catch(e){
+          console.error(e)
         }
-        throw new Error(`Cannot subscribe several times to "${ subscriptionId }".`)
+      }
+      if(runOnly){
+        wrapper()
+      }else{
+        const subscript = document$.subscribe(wrapper)
+        document.addEventListener(CONFIG.onDoneEvent, function(){
+          LOGGER_CONFIG.ACTIVATE && jsLogger('[Unsubscribing] -', subscriptionId)
+          subscript.unsubscribe()
+        })
+      }
     }
+  }
+  autoSubscribe()
 
-    now = now && !waitFor                   // Has to wait if waitFor is used (... XD )
-    CONFIG.subscriptionReady[subscriptionId] = now
-
-    const waitForProp = typeof (waitFor)=='string'
-    const checkReady  = !waitFor    ? ()=>null
-                      : waitForProp ? ()=>{ CONFIG.subscriptionReady[subscriptionId] = $(waitFor).length > 0 }
-                                    : ()=>{ CONFIG.subscriptionReady[subscriptionId] = waitFor() }
-
-    const isNotReady =()=>{
-        checkReady()
-        return !( CONFIG.subscriptionReady[subscriptionId] && globalThis.document$ )
-    }
-
-    function autoSubscribe(){
-
-        LOGGER_CONFIG.ACTIVATE && jsLogger(
-            '[Subscribing] - Attempt', subscriptionId,'Tries:', CONFIG.subscriptionsTries[subscriptionId]
-        )
-        if(isNotReady()){
-            const nTries = CONFIG.subscriptionsTries[subscriptionId]+1 || 1
-            if(nTries > maxTries){
-                throw new Error(`Impossible to subscribe to ${ subscriptionId } in time: too many tries.`)
-            }
-            CONFIG.subscriptionsTries[subscriptionId] = nTries
-            setTimeout(autoSubscribe, delay)
-
-        }else{
-            const wrapper=function(){
-                try{
-                    LOGGER_CONFIG.ACTIVATE && jsLogger(
-                        '[Subscribing] - Running', subscriptionId, 'runOnly', runOnly,'Tries:', CONFIG.subscriptionsTries[subscriptionId]
-                    )
-                    callback()
-                }catch(e){
-                    console.error(e)
-                }
-            }
-            if(runOnly){
-                wrapper()
-            }else{
-                const subscript = document$.subscribe(wrapper)
-                document.addEventListener(CONFIG.onDoneEvent, function(){
-                    LOGGER_CONFIG.ACTIVATE && jsLogger('[Unsubscribing] -', subscriptionId)
-                    subscript.unsubscribe()
-                })
-            }
-        }
-    }
-    autoSubscribe()
-
-    if(!now){
-        return ()=>{ CONFIG.subscriptionReady[subscriptionId]=true }
-    }
+  if(!now){
+    return ()=>{ CONFIG.subscriptionReady[subscriptionId]=true }
+  }
 }
-
-
-
 
 
 
@@ -367,7 +283,7 @@ export function waitForClassesPoolReady(applyWhenPoolReady=null){
         className => !CONFIG.CLASSES_POOL[className]
       )
     }
-    // Separated `if`, to gain 1 async cycle:
+    // Separated `if`, to gain 1 async cycle... ( xp )
     if(!CONFIG.overlordClasses.length){
       CONFIG.overlordIsReady = !applyWhenPoolReady || applyWhenPoolReady()
       if(CONFIG.overlordIsReady === undefined){
@@ -388,7 +304,47 @@ export function waitForClassesPoolReady(applyWhenPoolReady=null){
 
 
 
-/**To access CONFIG data from pyodide (mermaid, cutFeedback, ...).
+
+
+
+
+
+
+/*
+------------------------------------------------------------------------------
+ Various helpers, defined as `function` so that they are visible from Pyodide
+------------------------------------------------------------------------------
+*/
+
+
+
+
+
+
+
+
+
+
+/**Randomly pick a value from an array.
+ * @throws Error if the array is empty.
+ * */
+export function choice(arr){
+  if(!arr.length){
+    throw new Error("Cannot pick from an empty array")
+  }
+  const i = Math.random() * arr.length | 0
+  return arr[i]
+}
+
+
+/**Async sleep (time given in milliseconds / must be awaited by the caller)
+ * */
+export function sleep(ms=0){
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+
+/**To access the global CONFIG object from pyodide (mermaid, cutFeedback, ...).
  * */
 export function config(){ return CONFIG }
 
@@ -397,510 +353,81 @@ export function config(){ return CONFIG }
  * buttons is still in the UI).
  * */
 export function isDark(){
-    return !$('label[for=__palette_0]').attr('hidden')
+  return !$('label[for=__palette_0]').attr('hidden')
 }
 
 
-
+/**Generic routine to call to trigger mermaid renders.
+ * */
 export function renderMermaidGraphs(removeCodeTags=true){
-    if(removeCodeTags){
-        $('pre.mermaid').each(function(){
-            const code = $(this).children('code')
-            if(code.length){
-                code.replaceWith(code.text())
-            }
-        })
-    }
-    setTimeout(async ()=>{
-        try{
-            await mermaid.run()
-        }catch(e){}
+  if(removeCodeTags){
+    $('pre.mermaid').each(function(){
+      const code = $(this).children('code')
+      if(code.length){
+        code.replaceWith(code.text())
+      }
     })
+  }
+  setTimeout(async ()=>{
+    try{
+      await mermaid.run()
+    }catch(e){}
+  })
 }
 
 
 
+let _mathJaxReady = false
 
-
-
-/**Square brackets in "rich text format" must be escaped, otherwise they are messing up the
- * terminal formatting informations.
+/**Generic/common way to test if the whole Mathjax logistic is done loading or not.
  * */
-export const escapeSquareBrackets=msg=>{
-    return msg.replace(CONFIG.ESCAPE_SQ_B, m=>SqBs[m])
-}
+export const checkMathJaxReady =()=> (_mathJaxReady = _mathJaxReady || Boolean(
+  window.MathJax.startup
+  && window.MathJax.startup.output
+  && [
+    window.MathJax.startup.output.clearCache,
+    window.MathJax.typesetClear,
+    window.MathJax.texReset,
+    window.MathJax.typesetPromise,
+  ].every( f => typeof(f)=='function' )
+))
 
-export const unEscapeSquaredBrackets=msg=>{
-    return msg.replace(CONFIG.UNESCAPE_SQ_B, m=>SqBs[m]||m)     // Why ||m ??
-}
 
-export function toSnake(msg){
-    return msg.replace(/[A-Z]/g, m=>'_'+m.toLowerCase())
-}
-
-/**Ensure the given python code can safely be inserted into a JS template.
+/**Isolated version (as in, unique name), to make sure it doesn't clash with the original one from
+ * mathjax-libs.js (which is loaded synch, blabla...).
  * */
-export function escapePyodideCodeForJsTemplates(code){
-    return code.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+export function perennialMathJaxUpdate(){
+  // Extra security so that any CDN loading failure doesn't cause crashes when
+  // the function is used in IDEs.
+  if(_mathJaxReady){
+    window.MathJax.startup.output.clearCache()
+    window.MathJax.typesetClear()
+    window.MathJax.texReset()
+    window.MathJax.typesetPromise()
+  }
 }
-
-
-/**Extract full information when something gets VERY wrong... */
-export function youAreInTroubles(err, isError=false){
-    if(isError) err = String(err).trimEnd()
-    return `${ err }\n\n${ err.stack || '[no stack]' }\n${ CONFIG.MSG.bigFail }`
-}
-
-
-/**Takes a string and cut the "middle chunk" of them if it is considered too long (length > 1750),
- * shortening it in the following way:
- *   - keep the 500 first and 300 last chars
- *   - replace the middle with a message
- * */
-export function textShortener(text){
-    if(CONFIG.cutFeedback && text.length > CONFIG.feedbackShortener.limit){
-        const head = text.slice(0,CONFIG.feedbackShortener.head)
-        const tail = text.slice(-CONFIG.feedbackShortener.tail)
-        text = `${ head }\n...\n${ CONFIG.feedbackShortener.msg }\n...\n${ tail }`
-    }
-    return text
-}
-
-
-
-/**Formatting function factory, for messages used in the jquery terminal.
- *
- * WARNING: the input message will be "escapeSquareBrackets"-ed.
- * */
-const _richTextFormat = (content, style, color="", background="")=>{
-    content = escapeSquareBrackets(content)
-    return `[[${ style };${ color };${ background }]${ content }]`;
-}
-
-export const txtFormat = {
-    error:   (content) => _richTextFormat(content, "b", "red"),
-    warning: (content) => _richTextFormat(content, "ib", "orange"),
-    info:    (content) => _richTextFormat(content, "i", "grey"),
-    italic:  (content) => _richTextFormat(content, "i"),
-    stress:  (content) => _richTextFormat(content, "b"),
-    success: (content) => _richTextFormat(content, "ib", "green"),
-    none:    escapeSquareBrackets,  // To override the defaults, if needed (see process_and_gui.js)
-}
-
-
-
-
-
-
-
-
-
-
-
-/**NO_HTML and ALPHA (TOME_BASE in the python source) constants automatically transferred
- * from python during dev_ops/mkdocs_hooks operations.
- *
- * ****************************
- * * !!! DO NOT EDIT HERE !!! *
- * ****************************
- * */
-const NO_HTML = '\'"&#><\n\t\r\\'
-const ALPHA = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%()*+,-./:;=?@^_`{|}~ "
-const TOME_B = [...ALPHA].reduce((o,c,i)=>(o[c]=i,o), {})
-
-
-const unBase =s=> [...s].reduce((v,c)=>v*ALPHA.length + TOME_B[c], 0)
-
-
-/**@txt: CONFIG.LZW separated lines, with:
- *      1. A dot + dots separated unicode codePoints
- *      2. regular alpha
- *      3. compressed data, size 2
- *      4. ..., size 3,
- *      5. ...
- *
- * The compressed text always has one leading and one trailing dot:
- *      1. they allow to trim safely the encoded content, without any risk to trim spaces from
- *         the encoding alphabet.
- *      2. The leading dot allows to disambiguate the "big" section content of the alphabet,
- *         when no emojis are used in the original content.
- * */
-export const decompressLZW=(compressed, compressOptionSrc)=>{
-
-    // console.log(JSON.stringify(compressed))
-
-    const [bigs, smalls, ...chunks] = compressed.trim().slice(0,-1).split(CONFIG.LZW)
-    const tome = [
-        [...NO_HTML],
-        bigs=='.' ? [] : bigs.slice(1)
-                             .split('.')
-                             .map(n=>String.fromCodePoint(+n)),
-        [...smalls],
-    ].flat()
-
-    let txt=[], size=1, out=[]
-    chunks.forEach(chunk=>{
-        size++
-        if(chunk.length%size){
-            throw new Error(
-                `Wrong chunk during decompression: size=${size}, length=${chunk.length}.\n` +
-                `You can deactivate the compression by using setting the pyodide_macros plugin ` +
-                `option ${ compressOptionSrc } to false, until the theme gets fixed.`
-            )
-        }
-        for(let i=0 ; i<chunk.length ; i+=size){
-            txt.push(unBase(chunk.slice(i,i+size)))
-        }
-    })
-    txt.forEach((iBase,i)=>{
-        const s = tome[iBase]
-        const fresh = s + (tome[txt[i+1]] || s)[0]
-        out.push(s)
-        tome.push(fresh)
-    })
-    return out.join('')
-}
-
-
-/**Decompress PAGE_IDES_CONFIG content if not already done.
- * */
-export function decompressPagesIfNeeded(){
-    if(typeof(PAGE_IDES_CONFIG)!='string') return;
-
-    LOGGER_CONFIG.ACTIVATE && jsLogger('[CheckPoint] - decompress page LZW')
-    globalThis.PAGE_IDES_CONFIG = decompressAndConvert(PAGE_IDES_CONFIG)
-}
-
-
-/**Decompress LZW encoded string to a JSON object.
- * */
-export function decompressAndConvert(compressed){
-    const decompressed = decompressLZW(compressed, "build.encrypted_js_data")
-    const outcome      = JSON.parse(
-        decompressed, (key,val)=>key=='attempts_left' && val=="Infinity" ? Infinity : val
-    )
-    return outcome
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**Build bare divs from the given strings.
- * @returns: - A jQuery <div> object if only one argument.
- *           - An array of jQuery <div> objects if several arguments.
- * */
-export const jDiv=(...elements)=>{
-    const out = elements.map( s => $(`<div>${ s }</div>`) )
-    return elements.length==1 ? out[0] : out
-}
-
-
-
-const defaultOptions=(options, prop)=>({
-
-    // Outer html element:
-    tagClass: "vertical",
-    tagId: prop,
-    fontSize: "",
-    extraStyles: "",    // For the outer element/tag, as "width:min-content;..."
-
-    // If a label is used:
-    label: prop,
-    labelFirst: true,
-    noLabel: false,
-
-    // If an input element is used:
-    inputId: prop+'-input',     // to link the label to the input/element
-    inputClass: "",
-
-    tipText: "",
-    shift: 50,          // %
-    tipWidth: 0,        // em ; 0 => auto
-    tipClass: '',       // top bottom left right (default: bottom)
-
-    autoCbk: true,     // If true, automatic event routine added
-    disabled: undefined,
-
-    ...options
-})
-
-
-export const buildTipSpan=(options)=>{
-    if(!options.tipText) return ""
-
-    const tipClass = ['tooltiptext', options.tipClass || 'bottom'].join(' ')
-    const tipWidth = (options.tipWidth??0) > 0 ? options.tipWidth+'em' : 'max-content'
-    const tipSpan  = `<span class="${ tipClass }" style="width:${ tipWidth }">${ options.tipText }</span>`
-    return tipSpan
-}
-
-export const getTagStyle=(options)=>{
-    const styles = []
-    if(options.tipText)    styles.push(`--tool_shift:${ options.shift }%`)
-    if(options.fontSize)   styles.push(`font-size:${ options.fontSize }em`)
-    if(options.extraStyle) styles.push(options.extraStyle)
-    return ` style="${ styles.join(';') }"`
-}
-
-
-/**Generic jQuery object generator. No event attached.
- * */
-const stuffWithTooltip = (tag, options, content) =>{
-
-    const classes = []
-    if(tag=='button')    classes.push("header-btn")
-    if(options.tagClass) classes.push(options.tagClass)
-    if(options.tipText)  classes.push("tooltip")
-
-    const tagClass = !classes.length  ? '':`class="${ classes.join(' ') }"`
-    const tagId    = !options.tagId   ? '':`id="${ options.tagId }"`
-    const tagStyle = getTagStyle(options)
-    const tipSpan  = buildTipSpan(options)
-    const label    = `<label for="${ options.inputId }" style="align-self:center">${ options.label }</label>`
-
-    const buttonType = ' type="button"'.repeat(tag=='button')
-    return $([
-        `<${tag} ${ tagId }${ tagClass }${ tagStyle }${ buttonType }>`,
-            tipSpan,
-            options.noLabel || !options.labelFirst ? '':label,
-            content,
-            options.noLabel || options.labelFirst  ? '':label,
-        `</${tag}>`
-    ].join(''))
-}
-
-
-
-/**Create a button with tooltip, just like the python _html_builder one (no event attached).
- * */
-export function buttonWithTooltip(options, content){
-    options = defaultOptions(options)
-    options.noLabel = true
-    return stuffWithTooltip('button', options, content)
-}
-
-
-
-/**Create a jQuery button WITHOUT bound event, holding the svg of one of the IDE's buttons.
- * No event attached.
- * */
-export const makeIdeJqButton = (kind, options) => {
-    const img = `<img src="${ CONFIG.buttonIconsDirectory }/icons8-${ kind }-64.png" />`
-    return buttonWithTooltip(options, img)
-}
-
-
-
-
-/**Generic "change" event factory.
- *
- * @obj: object to mutate
- * @prop: property of the object to update
- * @inputProp; property name of the context object from which to extract the _already updated_ value.
- * */
-export const valueAssigner=(obj, prop, inputProp='value')=>function(){
-    obj[prop] = this[inputProp]
-    // console.log(JSON.stringify(obj[prop]))
-}
-
-
-/**Create a textarea object automatically updating the @obj[@prop] value.
- * */
-export function buildJqTextArea(obj, prop, options={}){
-    options = defaultOptions(options, prop)
-    const kls     = `class="full-width ${ options.inputClass||"" }"`
-    const content = obj[prop]??""
-    const nLines  = content.split('\n').length
-    const html    = stuffWithTooltip(
-        options.tag ?? 'div', options,
-       `<textarea id="${ options.inputId }"  ${kls} placeholder="${ options.placeholder??"" }">${ content }</textarea>`,
-    )
-
-    const txtArea = html.find('textarea')
-    txtArea.css('overflow-y','auto')
-    txtArea.attr('rows', nLines)
-    if(options.resize) txtArea.css('resize', options.resize)
-    if(options.autoCbk) txtArea.on('change', valueAssigner(obj, prop))
-
-    return html
-}
-
-
-
-/**Create a checkbox object automatically updating the @obj[@prop] value.
- * */
-export function buildJqCheckBox(obj, prop, options={}){
-    options.tagClass    = ("horizontal "+(options.tagClass??"")).trim()
-    options.extraStyles = "grid-template-columns: max-content max-content;grid-gap:5px;"
-    options.labelFirst ??= false
-    options = defaultOptions(options, prop)
-    const kls = options.inputClass ? `class="${ options.inputClass }"`:""
-    const html = stuffWithTooltip(
-        'div', options,
-        `<input type="checkbox" id="${ options.inputId }" ${kls} ${ obj[prop]?'checked':'' }>`,
-    )
-    if(options.autoCbk) html.on('click', 'input', valueAssigner(obj, prop, 'checked'))
-    return html
-}
-
-
-
-/**Create an input[number]
- * */
-export function buildJqNumber(obj, prop, options={}){
-    options.tagClass    = ("horizontal "+(options.tagClass??"")).trim()
-    options.extraStyles = "grid-template-columns: max-content max-content;grid-gap:5px;"
-    options.labelFirst ??= false
-    options = defaultOptions(options, prop)
-    const kls = options.inputClass ? `class="${ options.inputClass }"`:""
-    const html = stuffWithTooltip(
-        'div', options,
-        `<input type="number" id="${ options.inputId }" ${kls} ${ obj[prop]?'checked':'' }>`,
-    )
-    if(options.autoCbk) html.on('change', 'input', valueAssigner(obj, prop))
-    return html
-}
-
-
-
-/**Create an input text object automatically updating the @obj[@prop] value.
- * */
-export function buildJqText(obj, prop, options={}){
-    options = defaultOptions(options, prop)
-    const kls  = options.inputClass ? `class="${ options.inputClass }"`:""
-    const html = stuffWithTooltip(
-        'div', options,
-        `<input type="text" id="${ options.inputId }" ${kls} value="${ obj[prop]??"" }" placeholder="${ options.placeholder??"" }">`
-    )
-    if(options.autoCbk) html.on('change', 'input', valueAssigner(obj, prop))
-    return html
-}
-
-
-
-/**Create a select object automatically updating the @obj[@prop] value.
- * At creation time, the current value of @obj[@prop] is automatically selected.
- *
- * @valuesArr: array of strings, for all the possible choices (in desired order).
- *             Keep in mind if there are other types ni there, they will be converted
- *             automatically to strings at DOM level...
- * */
-export function buildJqSelect(obj, prop, valuesArr, options={}){
-    options = defaultOptions(options, prop)
-
-    const kls    = options.inputClass ? `class="${ options.inputClass }"`:""
-    const select = `<select id="${ options.inputId }" ${kls}>`+valuesArr.map( v=>
-        `<option value="${ v }"${ v!==obj[prop] ? '' : ' selected="selected"' }>${ v }</option>`
-    ).join('')+"</select>"
-
-    const html = stuffWithTooltip('div', options, select)
-    if(options.autoCbk)  html.on('change', 'select', valueAssigner(obj, prop))
-    return html
-}
-
-
-
-
-
-export const cancelEvent=(e)=>{
-    if(!e) return;
-    if(e.originalEvent) e=e.originalEvent
-    if(e.stopPropagation) e.stopPropagation()
-    if(e.preventDefault)  e.preventDefault()
-}
-
-
-
-export function buildJqHistoryBtn(
-    jHolder,        // jQuery element holding the contextmenu
-    historyId,      // Id if the "contextmenu" element
-    historyArr,     // [data]
-    itemSetupCbk,   // Additional things to do with each jQuery/html item in this history, at creation time
-                    // (jBtn, data) => void
-){
-
-    const appendHistory=()=>{
-        if(!historyArr.length || $('#'+historyId).length) return;
-
-        // Use button instead of div, so that focusout and co' are actually working...
-        const jHist = $(
-            `<button id="${ historyId }" class="history-box"></button>`
-        )
-
-        jHist.append(
-            historyArr.map(data=>{
-                const btn = $(`<button class="history-btn">${ itemSetupCbk?"":data }</button>`)
-                if(itemSetupCbk) itemSetupCbk(btn, data)
-                return btn
-            })
-        )
-
-        // Forbid going full screen and close if not needed anymore.
-        jHist.on('keydown', function(e){
-            cancelEvent(e)
-            if(e.key=='Escape') jHist.off().remove()
-        })
-
-        // Remove the window if left or clicking somewhere else:
-        jHist.on('focusout mouseleave', function(e){ jHist.off().remove() })
-
-        // Once entered, clicking on a button would close the window if the focusout event is
-        // still defined, so remove it:
-        jHist.on('mouseenter', function(e){ jHist.off('focusout') })
-
-        // Make sure events are not transferred to upper level, (whatever they are)
-        jHist.on('click keyup', function(e){ cancelEvent(e) })  // wrapper so that jQ.off() works
-
-        jHist.appendTo(jHolder)     // Mount...
-        jHist.trigger('focus')      // Force focus to activate focusout, in case the user never enters the panel.
-    }
-
-    return jHolder.on('contextmenu', function(e){
-        cancelEvent(e)
-        appendHistory()
-    })
-}
-
-
-
-
-
-
-
 
 
 
 
 // ATTEMPT. Not finished -> archived just in case...
 // export function fileContentToDom(content, mime, readerMethod, domQuery, domTemplate, templateRepl="{}", domAppend=false){
-//     const elt = $(domQuery)
-//     if(!domAppend) elt.html("")
+//   const elt = $(domQuery)
+//   if(!domAppend) elt.html("")
 
-//     const reader = new FileReader()
-//     reader.abort = function(e){
-//       console.log('ERROR!')
-//     }
-//     reader.onload = function(e){
-//       const data = e.target.result
-//       const html = domTemplate.replace(templateRepl, data)
-//       elt.append(html)
-//     }
-
-//     const blob = new Blob([content], {type: mime})
-//     reader[readerMethod](blob)
+//   const reader = new FileReader()
+//   reader.abort = function(e){
+//     console.log('ERROR!')
+//   }
+//   reader.onload = function(e){
+//     const data = e.target.result
+//     const html = domTemplate.replace(templateRepl, data)
+//     elt.append(html)
 //   }
 
-
-
+//   const blob = new Blob([content], {type: mime})
+//   reader[readerMethod](blob)
+// }
 
 
 
@@ -909,13 +436,13 @@ export function buildJqHistoryBtn(
  * about MIME types.
  * */
 export function downloader(content, filename, mimeType="text/plain") {
-    const blob = new Blob([content], {type: mimeType})
-    const link = document.createElement("a")
-    link.href = URL.createObjectURL(blob)
-    link.download = filename
-    link.click()
-    URL.revokeObjectURL(link.href)
-    link.remove()
+  const blob = new Blob([content], {type: mimeType})
+  const link = document.createElement("a")
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(link.href)
+  link.remove()
 }
 
 
@@ -927,97 +454,98 @@ export function downloader(content, filename, mimeType="text/plain") {
  * */
 export var [uploader, uploaderAsync] = (function(){
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications#example_showing_thumbnails_of_user-selected_images
+  // https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications#example_showing_thumbnails_of_user-selected_images
 
-    let jInput         = null
-    let readMethod     = null   // readAsText / readAsDataURL / readAsArrayBuffer / readAsBinaryString
-    let contentHandler = null   // Replaced on the fly at runtime
-    let errorHandler   = null   // first error thrown during the reading process
+  let jInput         = null
+  let readMethod     = null   // readAsText / readAsDataURL / readAsArrayBuffer / readAsBinaryString
+  let contentHandler = null   // Replaced on the fly at runtime
+  let errorHandler   = null   // first error thrown during the reading process
 
-    const inputId      = 'pyodide-file-uploader'
-    const resumeHandler=_=>{ contentHandler = null }
+  const inputId      = 'pyodide-file-uploader'
+  const resumeHandler=_=>{ contentHandler = null }
 
-    ;(_=>{
-        // Defined in an isolated scope, to avoid the mistaken use of stuff defined here...
-        jInput = $(`<input id="${ inputId }" name="file-uploader" type="file">`)
-        $(document.head).append(jInput)
+  const applyFilesUpload = (listOfFiles)=>{
+    let nFile=1
+    for(const file of listOfFiles){
 
-        jInput.on("cancel", resumeHandler)
-        jInput[0].addEventListener(         // Doesn't wanna work through jQuery...
-            "change",
-            function(changeEvent){
-                let iFile=1
-                for(const file of changeEvent.target.files){
+      const reader  = new FileReader();
+      const isLast  = listOfFiles.length == nFile++
 
-                    const reader  = new FileReader();
-                    const isLast  = changeEvent.target.files.length==iFile++
-
-                    reader.onabort = function(event){
-                        resumeHandler()
-                        throw errorHandler
-                    }
-                    reader.onload = function(event){
-                        try{
-                            contentHandler(event.target.result, file.name, isLast)
-                        }catch(e){
-                            errorHandler ||= e
-                            reader.abort()
-                        }
-                        if(isLast) resumeHandler()      // to spot end of execution in async way
-                    }
-                    reader[readMethod](file)
-                }
-            },
-            false
-        )
-    })()
-
-
-    /**The showPicker method will raise an error, so possible to warn the user about what to do.
-     * But it's not compatible with all browsers, so keep the orignal click logic anyway...
-     * (but users wont' get any info about what's going wrong, in that case)
-     * */
-    const triggerInputFile=_=>{
-        if(!jInput[0].showPicker){
-            jInput[0].click()           // This is actually "async" (event!)
-            return
-        }
+      reader.onabort = function(event){
+        resumeHandler()
+        throw errorHandler
+      }
+      reader.onload = function(event){
         try{
-            jInput[0].showPicker()      // This is actually "async" (event!)
+          contentHandler(event.target.result, file.name, isLast)
         }catch(e){
-            // NOTE: Only the showPicker error should ever go there. Other errors aren't thrown
-            //       in the same context...
-            resumeHandler()     // Ensure release of the terminal, if async call
-            if(!e.toString().includes('HTMLInputElement.showPicker')) throw e
-            window.alert(CONFIG.lang.pickerFailure.msg)
+          errorHandler ||= e
+          reader.abort()
         }
+        if(isLast) resumeHandler()      // to spot end of execution in async way
+      }
+      reader[readMethod](file)
     }
+  }
 
-    const uploader = (cbk, readAs='readAsText', multi=false)=>{
-        contentHandler = cbk
-        readMethod     = readAs
-        jInput.prop('multiple', multi)
-        triggerInputFile()
+  ;(_=>{
+    // Defined in an isolated scope, to avoid the mistaken use of stuff defined here...
+    jInput = $(`<input id="${ inputId }" name="file-uploader" type="file">`)
+    $(document.head).append(jInput)
+
+    jInput.on("cancel", resumeHandler)
+    jInput[0].addEventListener(         // Doesn't wanna work through jQuery...
+      "change",
+      function(changeEvent){
+        applyFilesUpload(changeEvent.target.files)
+      },
+      false
+    )
+  })()
+
+
+  /**The showPicker method will raise an error, so possible to warn the user about what to do.
+   * But it's not compatible with all browsers, so keep the orignal click logic anyway...
+   * (but users wont' get any info about what's going wrong, in that case)
+   * */
+  const triggerInputFile=_=>{
+    // NOTE: code managing window.seleniumUploads is inserted on the fly during mkdocs tests builds
+    if(!jInput[0].showPicker){
+      jInput[0].click()           // This is actually "async" (event!)
+      return
     }
-
-    const uploaderAsync = async (...args)=>{
-        errorHandler = null
-        uploader(...args)
-        // Wait until the upload is done, so that the uploaded content is usable during current run
-        while(contentHandler){
-            await sleep(200)
-        }
-        if(errorHandler){
-            throw errorHandler  // propagate the error logic to the pyodide runtime environment
-        }
+    try{
+      jInput[0].showPicker()      // This is actually "async" (event!)
+    }catch(e){
+      // NOTE: Only the showPicker error should ever go there. Other errors aren't thrown
+      //       in the same context...
+      resumeHandler()     // Ensure release of the terminal, if async call
+      if(!e.toString().includes('HTMLInputElement.showPicker')) throw e
+      window.alert(CONFIG.lang.pickerFailure.msg)
     }
+  }
 
-    return [uploader, uploaderAsync]
+  const uploader = (cbk, readAs='readAsText', multi=false)=>{
+    contentHandler = cbk
+    readMethod     = readAs
+    jInput.prop('multiple', multi)
+    triggerInputFile()
+  }
+
+  const uploaderAsync = async (...args)=>{
+    errorHandler = null
+    uploader(...args)
+    // Wait until the upload is done, so that the uploaded content is usable during current run
+    while(contentHandler){
+      await sleep(200)
+    }
+    if(errorHandler){
+      throw errorHandler  // propagate the error logic to the pyodide runtime environment
+    }
+  }
+
+  return [uploader, uploaderAsync]
 })()
-
-
-
-
 
 
 
@@ -1028,156 +556,16 @@ export var [uploader, uploaderAsync] = (function(){
  * view, instead of triggering a BigFail error message.
  * */
 export class PythonError extends Error {
-    toString() { return "Python" + super.toString() }
-}
-
-
-/**Note: the behavior of this in pyodide is a bit weird: because defined as a const, it is not
- * visible in pyodide from a terminal because it stays "hidden" even after assigning it to
- * getStorage/setStorage...
- * */
-export const noStorage = function () {
-    throw new PythonError(
-        `Cannot read localStorage: no data available (looks like executions are stopped already).`
-    )
+  toString() { return "Python" + super.toString() }
 }
 
 
 
 
-
-
-/**Extract all the cmd histories and the IDEs data from the localStorage.
- *
- * There is a dirty bug somewhere (unknown for now), where the bare code string can be stored in
- * a localStorage entry instead of the usual object. Just spot those entries and remove them.
- * Also warn the user and ask for raising an issue on the repo...
+/**Class centralizing the various "running" configuration.
+ * Each time some executions are triggered, an instance is created holding the global config
+ * of the executions. This is helping to take some decisions at various points of the executions.
  */
-export const getStorageEntries=()=>{
-
-    const somethingWrong = []
-    const data  = Object.entries(localStorage)
-    const cmds  = data.filter( ([id,_]) => /^\d+_commands$/.test(id) )
-    const ides  = data.filter( ([id,_])=>/^editor_[\da-f]{16,}$/.test(id) )
-                      .map( ([k,s])=>{
-                        try{
-                            return [k,JSON.parse(s)]
-                        }catch(_){
-                            somethingWrong.push([k,s])
-                            localStorage.removeItem(k)
-                        }
-                    })
-
-    if(somethingWrong.length){
-        const msg = `
-Some invalid data have been found in the localStorage.
-Please contact the author of Pyodide-MkDocs-Theme, opening an issue on the repository with the data you may find in the console of your browser (F12).
-
-Repository:
-  ${ CONFIG.pmtUrl }
-`
-        console.error('\nInformation to give on the PMT repository:\n')
-        console.log(somethingWrong.map(([k,s])=>'\n---\n  '+k+':\n'+s).join('\n'))
-        window.alert(msg)
-    }
-    return {cmds, ides}
-}
-
-
-
-//Update all potential old entries if required:
-if((CONFIG.projectMoveFromOldId??null) !== null){
-  const {ides} = getStorageEntries()
-
-  ides.forEach(([k,o])=>{
-    if(o.project!==CONFIG.projectMoveFromOldId) return;
-    o.project = CONFIG.projectId
-    localStorage.setItem(k, JSON.stringify(o))
-  })
-}
-
-
-/**Forbid writing these properties from pyodide.
- * */
-export const PMT_LOCAL_STORAGE_KEYS_WRITE = Object.freeze(`
-    code
-    done
-    hash
-    name
-    project
-`.trim().split(/\s+/))
-
-
-
-/**Extract the given ID data from the localStorage, checking if it's not an outdated
- * or invalid structure.
- * @returns: [storage_data, upToDate]
- *
- * WARNING:
- *  1) Redactors might store extra fields in the LocalStorage, so DO NOT cleanup the thing...
- *  2) This function is used in CodEx.
- * */
-export function getIdeDataFromStorage(editorId, ide=null){
-
-    // Originally, the storage value was just the user's code, so keep extracting as this:
-    let codeOrStorageAsStr = localStorage.getItem(editorId) || ""
-
-    let obj  = {}
-    let code = codeOrStorageAsStr
-    try{
-      obj = JSON.parse(codeOrStorageAsStr || "{}")
-      code = obj.code ?? ""
-    }catch(_){}
-
-    // If the update to 5.4.0 has occurred before the `project.id` was filled by the author,
-    // users might have the localStorage updated with a `project: null` entry. This is not to
-    // be considered "up to date", to avoid bazillions of warning for the users (1 per IDE!).
-    const pmt_540_ok = (obj.project??null)!==null
-    const upToDate   = PMT_LOCAL_STORAGE_KEYS_WRITE.every(k=> k in obj) && pmt_540_ok
-    const storage    = upToDate ? obj : freshStore(code, obj, ide)
-
-    if(ide && !CONFIG.projectNoJsWarning && storage.project !== CONFIG.projectId){
-        const msg = [
-            CONFIG.lang.storageIdCollision.msg,
-            '',
-            `Project id: "${ CONFIG.projectId }"`,
-            `Page: ${ document.location }`,
-            `py_name: ${ ide.pyName }`,
-            `(id: ${ editorId })`,
-            '------------------------\nCollision source:',
-            `Project id: "${ storage.project }"`,
-            `py_name: ${ storage.name }`,
-        ]
-        window.alert(msg.join('\n'))
-    }
-
-    return [storage, upToDate]
-}
-
-
-
-/**Build a default IDE storage object, taking care of the logic involved in various PMT versions.
- *
- * WARNING: Redactors might store extra fields in the LocalStorage, so DO NOT cleanup the thing...
- * */
-export function freshStore(code, storage={}, ide=null){
-
-    storage.code = code || ""
-    storage.done ??= 0              // -1: fail, 0: unknown, 1:success
-    if(ide) ide.updateGenericStorageData(storage)
-    storage.project ??= CONFIG.projectId
-    return storage
-}
-
-
-
-
-
-
-
-
-
-
 export class RunningProfile {
 
   static PROFILE = Object.freeze({
@@ -1207,7 +595,7 @@ export class RunningProfile {
     return obj
   }
 
-  /**Mirroring PROFILE property names (giving autocompletion hints) */
+  /**Mirroring PROFILE property names (used for autocompletion hints) */
   static PROPS = RunningProfile.buildDefaultRunnersObject(true)
 
   static build(profile){
@@ -1228,6 +616,17 @@ export class RunningProfile {
 
 
 
+
+
+
+/*
+-----------------------------------------------------------------------------------------------
+ "Reexport" globally/publicly some functions or classes, so that they are usable from anywhere
+-----------------------------------------------------------------------------------------------
+*/
+
+
+
 // For backward compatibility (hooks and co'):
 globalThis.PythonError        = PythonError
 globalThis.CONFIG             = CONFIG
@@ -1236,10 +635,6 @@ globalThis.subscribeWhenReady = subscribeWhenReady
 LOGGER_CONFIG.ACTIVATE && console.log("async subscriber updated")
 
 // Access from pyodide + IdeZipManager logistic + backward compatibility:
-globalThis.getStorage    = noStorage
-globalThis.setStorage    = noStorage
-globalThis.delStorage    = noStorage
-globalThis.keysStorage   = noStorage
 globalThis.config        = config
 globalThis.isDark        = isDark
 globalThis.downloader    = downloader

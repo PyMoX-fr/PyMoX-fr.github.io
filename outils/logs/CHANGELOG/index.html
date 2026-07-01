@@ -63,7 +63,7 @@ If not, see <https://www.gnu.org/licenses/>.
     
     
 
-<script type="importmap">{"imports": {"functools": "../../../js-libs/functools.js", "jsLogger": "../../../js-libs/jsLogger.js", "process_and_gui": "../../../js-libs/process_and_gui.js", "0-generic-python-snippets-pyodide": "../../../js-per-pages/0-generic-python-snippets-pyodide.js", "1-error_logs-pyodide": "../../../js-per-pages/1-error_logs-pyodide.js", "1-packagesInstaller-install-pyodide": "../../../js-per-pages/1-packagesInstaller-install-pyodide.js", "1-runtimeManager-runtime-pyodide": "../../../js-per-pages/1-runtimeManager-runtime-pyodide.js", "2-0-runnersManager-runners": "../../../js-per-pages/2-0-runnersManager-runners.js", "2-pyodideSectionsRunner-runner-pyodide": "../../../js-per-pages/2-pyodideSectionsRunner-runner-pyodide.js", "3-btnRunner-py_btn": "../../../js-per-pages/3-btnRunner-py_btn.js", "3-terminalRunner-term": "../../../js-per-pages/3-terminalRunner-term.js", "4-0-idesManager-ide": "../../../js-per-pages/4-0-idesManager-ide.js", "4-ideLogistic-ide": "../../../js-per-pages/4-ideLogistic-ide.js", "4-ideRunner-ide": "../../../js-per-pages/4-ideRunner-ide.js", "5-ideTester-ides_test": "../../../js-per-pages/5-ideTester-ides_test.js", "6-2-init-playground": "../../../js-per-pages/6-2-init-playground.js", "6-idePlayground-playground": "../../../js-per-pages/6-idePlayground-playground.js", "qcms-qcm": "../../../js-per-pages/qcms-qcm.js", "start-pyodide": "../../../js-per-pages/start-pyodide.js", "overlord": "../../../js-scripts/overlord.js", "subscriptions": "../../../js-scripts/subscriptions.js"}}</script>
+<script type="importmap">{"imports": {"functools": "../../../js-libs/functools.js", "functoolsStorage": "../../../js-libs/functoolsStorage.js", "functoolsTxt": "../../../js-libs/functoolsTxt.js", "functoolsUi": "../../../js-libs/functoolsUi.js", "functoolsUiBuilder": "../../../js-libs/functoolsUiBuilder.js", "jsLogger": "../../../js-libs/jsLogger.js", "process_and_gui": "../../../js-libs/process_and_gui.js", "0-generic-python-snippets-pyodide": "../../../js-per-pages/0-generic-python-snippets-pyodide.js", "1-error_logs-pyodide": "../../../js-per-pages/1-error_logs-pyodide.js", "1-packagesInstaller-install-pyodide": "../../../js-per-pages/1-packagesInstaller-install-pyodide.js", "1-runtimeManager-runtime-pyodide": "../../../js-per-pages/1-runtimeManager-runtime-pyodide.js", "2-0-runnersManager-runners": "../../../js-per-pages/2-0-runnersManager-runners.js", "2-pyodideSectionsRunner-runner-pyodide": "../../../js-per-pages/2-pyodideSectionsRunner-runner-pyodide.js", "3-btnRunner-py_btn": "../../../js-per-pages/3-btnRunner-py_btn.js", "3-terminalRunner-term": "../../../js-per-pages/3-terminalRunner-term.js", "4-0-idesManager-ide": "../../../js-per-pages/4-0-idesManager-ide.js", "4-ideLogistic-ide": "../../../js-per-pages/4-ideLogistic-ide.js", "4-ideRunner-ide": "../../../js-per-pages/4-ideRunner-ide.js", "5-ideTester-ides_test": "../../../js-per-pages/5-ideTester-ides_test.js", "6-2-init-playground": "../../../js-per-pages/6-2-init-playground.js", "6-idePlayground-playground": "../../../js-per-pages/6-idePlayground-playground.js", "qcms-qcm": "../../../js-per-pages/qcms-qcm.js", "start-pyodide": "../../../js-per-pages/start-pyodide.js", "overlord": "../../../js-scripts/overlord.js", "subscriptions": "../../../js-scripts/subscriptions.js"}}</script>
 
 
 
@@ -75,7 +75,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 <link href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.43.1/css/jquery.terminal.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" rel="stylesheet"/>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" rel="stylesheet"/>
 
 <script src="../../../js-libs/0-config.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="text/javascript"></script>
 
@@ -92,17 +92,25 @@ CONFIG.inServe=false
 CONFIG.keyStrokesAutoSave=30
 CONFIG.language="fr"
 CONFIG.pmtUrl="https://gitlab.com/frederic-zinelli/pyodide-mkdocs-theme"
-CONFIG.projectId=null
+CONFIG.projectId="GC7_PyMox_Fr"
 CONFIG.projectMoveFromOldId=null
 CONFIG.projectNoJsWarning=false
 CONFIG.pythonLibs=[]
 CONFIG.siteUrl="https://PyMoX-fr.github.io/"
-CONFIG.version="5.4.16"
-CONFIG.lang={"allOthersTrash": {"msg": "1 entr\u00e9e non associ\u00e9e au projet en cours a \u00e9t\u00e9 trouv\u00e9e. Voulez-vous la supprimer ?\n(Vous risquez de perdre des donn\u00e9es d'un site voisin !)", "plural": "{N} entr\u00e9es non associ\u00e9es au projet en cours ont \u00e9t\u00e9 trouv\u00e9es. Voulez-vous toutes les supprimer ?\n(Vous risquez de perdre des donn\u00e9es d'un site voisin !)"}, "attemptsLeft": {"msg": "\u00c9valuations restantes"}, "check": {"msg": "Valider<br><kbd>Ctrl</kbd>+<kbd>Enter</kbd><br>(Clic droit pour l'historique)", "em": 9, "kbd": ""}, "comments": {"msg": "(D\u00e9s-)Active le code apr\u00e8s la ligne <code># Tests</code> (insensible \u00e0 la casse)<br>(<kbd>Ctrl</kbd>+<kbd>I</kbd>)", "em": 17, "kbd": "Ctrl+I"}, "complementTrash": {"msg": "Nota : 1 entr\u00e9e non associ\u00e9e \u00e0 ce projet", "plural": "Nota : {N} entr\u00e9es non associ\u00e9es \u00e0 ce projet"}, "corr": {"msg": "\ud83d\udc0d Proposition de correction"}, "corrBtn": {"msg": "Tester la correction (serve)", "em": 0, "kbd": ""}, "delayedReveal": {"msg": "Solution affich\u00e9e dans {N} essai(s).", "format": "info"}, "download": {"msg": "T\u00e9l\u00e9charger", "em": 0, "kbd": ""}, "editorCode": {"msg": "\u00c9diteur", "format": "info"}, "failHead": {"msg": "Dommage !", "format": "warning"}, "failTail": {"msg": "est maintenant disponible", "plural": "sont maintenant disponibles"}, "feedback": {"msg": "Tronquer ou non le feedback dans les terminaux (sortie standard & stacktrace / relancer le code pour appliquer)", "em": 19, "kbd": ""}, "figureAdmoTitle": {"msg": "Votre figure"}, "figureText": {"msg": "Votre trac\u00e9 sera ici"}, "fullScreen": {"msg": "Entrer ou sortir du mode \"plein \u00e9cran\"<br>(<kbd>Esc</kbd>)", "em": 10, "kbd": "Esc"}, "installDone": {"msg": "Installations termin\u00e9es !", "format": "info"}, "installStart": {"msg": "Installation de paquets python. Ceci peut prendre un certain temps...", "format": "info"}, "loadIde": {"msg": "Configure l'IDE avec ces donn\u00e9es", "em": 10, "kbd": ""}, "noCodesTrash": {"msg": "Pas de codes trouv\u00e9s pour le projet en cours sur ce navigateur."}, "p5Start": {"msg": "D\u00e9marre l'animation", "em": 0, "kbd": ""}, "p5Step": {"msg": "Avance d'une image", "em": 0, "kbd": ""}, "p5Stop": {"msg": "Arr\u00eate l'animation", "em": 0, "kbd": ""}, "pickerFailure": {"msg": "Veuillez cliquer sur la page entre deux utilisations des raccourcis clavier ou utiliser un bouton, afin de pouvoir t\u00e9l\u00e9verser un fichier."}, "play": {"msg": "Ex\u00e9cuter le code<br>(<kbd>Ctrl</kbd>+<kbd>S</kbd>)", "em": 9, "kbd": "Ctrl+S"}, "publicTests": {"msg": "Tests publics", "format": "info"}, "pyBtn": {"msg": "Ex\u00e9cuter le code", "em": 9, "kbd": ""}, "qcmCheckTip": {"msg": "V\u00e9rifier les r\u00e9ponses", "em": 11, "kbd": ""}, "qcmMaskTip": {"msg": "Les r\u00e9ponses resteront cach\u00e9es...", "em": 11, "kbd": ""}, "qcmRedoTip": {"msg": "Recommencer", "em": 9, "kbd": ""}, "qcmTitle": {"msg": "Question", "plural": "Questions"}, "refresh": {"msg": "Une version plus r\u00e9cente du code existe.\nVeuillez copier vos \u00e9ventuelles modifications puis r\u00e9initialiser l'IDE.", "format": "warning"}, "rem": {"msg": "Remarques"}, "removeTrash": {"msg": "Il y a actuellement 1 r\u00e9f\u00e9rence enregistr\u00e9e sur ce navigateur.\nVoulez-vous l'effacer ?", "plural": "Il y a actuellement {N} r\u00e9f\u00e9rences enregistr\u00e9es sur ce navigateur.\nVoulez-vous toutes les effacer ?"}, "restart": {"msg": "R\u00e9initialiser l'\u00e9diteur", "em": 0, "kbd": ""}, "restartConfirm": {"msg": "ATTENTION: r\u00e9initialiser l'\u00e9diteur fera perdre les anciens codes, status de validation et historiques.", "em": 0, "kbd": ""}, "revealCorr": {"msg": "le corrig\u00e9"}, "revealJoin": {"msg": "et"}, "revealRem": {"msg": "les commentaires"}, "runScript": {"msg": "Script lanc\u00e9...", "format": "info"}, "save": {"msg": "Sauvegarder dans le navigateur", "em": 0, "kbd": ""}, "secretTests": {"msg": "Tests secrets", "format": "info"}, "show": {"msg": "Afficher corr & REMs", "em": 0, "kbd": ""}, "splitModePlaceholder": {"msg": "\u00c9diteur dans l'autre colonne"}, "splitScreen": {"msg": "Entrer ou sortir du mode \"deux colonnes\"<br>(<kbd>Alt+:</kbd> ; <kbd>Ctrl</kbd> pour inverser les colonnes)", "em": 23, "kbd": ""}, "storageIdCollision": {"msg": "Contacter l'auteur du site web en lui fournissant ce message complet. Une collision potentielle d'ids entre plusieurs projets \u00e0 \u00e9t\u00e9 rencontr\u00e9e. Il faut ajouter ou modifier l'argument ID pour l'IDE suivant:"}, "successHead": {"msg": "Bravo !", "format": "success"}, "successHeadExtra": {"msg": "Vous avez r\u00e9ussi tous les tests !"}, "successMsg": {"msg": "OK", "format": "success"}, "successMsgNoTests": {"msg": "Termin\u00e9 sans erreur.", "format": "info"}, "successTail": {"msg": "Pensez \u00e0 lire"}, "test1Ide": {"msg": "Lance ce test", "em": 7, "kbd": ""}, "testIdes": {"msg": "Lance tous les tests...", "em": 7, "kbd": ""}, "testStop": {"msg": "Arr\u00eate les tests", "em": 6, "kbd": ""}, "tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "testsDone": {"msg": "Tests termin\u00e9s", "format": "info"}, "tipTrash": {"msg": "Supprimer du navigateur les codes enregistr\u00e9s pour PyMoX Doc", "em": 15, "kbd": ""}, "titleCorr": {"msg": "Solution"}, "titleRem": {"msg": "Remarques"}, "unforgettable": {"msg": "N'oubliez pas de faire une validation !", "format": "warning"}, "upload": {"msg": "T\u00e9l\u00e9verser", "em": 0, "kbd": ""}, "validation": {"msg": "Validation - ", "format": "info"}, "wrapTerm": {"msg": "Si activ\u00e9, le texte copi\u00e9 dans le terminal est joint sur une seule ligne avant d'\u00eatre copi\u00e9 dans le presse-papier", "em": 19, "kbd": ""}, "zip": {"msg": "Archiver les codes des IDEs exportables de la page", "em": 14, "kbd": ""}, "zipAskForNames": {"msg": "Veuillez pr\u00e9ciser votre/vos noms (cha\u00eene vide interdite) :"}}
+CONFIG.version="5.5.3"
+CONFIG.lang={"allOthersTrash": {"msg": "1 entr\u00e9e non associ\u00e9e au projet en cours a \u00e9t\u00e9 trouv\u00e9e. Voulez-vous la supprimer ?\n(Vous risquez de perdre des donn\u00e9es d'un site voisin !)", "plural": "{N} entr\u00e9es non associ\u00e9es au projet en cours ont \u00e9t\u00e9 trouv\u00e9es. Voulez-vous toutes les supprimer ?\n(Vous risquez de perdre des donn\u00e9es d'un site voisin !)"}, "attemptsLeft": {"msg": "\u00c9valuations restantes"}, "check": {"msg": "Valider<br><kbd>Ctrl</kbd>+<kbd>Enter</kbd><br>(Clic droit pour l'historique)", "em": 9, "kbd": ""}, "comments": {"msg": "(D\u00e9s-)Active le code apr\u00e8s la ligne <code># Tests</code> (insensible \u00e0 la casse)<br>(<kbd>Ctrl</kbd>+<kbd>I</kbd>)", "em": 17, "kbd": "Ctrl+I"}, "complementTrash": {"msg": "Nota : 1 entr\u00e9e non associ\u00e9e \u00e0 ce projet, qui ne sera pas supprim\u00e9e", "plural": "Nota : {N} entr\u00e9es non associ\u00e9es \u00e0 ce projet, qui ne seront pas supprim\u00e9es"}, "corr": {"msg": "\ud83d\udc0d Proposition de correction"}, "corrBtn": {"msg": "Tester la correction (serve)", "em": 0, "kbd": ""}, "delayedReveal": {"msg": "Solution affich\u00e9e dans {N} essai(s).", "format": "info"}, "download": {"msg": "T\u00e9l\u00e9charger", "em": 0, "kbd": ""}, "editorCode": {"msg": "\u00c9diteur", "format": "info"}, "failHead": {"msg": "Dommage !", "format": "warning"}, "failTail": {"msg": "est maintenant disponible", "plural": "sont maintenant disponibles"}, "feedback": {"msg": "Tronquer ou non le feedback dans les terminaux (sortie standard & stacktrace / relancer le code pour appliquer)", "em": 19, "kbd": ""}, "figureAdmoTitle": {"msg": "Votre figure"}, "figureText": {"msg": "Votre trac\u00e9 sera ici"}, "fullScreen": {"msg": "Entrer ou sortir du mode \"plein \u00e9cran\"<br>(<kbd>Esc</kbd>)", "em": 10, "kbd": "Esc"}, "installDone": {"msg": "Installations termin\u00e9es !", "format": "info"}, "installStart": {"msg": "Installation de paquets python. Ceci peut prendre un certain temps...", "format": "info"}, "loadIde": {"msg": "Configure l'IDE avec ces donn\u00e9es", "em": 10, "kbd": ""}, "noCodesTrash": {"msg": "Pas de codes trouv\u00e9s pour le projet en cours sur ce navigateur."}, "p5Start": {"msg": "D\u00e9marre l'animation", "em": 0, "kbd": ""}, "p5Step": {"msg": "Avance d'une image", "em": 0, "kbd": ""}, "p5Stop": {"msg": "Arr\u00eate l'animation", "em": 0, "kbd": ""}, "pickerFailure": {"msg": "Veuillez cliquer sur la page entre deux utilisations des raccourcis clavier ou utiliser un bouton, afin de pouvoir t\u00e9l\u00e9verser un fichier."}, "play": {"msg": "Ex\u00e9cuter le code<br>(<kbd>Ctrl</kbd>+<kbd>S</kbd>)", "em": 9, "kbd": "Ctrl+S"}, "publicTests": {"msg": "Tests publics", "format": "info"}, "pyBtn": {"msg": "Ex\u00e9cuter le code", "em": 9, "kbd": ""}, "qcmCheckTip": {"msg": "V\u00e9rifier les r\u00e9ponses", "em": 11, "kbd": ""}, "qcmMaskTip": {"msg": "Les r\u00e9ponses resteront cach\u00e9es...", "em": 11, "kbd": ""}, "qcmRedoTip": {"msg": "Recommencer", "em": 9, "kbd": ""}, "qcmTitle": {"msg": "Question", "plural": "Questions"}, "refresh": {"msg": "Une version plus r\u00e9cente du code existe.\nVeuillez copier vos \u00e9ventuelles modifications puis r\u00e9initialiser l'IDE.", "format": "warning"}, "rem": {"msg": "Remarques"}, "removeTrash": {"msg": "Il y a actuellement 1 r\u00e9f\u00e9rence enregistr\u00e9e sur ce navigateur.\nVoulez-vous l'effacer ?", "plural": "Il y a actuellement {N} r\u00e9f\u00e9rences enregistr\u00e9es sur ce navigateur.\nVoulez-vous toutes les effacer ?"}, "restart": {"msg": "R\u00e9initialiser l'\u00e9diteur", "em": 0, "kbd": ""}, "restartConfirm": {"msg": "ATTENTION: r\u00e9initialiser l'\u00e9diteur fera perdre les anciens codes, status de validation et historiques.", "em": 0, "kbd": ""}, "revealCorr": {"msg": "le corrig\u00e9"}, "revealJoin": {"msg": "et"}, "revealRem": {"msg": "les commentaires"}, "runScript": {"msg": "Script lanc\u00e9...", "format": "info"}, "save": {"msg": "Sauvegarder dans le navigateur", "em": 0, "kbd": ""}, "secretTests": {"msg": "Tests secrets", "format": "info"}, "show": {"msg": "Afficher corr & REMs", "em": 0, "kbd": ""}, "splitModePlaceholder": {"msg": "\u00c9diteur dans l'autre colonne"}, "splitScreen": {"msg": "Entrer ou sortir du mode \"deux colonnes\"<br>(<kbd>Alt+:</kbd> ; <kbd>Ctrl</kbd> pour inverser les colonnes)", "em": 23, "kbd": ""}, "storageIdCollision": {"msg": "Contacter l'auteur du site web en lui fournissant ce message complet. Une collision potentielle d'ids entre plusieurs projets \u00e0 \u00e9t\u00e9 rencontr\u00e9e. Il faut ajouter ou modifier l'argument ID pour l'IDE suivant:"}, "successHead": {"msg": "Bravo !", "format": "success"}, "successHeadExtra": {"msg": "Vous avez r\u00e9ussi tous les tests !"}, "successMsg": {"msg": "OK", "format": "success"}, "successMsgNoTests": {"msg": "Termin\u00e9 sans erreur.", "format": "info"}, "successTail": {"msg": "Pensez \u00e0 lire"}, "test1Ide": {"msg": "Lance ce test", "em": 7, "kbd": ""}, "testIdes": {"msg": "Lance tous les tests...", "em": 7, "kbd": ""}, "testStop": {"msg": "Arr\u00eate les tests", "em": 6, "kbd": ""}, "tests": {"msg": "\n\n# Tests\n\n", "as_pattern": "^#\\s*Tests"}, "testsDone": {"msg": "Tests termin\u00e9s", "format": "info"}, "tipTrash": {"msg": "Supprimer du navigateur les codes enregistr\u00e9s pour PyMoX Doc", "em": 15, "kbd": ""}, "titleCorr": {"msg": "Solution"}, "titleRem": {"msg": "Remarques"}, "unforgettable": {"msg": "N'oubliez pas de faire une validation !", "format": "warning"}, "upload": {"msg": "T\u00e9l\u00e9verser", "em": 0, "kbd": ""}, "validation": {"msg": "Validation - ", "format": "info"}, "wrapTerm": {"msg": "Si activ\u00e9, le texte copi\u00e9 dans le terminal est joint sur une seule ligne avant d'\u00eatre copi\u00e9 dans le presse-papier", "em": 19, "kbd": ""}, "zip": {"msg": "Archiver les codes des IDEs exportables de la page", "em": 14, "kbd": ""}, "zipAskForNames": {"msg": "Veuillez pr\u00e9ciser votre/vos noms (cha\u00eene vide interdite) :"}}
 </script>
 <script src="../../../js-libs/0-legacy-subscriber.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="text/javascript"></script>
 
 <script src="../../../js-libs/functools.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../../../js-libs/functoolsStorage.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../../../js-libs/functoolsTxt.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../../../js-libs/functoolsUi.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
+
+<script src="../../../js-libs/functoolsUiBuilder.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
 
 <script src="../../../js-libs/jsLogger.js" crossorigin="anonymous" referrerpolicy="no-referrer" charset="utf-8" type="module"></script>
 
@@ -1651,138 +1659,139 @@ CONFIG.lang={"allOthersTrash": {"msg": "1 entr\u00e9e non associ\u00e9e au proje
 <details class="unreleased-block" open="open">
 <summary>📦 <code>Unreleased</code></summary>
 <ul>
-<li>2026-05-06 (16:49) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/bdfe272">↑ Doc // pages autogenerated  (HEAD -&gt; main, origin/main)</a> (<code>bdfe272</code>)</li>
-<li>2026-03-01 (11:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5ed1ccd">↑ graph</a> (<code>5ed1ccd</code>)</li>
-<li>2026-03-01 (10:57) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/a7283d0">Up motive</a> (<code>a7283d0</code>)</li>
-<li>2026-03-01 (10:54) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/acd6c6e">Reset left</a> (<code>acd6c6e</code>)</li>
-<li>2026-03-01 (10:51) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/cf46213">Corr</a> (<code>cf46213</code>)</li>
+<li>2026-07-01 (16:44) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/3888f11c">Fix an error  (HEAD -&gt; main, origin/main)</a> (<code>3888f11c</code>)</li>
+<li>2026-05-06 (16:49) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/bdfe2726">↑ Doc // pages autogenerated</a> (<code>bdfe2726</code>)</li>
+<li>2026-03-01 (11:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5ed1ccdf">↑ graph</a> (<code>5ed1ccdf</code>)</li>
+<li>2026-03-01 (10:57) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/a7283d08">Up motive</a> (<code>a7283d08</code>)</li>
+<li>2026-03-01 (10:54) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/acd6c6e2">Reset left</a> (<code>acd6c6e2</code>)</li>
+<li>2026-03-01 (10:51) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/cf46213c">Corr</a> (<code>cf46213c</code>)</li>
 </ul>
 </details>
 <details class="success" open="open">
 <summary>📦 <code>v1.1.0</code></summary>
 <ul>
-<li>2026-03-01 (10:31) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/896d337">Feat: Add FAQ 4 Kit (&lt;SebL4RD)  (tag: v1.1.0)</a> (<code>896d337</code>)</li>
-<li>2026-02-28 (12:13) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/7e97302">Corr logo URL</a> (<code>7e97302</code>)</li>
-<li>2026-02-28 (12:08) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/62e64c8">Add PyMox-Kit Logo</a> (<code>62e64c8</code>)</li>
-<li>2026-02-27 (21:44) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/c59a9b4">Aff Pypi lk</a> (<code>c59a9b4</code>)</li>
+<li>2026-03-01 (10:31) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/896d3371">Feat: Add FAQ 4 Kit (&lt;SebL4RD)  (tag: v1.1.0)</a> (<code>896d3371</code>)</li>
+<li>2026-02-28 (12:13) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/7e973025">Corr logo URL</a> (<code>7e973025</code>)</li>
+<li>2026-02-28 (12:08) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/62e64c84">Add PyMox-Kit Logo</a> (<code>62e64c84</code>)</li>
+<li>2026-02-27 (21:44) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/c59a9b45">Aff Pypi lk</a> (<code>c59a9b45</code>)</li>
 </ul>
 </details>
 <details class="info" open="open">
 <summary>📦 <code>v1.0.8</code></summary>
 <ul>
-<li>2026-02-27 (19:22) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/ca21d70">Up: lib PyMoX-Kit</a> (<code>ca21d70</code>)</li>
-<li>2026-02-18 (09:31) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5292714">Set P, M &amp; X bolder</a> (<code>5292714</code>)</li>
-<li>2026-02-17 (20:57) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/459ec50">Nett</a> (<code>459ec50</code>)</li>
-<li>2026-02-17 (20:42) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/3afc448">Pure colors</a> (<code>3afc448</code>)</li>
-<li>2026-02-17 (20:21) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/80381a6">Try new un satured pixels</a> (<code>80381a6</code>)</li>
-<li>2026-02-17 (19:45) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f5f9bb0">Fix transparent background</a> (<code>f5f9bb0</code>)</li>
-<li>2026-02-17 (19:42) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/81915ed">Ini</a> (<code>81915ed</code>)</li>
-<li>2026-02-17 (19:36) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/3fa511f">Set transparent background</a> (<code>3fa511f</code>)</li>
-<li>2026-02-17 (19:29) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/266f45a">Set pure black for background of logo</a> (<code>266f45a</code>)</li>
-<li>2026-02-17 (19:11) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/04a7326">Without width</a> (<code>04a7326</code>)</li>
-<li>2026-02-17 (19:08) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/20d9a7f">Uuu</a> (<code>20d9a7f</code>)</li>
-<li>2026-02-17 (19:03) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/593e9da">Centered title fr fo PyMox.fr</a> (<code>593e9da</code>)</li>
-<li>2026-02-17 (15:13) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/2e26c40">Add PYMox.fr with crypted shadow font</a> (<code>2e26c40</code>)</li>
-<li>2026-01-28 (16:48) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/506255f">Set AUTO_RUN for first IDE</a> (<code>506255f</code>)</li>
+<li>2026-02-27 (19:22) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/ca21d70e">Up: lib PyMoX-Kit</a> (<code>ca21d70e</code>)</li>
+<li>2026-02-18 (09:31) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/52927140">Set P, M &amp; X bolder</a> (<code>52927140</code>)</li>
+<li>2026-02-17 (20:57) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/459ec507">Nett</a> (<code>459ec507</code>)</li>
+<li>2026-02-17 (20:42) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/3afc448e">Pure colors</a> (<code>3afc448e</code>)</li>
+<li>2026-02-17 (20:21) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/80381a66">Try new un satured pixels</a> (<code>80381a66</code>)</li>
+<li>2026-02-17 (19:45) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f5f9bb06">Fix transparent background</a> (<code>f5f9bb06</code>)</li>
+<li>2026-02-17 (19:42) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/81915edf">Ini</a> (<code>81915edf</code>)</li>
+<li>2026-02-17 (19:36) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/3fa511fa">Set transparent background</a> (<code>3fa511fa</code>)</li>
+<li>2026-02-17 (19:29) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/266f45a4">Set pure black for background of logo</a> (<code>266f45a4</code>)</li>
+<li>2026-02-17 (19:11) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/04a73263">Without width</a> (<code>04a73263</code>)</li>
+<li>2026-02-17 (19:08) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/20d9a7fe">Uuu</a> (<code>20d9a7fe</code>)</li>
+<li>2026-02-17 (19:03) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/593e9da5">Centered title fr fo PyMox.fr</a> (<code>593e9da5</code>)</li>
+<li>2026-02-17 (15:13) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/2e26c40d">Add PYMox.fr with crypted shadow font</a> (<code>2e26c40d</code>)</li>
+<li>2026-01-28 (16:48) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/506255f9">Set AUTO_RUN for first IDE</a> (<code>506255f9</code>)</li>
 </ul>
 </details>
 <details class="info" open="open">
 <summary>📦 <code>v1.0.7</code></summary>
 <ul>
-<li>2026-01-28 (16:42) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4f902da">Up: var type</a> (<code>4f902da</code>)</li>
+<li>2026-01-28 (16:42) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4f902dac">Up: var type</a> (<code>4f902dac</code>)</li>
 </ul>
 </details>
 <details class="info" open="open">
 <summary>📦 <code>v1.0.6</code></summary>
 <ul>
-<li>2026-01-28 (13:58) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/497bfae">Fix: type vars</a> (<code>497bfae</code>)</li>
-<li>2026-01-23 (16:26) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/e9af904">Fix flet in Pyodide</a> (<code>e9af904</code>)</li>
-<li>2026-01-23 (16:16) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b54d77b">Up reset lisbs</a> (<code>b54d77b</code>)</li>
-<li>2026-01-23 (15:00) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/9d98045">Univers</a> (<code>9d98045</code>)</li>
-<li>2025-08-29 (15:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/575b0ea">+ GRAS</a> (<code>575b0ea</code>)</li>
-<li>2025-08-29 (15:14) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d083ab2">FINAL</a> (<code>d083ab2</code>)</li>
-<li>2025-08-29 (15:08) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/86c8fc4">Précision</a> (<code>86c8fc4</code>)</li>
-<li>2025-08-29 (14:56) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b494226">Corr</a> (<code>b494226</code>)</li>
-<li>2025-08-29 (14:51) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/9a7a4fb">Set JPB dial</a> (<code>9a7a4fb</code>)</li>
-<li>2025-08-22 (16:02) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d8536ba">Set corr about crepes</a> (<code>d8536ba</code>)</li>
+<li>2026-01-28 (13:58) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/497bfae2">Fix: type vars</a> (<code>497bfae2</code>)</li>
+<li>2026-01-23 (16:26) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/e9af9047">Fix flet in Pyodide</a> (<code>e9af9047</code>)</li>
+<li>2026-01-23 (16:16) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b54d77bf">Up reset lisbs</a> (<code>b54d77bf</code>)</li>
+<li>2026-01-23 (15:00) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/9d98045e">Univers</a> (<code>9d98045e</code>)</li>
+<li>2025-08-29 (15:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/575b0ead">+ GRAS</a> (<code>575b0ead</code>)</li>
+<li>2025-08-29 (15:14) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d083ab2d">FINAL</a> (<code>d083ab2d</code>)</li>
+<li>2025-08-29 (15:08) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/86c8fc41">Précision</a> (<code>86c8fc41</code>)</li>
+<li>2025-08-29 (14:56) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b4942264">Corr</a> (<code>b4942264</code>)</li>
+<li>2025-08-29 (14:51) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/9a7a4fb2">Set JPB dial</a> (<code>9a7a4fb2</code>)</li>
+<li>2025-08-22 (16:02) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d8536ba4">Set corr about crepes</a> (<code>d8536ba4</code>)</li>
 </ul>
 </details>
 <details class="info" open="open">
 <summary>📦 <code>v1.0.5</code></summary>
 <ul>
-<li>2025-08-21 (18:06) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/ac4033d">Fix: waiting reaction</a> (<code>ac4033d</code>)</li>
-<li>2025-08-20 (19:57) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/43a830b">Invitation to add todo</a> (<code>43a830b</code>)</li>
-<li>2025-08-20 (19:29) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/0fe832f">Remove local word for changelog page</a> (<code>0fe832f</code>)</li>
-<li>2025-08-20 (19:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5aaf3b7">Good name for this new plugin</a> (<code>5aaf3b7</code>)</li>
-<li>2025-08-20 (19:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/98f1141">Corr import new dep</a> (<code>98f1141</code>)</li>
-<li>2025-08-20 (19:12) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d10d126">Add git-revision for all pages</a> (<code>d10d126</code>)</li>
-<li>2025-08-20 (18:59) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/28edaf0">Fix ignore semantic-release commit for lst deploy page</a> (<code>28edaf0</code>)</li>
-<li>2025-08-20 (18:46) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f351fd2">Remove unused page (about commits)</a> (<code>f351fd2</code>)</li>
+<li>2025-08-21 (18:06) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/ac4033df">Fix: waiting reaction</a> (<code>ac4033df</code>)</li>
+<li>2025-08-20 (19:57) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/43a830bf">Invitation to add todo</a> (<code>43a830bf</code>)</li>
+<li>2025-08-20 (19:29) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/0fe832f1">Remove local word for changelog page</a> (<code>0fe832f1</code>)</li>
+<li>2025-08-20 (19:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5aaf3b7a">Good name for this new plugin</a> (<code>5aaf3b7a</code>)</li>
+<li>2025-08-20 (19:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/98f11418">Corr import new dep</a> (<code>98f11418</code>)</li>
+<li>2025-08-20 (19:12) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d10d126d">Add git-revision for all pages</a> (<code>d10d126d</code>)</li>
+<li>2025-08-20 (18:59) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/28edaf06">Fix ignore semantic-release commit for lst deploy page</a> (<code>28edaf06</code>)</li>
+<li>2025-08-20 (18:46) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f351fd2f">Remove unused page (about commits)</a> (<code>f351fd2f</code>)</li>
 </ul>
 </details>
 <details class="info" open="open">
 <summary>📦 <code>v1.0.4</code></summary>
 <ul>
-<li>2025-08-20 (18:10) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/84463c7">Ux: no edit button if not necessary</a> (<code>84463c7</code>)</li>
-<li>2025-08-20 (10:48) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/1d2e56d">Add 2do for remive edit link</a> (<code>1d2e56d</code>)</li>
+<li>2025-08-20 (18:10) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/84463c73">Ux: no edit button if not necessary</a> (<code>84463c73</code>)</li>
+<li>2025-08-20 (10:48) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/1d2e56de">Add 2do for remive edit link</a> (<code>1d2e56de</code>)</li>
 </ul>
 </details>
 <details class="info" open="open">
 <summary>📦 <code>v1.0.3</code></summary>
 <ul>
-<li>2025-08-20 (10:39) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b2dc4d3">Up: New style for todos</a> (<code>b2dc4d3</code>)</li>
-<li>2025-08-20 (10:35) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f1bfb82">Fix new colors for todo tags</a> (<code>f1bfb82</code>)</li>
-<li>2025-08-20 (10:34) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/517ff67">Change color for todos</a> (<code>517ff67</code>)</li>
-<li>2025-08-20 (10:05) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d0915ce">Add todo tags to test colors</a> (<code>d0915ce</code>)</li>
-<li>2025-08-20 (09:38) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/dbf5467">Fixing der deploy out of todos</a> (<code>dbf5467</code>)</li>
-<li>2025-08-19 (20:23) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4b81725">2do change 2ar block same style as unreleased</a> (<code>4b81725</code>)</li>
-<li>2025-08-19 (20:11) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/12a2c76">Use same tags list for settings and priority</a> (<code>12a2c76</code>)</li>
-<li>2025-08-19 (19:32) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/c8a12f3">Set macros in final folder</a> (<code>c8a12f3</code>)</li>
-<li>2025-08-19 (19:14) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b5796d6">Set a macro for commun bloc disclaimer in crêpes and pain pages</a> (<code>b5796d6</code>)</li>
-<li>2025-08-19 (16:22) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/8b6d659">Fix deduplicate md block code</a> (<code>8b6d659</code>)</li>
-<li>2025-08-19 (10:22) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/7ce873e">Up GI</a> (<code>7ce873e</code>)</li>
-<li>2025-08-19 (10:21) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/0fb30d3">Stop tracking hebdo.md</a> (<code>0fb30d3</code>)</li>
-<li>2025-08-19 (10:09) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/bba5d89">Merge commit '660833dbed75109e1a4ecce1b70acf678556223b'</a> (<code>bba5d89</code>)</li>
-<li>2025-08-19 (10:05) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/660833d">Up todo list style  (origin/todos)</a> (<code>660833d</code>)</li>
-<li>2025-08-19 (10:05) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/ed11ccf">Stop tracking todo.md</a> (<code>ed11ccf</code>)</li>
+<li>2025-08-20 (10:39) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b2dc4d34">Up: New style for todos</a> (<code>b2dc4d34</code>)</li>
+<li>2025-08-20 (10:35) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f1bfb82a">Fix new colors for todo tags</a> (<code>f1bfb82a</code>)</li>
+<li>2025-08-20 (10:34) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/517ff672">Change color for todos</a> (<code>517ff672</code>)</li>
+<li>2025-08-20 (10:05) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/d0915ce2">Add todo tags to test colors</a> (<code>d0915ce2</code>)</li>
+<li>2025-08-20 (09:38) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/dbf54670">Fixing der deploy out of todos</a> (<code>dbf54670</code>)</li>
+<li>2025-08-19 (20:23) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4b817256">2do change 2ar block same style as unreleased</a> (<code>4b817256</code>)</li>
+<li>2025-08-19 (20:11) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/12a2c76c">Use same tags list for settings and priority</a> (<code>12a2c76c</code>)</li>
+<li>2025-08-19 (19:32) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/c8a12f38">Set macros in final folder</a> (<code>c8a12f38</code>)</li>
+<li>2025-08-19 (19:14) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/b5796d6f">Set a macro for commun bloc disclaimer in crêpes and pain pages</a> (<code>b5796d6f</code>)</li>
+<li>2025-08-19 (16:22) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/8b6d659c">Fix deduplicate md block code</a> (<code>8b6d659c</code>)</li>
+<li>2025-08-19 (10:22) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/7ce873e4">Up GI</a> (<code>7ce873e4</code>)</li>
+<li>2025-08-19 (10:21) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/0fb30d33">Stop tracking hebdo.md</a> (<code>0fb30d33</code>)</li>
+<li>2025-08-19 (10:09) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/bba5d898">Merge commit '660833dbed75109e1a4ecce1b70acf678556223b'</a> (<code>bba5d898</code>)</li>
+<li>2025-08-19 (10:05) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/660833db">Up todo list style  (origin/todos)</a> (<code>660833db</code>)</li>
+<li>2025-08-19 (10:05) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/ed11ccfe">Stop tracking todo.md</a> (<code>ed11ccfe</code>)</li>
 </ul>
 </details>
 <details class="info" open="open">
 <summary>📦 <code>v1.0.2</code></summary>
 <ul>
-<li>2025-08-19 (09:23) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/8b2459f">Up: dynamic ToDo page</a> (<code>8b2459f</code>)</li>
-<li>2025-08-19 (09:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f2b095e">Add PyPRO icon</a> (<code>f2b095e</code>)</li>
-<li>2025-08-19 (09:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5abdbf0">Remove date in hebdo report</a> (<code>5abdbf0</code>)</li>
-<li>2025-08-19 (08:54) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f63037d">ToDos ignore CHANGELOG</a> (<code>f63037d</code>)</li>
-<li>2025-08-19 (08:32) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/79d2f67">Nett todos</a> (<code>79d2f67</code>)</li>
-<li>2025-08-19 (07:27) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4dae1d5">Nett</a> (<code>4dae1d5</code>)</li>
-<li>2025-08-19 (06:32) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/a872d8d">Add 2do</a> (<code>a872d8d</code>)</li>
-<li>2025-08-18 (21:40) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/c0ecfe0">Set new report: ToDos</a> (<code>c0ecfe0</code>)</li>
-<li>2025-08-18 (16:29) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4aa7a19">Scan conforme VSC</a> (<code>4aa7a19</code>)</li>
-<li>2025-08-18 (16:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/2ee7532">Set scan_todos</a> (<code>2ee7532</code>)</li>
-<li>2025-08-17 (12:04) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/154af97">Fix sql file name</a> (<code>154af97</code>)</li>
-<li>2025-08-17 (11:58) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/80ca829">Fix duplicate page workflow/daily  (origin/devGC7)</a> (<code>80ca829</code>)</li>
-<li>2025-08-16 (18:56) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/1496904">Change hebdo report always in git even if overrided after</a> (<code>1496904</code>)</li>
-<li>2025-08-16 (18:44) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/a08e24d">Add todo pour cursus PyMoX</a> (<code>a08e24d</code>)</li>
-<li>2025-08-16 (18:33) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/6a8e8a7">Explain why 2 deploys</a> (<code>6a8e8a7</code>)</li>
+<li>2025-08-19 (09:23) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/8b2459f4">Up: dynamic ToDo page</a> (<code>8b2459f4</code>)</li>
+<li>2025-08-19 (09:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f2b095ef">Add PyPRO icon</a> (<code>f2b095ef</code>)</li>
+<li>2025-08-19 (09:15) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/5abdbf0f">Remove date in hebdo report</a> (<code>5abdbf0f</code>)</li>
+<li>2025-08-19 (08:54) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f63037d5">ToDos ignore CHANGELOG</a> (<code>f63037d5</code>)</li>
+<li>2025-08-19 (08:32) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/79d2f67e">Nett todos</a> (<code>79d2f67e</code>)</li>
+<li>2025-08-19 (07:27) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4dae1d57">Nett</a> (<code>4dae1d57</code>)</li>
+<li>2025-08-19 (06:32) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/a872d8d1">Add 2do</a> (<code>a872d8d1</code>)</li>
+<li>2025-08-18 (21:40) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/c0ecfe0d">Set new report: ToDos</a> (<code>c0ecfe0d</code>)</li>
+<li>2025-08-18 (16:29) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4aa7a193">Scan conforme VSC</a> (<code>4aa7a193</code>)</li>
+<li>2025-08-18 (16:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/2ee7532b">Set scan_todos</a> (<code>2ee7532b</code>)</li>
+<li>2025-08-17 (12:04) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/154af975">Fix sql file name</a> (<code>154af975</code>)</li>
+<li>2025-08-17 (11:58) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/80ca829a">Fix duplicate page workflow/daily  (origin/devGC7)</a> (<code>80ca829a</code>)</li>
+<li>2025-08-16 (18:56) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/14969043">Change hebdo report always in git even if overrided after</a> (<code>14969043</code>)</li>
+<li>2025-08-16 (18:44) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/a08e24d7">Add todo pour cursus PyMoX</a> (<code>a08e24d7</code>)</li>
+<li>2025-08-16 (18:33) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/6a8e8a75">Explain why 2 deploys</a> (<code>6a8e8a75</code>)</li>
 </ul>
 </details>
 <details class="note" open="open">
 <summary>📦 <code>v1.0.1</code></summary>
 <ul>
-<li>2025-08-16 (17:51) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/554bbc3">Perf: add words to semantic-release  (tag: v1.0.1)</a> (<code>554bbc3</code>)</li>
-<li>2025-08-15 (16:21) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4198f18">Set new workflows</a> (<code>4198f18</code>)</li>
-<li>2025-08-08 (17:03) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4264a92">Fix:Merge pull request #2 from Tarkhubal/main</a> by <strong>COTE</strong> (<code>4264a92</code>)</li>
-<li>2025-08-08 (17:00) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/08a8d1e">Fix: misspellings</a> by <strong>The_WildThomas</strong> (<code>08a8d1e</code>)</li>
-<li>2025-08-08 (16:53) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/82c9d4b">Merge pull request #1 from Tarkhubal/main</a> by <strong>COTE</strong> (<code>82c9d4b</code>)</li>
-<li>2025-08-08 (16:49) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/8af4186">Fixed some mispelling</a> by <strong>The_WildThomas</strong> (<code>8af4186</code>)</li>
-<li>2025-08-08 (13:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/82a7ffb">Add doc reset a repository</a> (<code>82a7ffb</code>)</li>
+<li>2025-08-16 (17:51) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/554bbc32">Perf: add words to semantic-release  (tag: v1.0.1)</a> (<code>554bbc32</code>)</li>
+<li>2025-08-15 (16:21) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4198f188">Set new workflows</a> (<code>4198f188</code>)</li>
+<li>2025-08-08 (17:03) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/4264a92e">Fix:Merge pull request #2 from Tarkhubal/main</a> by <strong>COTE</strong> (<code>4264a92e</code>)</li>
+<li>2025-08-08 (17:00) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/08a8d1e3">Fix: misspellings</a> by <strong>The_WildThomas</strong> (<code>08a8d1e3</code>)</li>
+<li>2025-08-08 (16:53) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/82c9d4b6">Merge pull request #1 from Tarkhubal/main</a> by <strong>COTE</strong> (<code>82c9d4b6</code>)</li>
+<li>2025-08-08 (16:49) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/8af41866">Fixed some mispelling</a> by <strong>The_WildThomas</strong> (<code>8af41866</code>)</li>
+<li>2025-08-08 (13:18) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/82a7ffbe">Add doc reset a repository</a> (<code>82a7ffbe</code>)</li>
 </ul>
 </details>
 <details class="note" open="open">
 <summary>📦 <code>v1.0.0</code></summary>
 <ul>
-<li>2025-08-08 (13:01) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f232bad">Ini</a> (<code>f232bad</code>)</li>
+<li>2025-08-08 (13:01) : <a href="https://github.com/PyMoX-fr/PyMoX-fr.github.io/commit/f232bad4">Ini</a> (<code>f232bad4</code>)</li>
 </ul>
 </details><script type="text/javascript">
 CONFIG.needMermaid = false;
@@ -1878,7 +1887,7 @@ globalThis.PAGE_IDES_CONFIG = '.\x1e{}\x1e0a0b.'
       <div id="pyodide-footer">
         <a href="https://gitlab.com/frederic-zinelli/pyodide-mkdocs-theme" target="_blank" rel="noopener">
           Pyodide MkDocs Theme
-        </a> v.5.4.16
+        </a> v.5.5.3
       </div>
     </div>
   

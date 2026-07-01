@@ -21,20 +21,23 @@ If not, see <https://www.gnu.org/licenses/>.
 import { jsLogger } from 'jsLogger'
 import {
   RunningProfile,
-  decompressPagesIfNeeded,
-  noStorage,
   renderMermaidGraphs,
   sleep,
-  unEscapeSquaredBrackets,
   withPyodideAsyncLock,
-  youAreInTroubles,
 } from 'functools'
-import { _DUMMY } from 'process_and_gui'   // Enforce dependencies order (if ever a runner is needed)
+import { noStorage } from 'functoolsStorage'
+import {
+  decompressPagesIfNeeded,
+  unEscapeSquaredBrackets,
+  youAreInTroubles,
+} from 'functoolsTxt'
 
+import { chaining } from 'process_and_gui'   // Enforce dependencies order (if ever a runner is needed)
 import { pyodideFeatureRunCode, pyodideFeatureSetupRedirections } from '0-generic-python-snippets-pyodide'
 import { RuntimeManager } from '1-runtimeManager-runtime-pyodide'
 import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
 
+import { startKernel } from 'start-pyodide'
 
 
 
@@ -49,6 +52,8 @@ import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
 
 class PyodideSectionsRunnerBase {
 
+  /**Will store the callbacks related to the internal PyodideConsole managing the inner terminal.
+   * */
   static pyFuncs = {}
 
     no_undefined = prop =>{
@@ -62,9 +67,9 @@ class PyodideSectionsRunnerBase {
     // Getters so that the RunnersManager can identify which is what more easily (if ever needed)
   get isRunner()   { return true  }   // Always true, so far... Kept just in case
   get isPyBtn()    { return false }
+  get hasTerminal(){ return false }
   get isTerminal() { return false }
   get isIde()      { return false }
-  get hasTerminal(){ return false }
 
   get isDelayedRevelation(){
     return this.profile === CONFIG.PROFILES.delayedReveal
@@ -117,38 +122,64 @@ class PyodideSectionsRunnerBase {
   get whiteList()         { return this.data.white_list }
   //JS_CONFIG_DUMP
 
-  // Control stdout display during executions
+  /** Control stdout display during executions */
   get allowPrint()     { return this._manager.allowPrint }
   set allowPrint(flag) { this._manager.allowPrint = flag }
+
 
   constructor(id, callInit=true){
     LOGGER_CONFIG.ACTIVATE && jsLogger('[CheckPoint] - Constructor for', this.constructor.name, id)
 
+    // Special flag to ease waiting operations in selenium tests.
+    //    - Never used internally.
+    //    - Set to true from outside/selenium.
+    this.seleniumRunningFlag = false
+
     decompressPagesIfNeeded()
 
-
+    /**Html id of the runner "main element" (without any "#").
+     * */
     this.id = id
-    this.data = this._dataPostConversion(PAGE_IDES_CONFIG[id])   // Inner mutable object holding infos coming from mkdocs
-    this.getCodeToTest = ()=>"" // If no editor, nothing to test...
-    this.running = undefined    // RunningProfile.build output (object of boolean flags, mostly)
-    this.isGuiCompliant = false // All the GUI makeup has been applied (may not always be, typically for hidden tabbed contents)
 
-    this.runners = RunningProfile.buildDefaultRunnersObject() // Hold all the async callbacks related to events (but only
-                                                              // the part of the logic disconnected to the UI itself)
+    /**Inner mutable object holding infos coming from mkdocs.
+     * */
+    this.data = this._dataPostConversion(PAGE_IDES_CONFIG[id])
+
+    /** Extract the code to test from the current element. If no editor, nothing to test...
+     * */
+    this.getCodeToTest = ()=>""
+
+    /** RunningProfile.build() output, when a Runner is currently... running
+     * (an object of boolean flags, mostly).
+     * */
+    this.running = undefined
+
+    /**Flag telling if all the GUI "makeup" has already been applied or not (typically: won't
+     * apply automatically for hidden tabbed contents).
+     * */
+    this.isGuiCompliant = false
+
+    /** Object storing all the async callbacks related to the various events that may run python
+     * code (but only the part of the logic disconnected from the UI itself).
+     * The routines are stored in an object: {profileName: runner}, and it will also hold a
+     * `default` property which defines the routine to use as default during sequential runs, if
+     * the runner doesn't have the same profile/routine as the triggering runner.
+     * */
+    this.runners = RunningProfile.buildDefaultRunnersObject()
 
     if(CONFIG._devMode)
-      CONFIG.objs[this.id] = this
+      CONFIG.objs[this.id] = this   // Helps testing and debugging during development.
     else{
-      delete PAGE_IDES_CONFIG[id]
+      delete PAGE_IDES_CONFIG[id]   // Hide tuff in prod...
     }
 
     if(callInit) this._init()
-
     RUNNERS_MANAGER.registerRunner(this)
   }
 
 
-  /**Apply any desired data conversion on the info coming directly from mkdocs, before they are used.
+  /**Apply any desired data conversion on the info coming directly from mkdocs, before they are
+   * used (see also IdeTester usage when "swapping in place" `conf` data).
    * */
   _dataPostConversion(data){
     data.python_libs = new Set(data.python_libs)
@@ -160,16 +191,25 @@ class PyodideSectionsRunnerBase {
   _init(){}         // Super calls sink...
 
   buildRunners(){
-    throw new Error("buildRunners() is not implemented (should have been overridden).")
+    throw new Error(
+      "buildRunners() is not implemented (should have been overridden in a child class)."
+    )
   }
 
 
-
+  /**Add the given async routine/callback to `this.runners`, creating the articulation with
+   * the global RunnerManager instance, to handle sequential runs.
+   *
+   * - `routine.asEvent` is also added on the fly to the routine (unless already defined), to
+   * be able to use it as async event listener.
+   * - If the `runningProp` argument is falsy, this routine is used as default behavior.
+   * - If `asDefault` is true, this routine is also defined as default behavior.
+   * */
   addRunnerIfNotDefinedYet(routine, runningProp='', asDefault=false){
 
     // Build an additional version of the routine that wont return anything (useful for
     // events bindings, to avoid any interaction with their logic)
-    routine.asEvent ??= RUNNERS_MANAGER.wrapForEventAndSequentialRunIfNeeded(
+    routine.asEvent ??= this._manager.wrapForEventAndSequentialRunIfNeeded(
       this, runningProp, routine, this.seqRun,
     )
     this.runners[ runningProp || "default" ] ??= routine
@@ -182,13 +222,12 @@ class PyodideSectionsRunnerBase {
   }
 
 
-  /**Actions to perform when the element becomes "visible" in the page.
-   * Here "visible" means "not hidden", CSS-wise (see `=== "tabbed"`, typically).
+  /**Mark the current instance as "done", considering actions to perform when the element becomes
+   * "visible" in the page (as in "not hidden" CSS-wise. See `=== "tabbed"`, typically).
    * */
   makeUpYourGui(){        // Cap overload
     return this.isGuiCompliant = true
   }
-
 
 
   /** Generic call for macros with AUTO_RUN=True (once the runner callback is defined...).
@@ -197,10 +236,12 @@ class PyodideSectionsRunnerBase {
     await this._defaultAutoRun()
   }
 
+
   /**Allow to keep the same implementation for the IDE class, while the intermediate Terminal
-   * class has its own logic for autoRun.
+   * class still has its own logic for autoRun.
    * */
   async _defaultAutoRun(){
+    // Make sure the default routine has been defined before running (Note: I think this step is now useless...?)
     while(!this.runners.default) await sleep(40)
     await this.runners.default()
   }
@@ -270,6 +311,7 @@ class PyodideSectionsRunnerBase {
       if(eventOrCmd && eventOrCmd.preventDefault) eventOrCmd.preventDefault()
       LOGGER_CONFIG.ACTIVATE && jsLogger(loggerName)
 
+      this.takesGroupPriority()   // This one must be kept (see global.on('click'...)) because the click is applied too late.
       CONFIG.calledMermaid = false
       const wasDirty = this.isDirty
       this.makeDirty(false)       // Assume executions will go well (see note in finally block)
@@ -290,7 +332,7 @@ class PyodideSectionsRunnerBase {
         const stdErr = youAreInTroubles(e)
         this.giveFeedback(stdErr)
 
-        if(runtime){                  // runtime may be undefined JS error during setup...
+        if(runtime){                  // runtime may be undefined ig got a JS error during setup...
           runtime.gotBigFail = true
           runtime.stdErr     = stdErr
         }
@@ -302,22 +344,28 @@ class PyodideSectionsRunnerBase {
         // For isDirty update, DO NOT only rely on `this.isDirty = runtime.stopped`, so that the
         // runner itself can set the value on a success if needed, and it won't be overridden here
         // (useful if a valid "play" is still considered dirty when a validation exists...).
-        if(!runtime || runtime.stopped || runningMan.isPlaying && wasDirty){
-          this.makeDirty()
+        const anyError = !runtime || runtime.stopped
+        const keepDirtyOnPublicTestsIfCheckBtn = wasDirty && this.data.hasCheckBtn && runningMan.isPlaying
+        if(anyError || keepDirtyOnPublicTestsIfCheckBtn){
+          this.makeDirty() // This is also applying the "orange box", for IDEs
         }
 
-        // AFTER updating isDirty, remove the validation button border if the current execution
-        // is a validation:
-        if(runningMan.isValidating){
-          this._getJValidationButton().removeClass("dirty-validation")
+        // AFTER updating isDirty, FIX the orange box if needed:
+        if(this.isIde){
+          const cancelBox = runningMan.isValidating
+                          || runningMan.isPlaying && !anyError && !wasDirty && this.lastValidationWasSuccess()
+          if(cancelBox){
+            this.setOrangeBox(false)
+          }
         }
 
         if(runtime){
           await finallyTeardown.call(this, runtime)
         }
         this.running = undefined
+        this.seleniumRunningFlag = false
       }
-    }, RUNNERS_MANAGER, this)
+    }, this._manager, this)
   }
 
 
@@ -344,9 +392,7 @@ class PyodideSectionsRunnerBase {
 
 
   setupTerminalMessageRoutine(){
-    if(this.rotateTerminalMessage){
-      CONFIG.termMessage = this.termFeedbackFromPyodide.bind(this)
-    }
+    CONFIG.termMessage = this.termFeedbackFromPyodide.bind(this)
   }
 
 
@@ -356,9 +402,15 @@ class PyodideSectionsRunnerBase {
   pyodideDelStorage(key)  { noStorage() }   // sink
 
 
-  resetElement(){}    // sink
+  resetElement(){ throw new Error('Not implemented') }  // sink with security
 
   makeDirty(){ throw new Error('Not implemented') } // sink with security
+
+  /**The current runner now takes priority in its group, regarding sequential executions.
+   * */
+  takesGroupPriority(){
+    this._manager.overridePriorityElement(this)
+  }
 
   /**Lock the terminal (if any) */
   lockDisplay(){}     // sink
@@ -367,9 +419,12 @@ class PyodideSectionsRunnerBase {
   unlockDisplay(){}   // sink
 
   /**Give focus to the default element. */
-  focusElement(){}    // sink
+  focusElement(){
+    this.takesGroupPriority()
+  }
 
-  /**Activate or deactivate automatic focusing behaviors. */
+  /**Activate or deactivate automatic focusing behaviors (see sequential runs focus on errors).
+   * */
   activateFocus(bool){}   // sink
 
   /**Method bound and assigned to CONFIG/terminalMessage, to automatically redirect python
@@ -392,13 +447,13 @@ class PyodideSectionsRunnerBase {
   async setupRuntime(srcRuntime=null, section='env'){
     LOGGER_CONFIG.ACTIVATE && jsLogger('[CheckPoint] - setupRuntime PyodideSectionsRunner')
 
-    const runtime = await this._baseSetupRuntime(srcRuntime, section)
+    const runtime = await this._setupPyodideFeatures(srcRuntime, section)
     await runtime.runWithCtx(section)
     return runtime
   }
 
 
-  async _baseSetupRuntime(srcRuntime, section){
+  async _setupPyodideFeatures(srcRuntime, section){
     this.setupGlobalConfig()
     const runtime = srcRuntime || new RuntimeManager(this)
     await runtime.runWithCtx({
@@ -422,7 +477,7 @@ class PyodideSectionsRunnerBase {
       upDownLoader
     `.trim()
      .split(/\s+/)
-     .forEach(pyodideFeatureRunCode)
+     .forEach(s=>pyodideFeatureRunCode(s))
   }
 
 
@@ -502,6 +557,12 @@ class PyodideSectionsRunnerBase {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - teardown pyodide cleaner")
     pyodideFeatureRunCode('autoRunCleaner')
     runtime.cleanup()
+    CONFIG.runningInfos = {
+      action: null,
+      htmlId: null,
+      attemptsLeft: null,
+      errorMsg: "",
+    }
   }
 
 
@@ -563,20 +624,20 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
   constructor(id){
     super(id)
 
-    this.rotateTerminalMessage = true
-    this.isDirty = true         // Tell if the last run was successful or not, or if the content has been modified
-                                // without being run (handled unconditionally for all elements, even if they aren't
-                                // "in sequential run". The RUNNERS_MANAGER handles what is actually to be run or not).
+    /**Tell if the last run was successful or not, or if the content has been modified without
+     * being run (handled unconditionally for all elements, even if they aren't "in sequential
+     * run". The RUNNERS_MANAGER (this._manager once the super.constructor has been called)
+     * handles what is actually to be run or not).
+     * */
+    this.isDirty = true
   }
 
 
   makeDirty(isDirty=true){
     this.isDirty = isDirty
-    RUNNERS_MANAGER.overridePriorityElement(this)
   }
 
   resetElement(){
-    super.resetElement()
     this.makeDirty()
   }
 
@@ -586,7 +647,7 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
   scrollIntoView(element=undefined){
     if(element){
       const currentElement = $('#'+this.id)
-      this.unhideTabbedContentIfNeeded(currentElement)
+      this.unhideDetailsOrTabbedContentIfNeeded(currentElement)
       element.scrollIntoView({
         block:"center", inline:"nearest", behavior:"smooth",
       })
@@ -595,30 +656,30 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
   }
 
 
-  /**Recursively reveal elements that are inside tabbed contents (`=== "..."`).
-   * @returns: true if something had been revealed.
+  /**"Recursively" reveal elements that are inside tabbed contents (`=== "..."`) or details (??? ...)).
    * */
-  unhideTabbedContentIfNeeded(jElement){
-    const parent = jElement && jElement[0] && jElement.parents('.tabbed-block')
+  unhideDetailsOrTabbedContentIfNeeded(jElement){
 
-    if(!parent || !parent[0] || parent.is(':visible')){
-      return false
-    }
+    const toOpen = jElement.parents('details:not([open]), .tabbed-block').toArray().reverse()
+    toOpen.forEach(element=>{
+      const jElt = $(element)
 
-    // Unhide possible parents layers first:
-    this.unhideTabbedContentIfNeeded(parent)
+      if(jElt.is("details")){
+        jElt.children('summary').trigger('click')
 
-    // Extract the related label nad triggers it:
-    const nthChild = 1 + parent.index()
-    const label = parent.parent().prev().children(`:nth-child(${ nthChild })`)
-    label.trigger('click')
-    return true
+      }else{
+        const nthChild = 1 + jElt.index()
+        const label = jElt.parent().prev().children(`:nth-child(${ nthChild })`)
+        label.trigger('click')
+      }
+    })
   }
 
 
-  showWillRunThis(previousRunner){
+  showWillRunThis(previousRunner=null){
     if(this.hasTerminal){
-      this.giveFeedback(`Running: ${ previousRunner.pyName }`, 'info')
+      const name = previousRunner ? previousRunner.pyName : "current..."
+      this.giveFeedback(`Running: ${ name }`, 'info')
     }
   }
 }
@@ -634,3 +695,6 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
 
 
 export class PyodideSectionsRunner extends PyodideSequentialRunner{}
+
+
+startKernel(PyodideSectionsRunner)

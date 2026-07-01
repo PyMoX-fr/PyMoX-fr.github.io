@@ -27,6 +27,7 @@ globalThis.LOGGER_CONFIG = CONFIG.loggerOptions = {
     AroundSearch:       false,
     CheckPoint:         false,
     Command:            false,
+    ESCAPE:             false,
     GutterLogistics:    false,
     HourGlass:          false,
     Installer:          false,

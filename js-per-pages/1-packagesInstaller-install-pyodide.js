@@ -99,7 +99,7 @@ export const installPythonPackages=(function(){
 
 
   const FORBID_EXTERNALS = new Set(['py_lib', 'pylib', 'pylibs', 'py-lib', 'py-libs'])
-  const PMT_TOOLS = ['p5', 'vis', 'vis_network']      // GENERATED
+  const PMT_TOOLS = ['p5', 'p5v2', 'vis', 'vis_network']      // GENERATED
 
 
   /**In most cases, installations will be done once only (since no module will be installed
@@ -117,26 +117,20 @@ export const installPythonPackages=(function(){
   }
 
 
+  const pyodidePlotRunner = featureRunner('pyodidePlot')
 
-  /**Dynamically load a JS script tag (sync) at runtime.
-   * (Loaded scripts names are cached, to avoid multiple imports)
-   * */
-  const asyncJsScriptCdnLoader = (name, scriptOptions={})=> async ()=>{
-    if(CACHE_JS_INSTALLED.has(scriptOptions.src)){
-      console.log(name, 'already loaded...')
-      return
-    }
-    _loadScript(scriptOptions.src)
 
-    console.log(`Loading ${ name }...`)
-    while(!CACHE_JS_INSTALLED.has(scriptOptions.src)){
-      await sleep(50)
-    }
-    console.log(name, 'ready')
+
+  const checkImportAsNamespaceOnly=(name)=>(code, _conf)=>{
+    const badImport = new RegExp(`from +${ name }\\S* +import`).test(code)
+    if(badImport){ throw new PythonError(
+      `ImportError: Invalid ${ name } import.\nThe ${ name } module must be used as a namespace.`
+      +`Example:\n    import ${ name }\n    ${ name }.functionName(...)`
+    )}
   }
 
 
-  const multiCdnsLoader = (name, ...cdns)=> async ()=>{
+  const _multiCdnsLoader = (name, ...cdns)=> async ()=>{
     cdns = cdns.map(data=>
       typeof(data)=='string' ? {src:data} : data
     )
@@ -168,36 +162,40 @@ export const installPythonPackages=(function(){
     document.body.appendChild(script)
   }
 
-  const checkImportAsNamespaceOnly=(name)=>(code, _conf)=>{
-    const badImport = new RegExp(`from ${ name }\\S* import`).test(code)
-    if(badImport){ throw new PythonError(
-      `ImportError: Invalid ${ name } import.\nThe ${ name } module must be used as a namespace.`
-      +`Example:\n    import ${ name }\n    ${ name }.functionName(...)`
-    )}
-  }
 
-  const confImportWithPostCdn=(name, options, codeCheck=null)=>{
-    if(!Array.isArray(options)) options = [options]
+  const pmtToolConf=(name, codeCheck=null)=>{
+    if(!PMT_TOOLS.includes(name)){
+      throw new Error(`Invalid PMT tool name: ${ name }.`)
+    }
     return {
       [name]: {
         codeCheck: codeCheck ?? checkImportAsNamespaceOnly(name),
         toImport: name,
-        post: multiCdnsLoader(name, ...options)
+        post: async ()=>{
+          LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Loading CDN for", name)
+          const cdnsString = pyodide.runPython(`
+def __hack_cdns():
+    from pathlib import Path
+
+    file = Path('${name}/cdns.txt')
+    if not file.is_file():
+        return ''
+
+    return file.read_text(encoding='utf-8')
+__hack_cdns()`)
+          pyodide.runPython('del __hack_cdns')
+          const cdns = cdnsString.replace(/\s+/g, " ").trim().split(' ')
+          if(cdnsString && cdns.length){
+            await (_multiCdnsLoader(name, ...cdns)())
+          }
+
+          LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - CDN loaded", JSON.stringify(cdns))
+        }
       }
     }
   }
 
 
-
-
-
-  const pyodidePlotRunner = featureRunner('pyodidePlot')
-
-  const visCdns = [
-    "https://unpkg.com/vis-network/standalone/umd/vis-network.min.js",
-    "https://unpkg.com/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js",
-    "https://unpkg.com/vis-graph3d/standalone/umd/vis-graph3d.min.js",
-  ]
 
 
   /**IMPORTS_CONFIG type:
@@ -226,9 +224,12 @@ export const installPythonPackages=(function(){
     PIL: {
       toInstall: "Pillow"
     },
-    ...confImportWithPostCdn('p5', "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.0/p5.min.js"),
-    ...confImportWithPostCdn('vis', visCdns),
-    ...confImportWithPostCdn('vis_network', visCdns),
+    // GENERATED ->
+    ...pmtToolConf('p5'),
+    ...pmtToolConf('p5v2'),
+    ...pmtToolConf('vis'),
+    ...pmtToolConf('vis_network'),
+    // GENERATED <-
   }
 
 
@@ -280,6 +281,7 @@ export const installPythonPackages=(function(){
     const zipBinary = await zipResponse.arrayBuffer()
     pyodide.unpackArchive(zipBinary, "zip", {extractDir: libName})
     await conf.post()
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Installed", libName)
   }
 
 
@@ -295,6 +297,7 @@ export const installPythonPackages=(function(){
     const conf = getConfAndSetupImport(libName, code)
     await micropip.install(conf.toInstall)   // Nothing done if already installed element(s) => no check needed.
     await conf.post()
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Installed", libName)
   }
 
 
@@ -441,6 +444,8 @@ del _hack_imports`  // (not using the auto_run decorator because it might not be
       runner.giveFeedback(CONFIG.lang.installDone.msg, null)
     }
 
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Finish installations")
+
 
     // Enforce imports of all installed modules in hidden scope, to be sure they end up in
     // sys.modules (not using the auto_run decorator because it might not be already in place).
@@ -450,5 +455,7 @@ del _hack_imports`  // (not using the auto_run decorator because it might not be
     // (DON'T filter out already imported modules from the white list because they could have
     // been imported in a different scope!)
     runPythonImportsIfAny(runner.whiteList, false)
+
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Done")
   }
 })()

@@ -18,16 +18,15 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-
-import { escapePyodideCodeForJsTemplates } from 'functools'
-import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
+import { escapePyodideCodeForJsTemplates } from 'functoolsTxt'
 
 
-
-/** Reexport, so that Ide modules can import this version: this will enforce proper
- * import order of all the modules, while CONFIG.CLASSES_POOL.GlobalRunnersManager
- * will be already defined, and so, can be extended.
+/** Import then reexport, so that Ide modules can import this version: this will enforce proper
+ * imports order of all the modules, while CONFIG.CLASSES_POOL.GlobalRunnersManager will be
+ * already defined, and so, can be extended/overridden. Also, do not export one of the classes
+ * to keep the code confined inside the module...
  * */
+import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
 export { RUNNERS_MANAGER }
 
 
@@ -120,6 +119,9 @@ def _hack_build_zip():
         name = dirname / (ide['id'] + '${ CONFIG.ZIP.pySep }' + ide['pyName'])
         name.write_text(ide['code'], encoding="utf-8")
 
+    priorities = dirname / 'priorities.txt'
+    priorities.write_text("${ this.getPriorityIndices() }", encoding='utf-8')
+
     shutil.make_archive(zip_name.with_suffix(''), 'zip', dirname)
 
     pyodide_downloader(
@@ -130,6 +132,12 @@ def _hack_build_zip():
     shutil.rmtree(dirname)
     zip_name.unlink()
 `
+  }
+
+  getPriorityIndices(){
+    return _.zip(this.priority, this.groups)
+            .map(([runner,group])=>group.findIndex(r=>r===runner))
+            .join(',')
   }
 }
 
@@ -165,8 +173,19 @@ class GlobalZipImportIdesManager extends GlobalZipExportIdesManager{
     ].some(type=>type==itemOrFile.type)
   )
 
+  updatePriorities(content){
+    const idxs = content.split(',').map(s=>+s)
+    idxs.forEach((iR,iG)=>{
+      if(iR>=0) this.overridePriorityElement(this.groups[iG][iR])
+      // Note: iR should never be negative, but... just in case.
+    })
+  }
+
 
   readZipContentAndUpdateIdes(zipArchive){
+
+    Object.values(this.allRunners).forEach(runner=>runner.resetElement(false))
+
     const reader = new FileReader();
 
     reader.onload = function(event){
@@ -180,10 +199,13 @@ def _hack_zip_loading():
 
     tmp_dir = Path('${ CONFIG.ZIP.tmpZipDir }')
 
-    for py in tmp_dir.iterdir():
-        content = py.read_text(encoding='utf-8')
-        js.config().loadIdeContent(py.name, content)
-        py.unlink()
+    for file in tmp_dir.iterdir():
+        content = file.read_text(encoding='utf-8')
+        if file.name=="priorities.txt":
+            js.config().RUNNERS_MANAGER.updatePriorities(content)
+        else:
+            js.config().loadIdeContent(file.name, content)
+        file.unlink()
 
     tmp_dir.rmdir()
 `)

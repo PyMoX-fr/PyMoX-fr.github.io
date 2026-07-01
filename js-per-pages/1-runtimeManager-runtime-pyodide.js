@@ -23,7 +23,7 @@ import {
   escapePyodideCodeForJsTemplates,
   toSnake,
   youAreInTroubles,
-} from 'functools'
+} from 'functoolsTxt'
 import {
   getFullStdIO,
   pyodideFeatureRunCode,

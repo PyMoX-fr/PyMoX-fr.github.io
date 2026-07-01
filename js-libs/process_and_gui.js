@@ -18,9 +18,18 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { jsLogger } from 'jsLogger'
-import { buttonWithTooltip, getStorageEntries, subscribeWhenReady, txtFormat } from 'functools'
+import { subscribeWhenReady } from 'functools'
+import { moveLocalStorageEntriesFromOlderProjectId, trashLocalStorage } from 'functoolsStorage'
+import { applyLangMessagesFormatting } from 'functoolsTxt'
+import {
+  aceEditorsDayNightReactivity,
+  createFiguresHeightMutationObserver,
+  defineAceColorPaletteThemeData,
+  defineCssMainColor,
+} from 'functoolsUi'
+import { buttonWithTooltip } from 'functoolsUiBuilder'
 
-export const _DUMMY=null    // Reexport to enforce dependencies order: see PyodideSectionsRunner.
+export const chaining=0     // Export to enforce dependencies order: see PyodideSectionsRunner.
                             // (reminder: the script defining CONFIG is loaded synchronously)
 
 
@@ -29,39 +38,23 @@ export const _DUMMY=null    // Reexport to enforce dependencies order: see Pyodi
 // Post process the content of CONFIG
 //------------------------------------
 
+applyLangMessagesFormatting()
 
-// For backward compatibility ( < 2.2.0)
-const DEFAULT_FORMATTING_BEFORE_220 = {
-  runScript:         'info',
-  installStart:      'info',
-  installDone:       'info',
-  validation:        'info',
-  editorCode:        'info',
-  publicTests:       'info',
-  secretTests:       'info',
-  successMsg:        'success',
-  successMsgNoTests: 'info',
-  unforgettable:     'warning',
-  successHead:       'success',
-  failHead:          'warning',
-}
-
-// Preformat the various messages to use in the terminals (in the given tongue)
-for(const prop in CONFIG.lang){
-  const obj = CONFIG.lang[prop]
-  const format = obj.format || DEFAULT_FORMATTING_BEFORE_220[prop]
-
-  if(format){
-    obj.msg = txtFormat[ format ]( obj.msg )
-  }
-}
-
+// Convert some data types on the fly...
 CONFIG.lang.tests.as_pattern = new RegExp(CONFIG.lang.tests.as_pattern, 'i')
 CONFIG.pythonLibs            = new Set(CONFIG.pythonLibs)
 
 
 
+//------------------------
+// Local storage handling
+//------------------------
 
+
+// Update/move all localStorage entries, if required by the redactor:
+if((CONFIG.projectMoveFromOldId??null) !== null){
+  moveLocalStorageEntriesFromOlderProjectId(CONFIG.projectMoveFromOldId)
+}
 
 
 
@@ -70,50 +63,21 @@ CONFIG.pythonLibs            = new Set(CONFIG.pythonLibs)
 //----------------------------------------------------------
 
 
-/**Insertion of the placeholders, around the search bar.
- * */
-subscribeWhenReady(
-    "AroundSearchLeft",
-    function(){
-        LOGGER_CONFIG.ACTIVATE && jsLogger('[AroundSearch]', 'left')
-        const wrappingDivL = `<div id="${ CONFIG.element.searchBtnsLeft.slice(1)  }"></div>`
-        $(wrappingDivL).insertBefore(CONFIG.element.dayNight)
-    },
-    {waitFor: CONFIG.element.dayNight, runOnly:true},
-)
 
-subscribeWhenReady(
-    "AroundSearchRight",
-    function(){
-        LOGGER_CONFIG.ACTIVATE && jsLogger('[AroundSearch]', 'right')
-        const wrappingDivR = `<div id="${ CONFIG.element.searchBtnsRight.slice(1) }"></div>`
+aceEditorsDayNightReactivity()
 
-        /* Try various locations for insertion.
-            1. On the right of the search bar
-            2. On the right of the dayNight palette otherwise (in case no search tool/plugin)
-        */
-        if($(CONFIG.element.searchBlock)[0]){
-            $(wrappingDivR).insertAfter(CONFIG.element.searchBlock)
-        }else{
-            $(wrappingDivR).insertAfter(CONFIG.element.dayNight)
-        }
-    },
-    {waitFor: CONFIG.element.searchBtnsLeft, runOnly:true},
-)
+createFiguresHeightMutationObserver()
+
+defineCssMainColor()
+
+defineAceColorPaletteThemeData()
 
 
+const trashCanBuilder=()=>{
+  LOGGER_CONFIG.ACTIVATE && jsLogger('[TrashCan]')
 
-
-
-/**Insertion of the trash icon/button
- * */
-if(CONFIG.element.trashCan){ subscribeWhenReady(
-    "TrashCan",
-    function(){
-      LOGGER_CONFIG.ACTIVATE && jsLogger('[TrashCan]')
-
-      const trashId = CONFIG.element.trashCan.slice(1)
-      const TRASH_SVG =
+  const trashId = CONFIG.element.trashCan.slice(1)
+  const TRASH_SVG =
 `<svg height="20px" version="1.1" id="${ trashId }" xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#ffffff">
   <g>
@@ -124,52 +88,54 @@ if(CONFIG.element.trashCan){ subscribeWhenReady(
     <path d="M439.115,64.517c0,0-34.078-5.664-43.34-8.479c-8.301-2.526-80.795-13.566-80.795-13.566l-2.722-19.297 C310.388,9.857,299.484,0,286.642,0h-30.651H225.34c-12.825,0-23.728,9.857-25.616,23.175l-2.721,19.297 c0,0-72.469,11.039-80.778,13.566c-9.261,2.815-43.357,8.479-43.357,8.479C62.544,67.365,55.332,77.172,55.332,88.38v21.926h200.66 h200.676V88.38C456.668,77.172,449.456,67.365,439.115,64.517z M276.318,38.824h-40.636c-3.606,0-6.532-2.925-6.532-6.532 s2.926-6.532,6.532-6.532h40.636c3.606,0,6.532,2.925,6.532,6.532S279.924,38.824,276.318,38.824z"></path>
   </g>
 </svg>`
-      const trashBtnOptions = {
-        tagId: trashId+"Btn",
-        shift: 90,
-        fontSize: 1.5,
-        tipWidth: CONFIG.lang.tipTrash.em,
-        tipText: CONFIG.lang.tipTrash.msg,
-      }
 
-      const getMsg = (langProp, n)=>{
-        return CONFIG.lang[ langProp ][ n==1?'msg':'plural' ].replace('{N}',n)
-      }
+  const trashBtnOptions = {
+    tagId: trashId+"Btn",
+    shift: 90,
+    fontSize: 1.5,
+    tipWidth: CONFIG.lang.tipTrash.em,
+    tipText: CONFIG.lang.tipTrash.msg,
+  }
 
-      const trashButton = $(
-        buttonWithTooltip(trashBtnOptions, TRASH_SVG)
-      ).on('click', function(){
-        const {cmds, ides} = getStorageEntries()
+  buttonWithTooltip(trashBtnOptions, TRASH_SVG)
+    .on('click', trashLocalStorage)
+    .appendTo($(CONFIG.element.searchBtnsRight))
+}
 
-        let codes      = ides.filter( ([_,obj]) => obj.project===CONFIG.projectId)
-        let nUnknown   = ides.filter( ([_,obj]) => obj.project!==CONFIG.projectId).length
-        let complement = !nUnknown ? '' : `\n(${ getMsg('complementTrash',nUnknown) })`
 
-        let msg = getMsg('removeTrash', codes.length) + complement
 
-        // `project.id` is not configured, or just got configured, or entries of the current
-        // project already got removed: suggest to remove everything, whatever the source project.
-        if(nUnknown && !codes.length){
-          codes = ides
-          msg = getMsg('allOthersTrash', codes.length)
-        }
+// Placeholder on the left of the search bar:
+ subscribeWhenReady(
+    "AroundSearchLeft",
+    function(){
+        LOGGER_CONFIG.ACTIVATE && jsLogger('[AroundSearch]', 'left')
+        const wrappingDivL = `<div id="${ CONFIG.element.searchBtnsLeft.slice(1)  }"></div>`
+        $(wrappingDivL).insertBefore(CONFIG.element.dayNight)
+    },
+    {waitFor: CONFIG.element.dayNight, runOnly:true},
+)
 
-        if(!codes.length){
-          window.alert(CONFIG.lang.noCodesTrash.msg + complement)
+// Placeholder on the left of the search bar:
+subscribeWhenReady(
+    "AroundSearchRight",
+    function(){
+        LOGGER_CONFIG.ACTIVATE && jsLogger('[AroundSearch]', 'right')
+        const wrappingDivR = `<div id="${ CONFIG.element.searchBtnsRight.slice(1) }"></div>`
 
-        }else{
-          const todo = window.confirm(msg)
-          if(todo) codes.forEach( ([k,_])=>localStorage.removeItem(k) )
-        }
+        // The search bar may be missing, depending on the site configuration, so adapt the button placement.
+        const hasSearchBar = $(CONFIG.element.searchBlock).length
+        $(wrappingDivR).insertAfter(
+          hasSearchBar ? CONFIG.element.searchBlock : CONFIG.element.dayNight
+        )
+    },
+    {waitFor: CONFIG.element.searchBtnsLeft, runOnly:true},
+)
 
-        // jQuery.terminal history management is mostly trash (no difference between terminals
-        // in different pages: terminals are only identified by their number in the current page,
-        // in order...), so always remove unconditionally:
-        cmds.forEach( ([k,_])=>localStorage.setItem(k,"[]") )
-
-      }).appendTo(
-        $(CONFIG.element.searchBtnsRight)
-      )
-  },
-  {waitFor: CONFIG.element.searchBtnsRight, runOnly:true},
-)}
+// Add the trashcan button if needed:
+if(CONFIG.element.trashCan){
+  subscribeWhenReady(
+    "TrashCan",
+    trashCanBuilder,
+    {waitFor: CONFIG.element.searchBtnsRight, runOnly:true},
+  )
+}

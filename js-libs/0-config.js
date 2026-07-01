@@ -186,6 +186,7 @@ const CONFIG = {
     },
 
 
+    RUNNERS_MANAGER: null,
     pyodideIsReady: false,
     classesPoolIsReady: false,
     overlordIsReady: false,
@@ -217,6 +218,7 @@ const CONFIG = {
     // Auto subscriber tracking:
     subscriptionReady: {},
     subscriptionsTries: {},
+    subscriptionDone: {},
 
     loggerOptions: {},      // jsLogger debugging config/activations
 

@@ -18,10 +18,11 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-import { getIdeOptions } from 'functools'
+import { getIdeOptions } from 'functoolsUi'
 import { chaining } from 'subscriptions'    // Enforce proper imports resolution order
 
 const options = getIdeOptions()
+
 $('.dev-sandbox').each(function(){
   const editor = ace.edit(this.id, options);
 

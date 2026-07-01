@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { jsLogger } from 'jsLogger'
-import { escapeSquareBrackets } from 'functools'
+import { escapeSquareBrackets } from 'functoolsTxt'
 
 
 
@@ -122,7 +122,12 @@ del _hack_start_pyodide     # (no auto_run tool yet)
 def __hack_redirection_and_fake_js():
     import re, js
     from functools import wraps
+    from pathlib import Path
     import pyodide.http as http
+
+    if not {WITH_REDIRECT}:
+        __builtins__.teardown_url_redirections = lambda *_: None
+        return
 
     with_js_mock = {FORMAT_TOKEN}
     pure_pyfetch = http.pyfetch
@@ -130,7 +135,9 @@ def __hack_redirection_and_fake_js():
     js_config = js.config()
 
 
-    def get_url(url:str):
+    def get_url(url: str|Path):
+        if isinstance(url,Path):
+            url = str(url)
         if isinstance(url,str) and not re.match(r'(https?|ftps?|file)://|www[.]', url):
             url = js.config().relUrlRedirect + url
         # print(url)
@@ -404,7 +411,7 @@ def _hack_io_stuff():
         print(re.sub(r"\x08.", "", doc))
 
 
-    PMT_TOOLS = ['p5', 'vis', 'vis_network']      # GENERATED
+    PMT_TOOLS = ['p5', 'p5v2', 'vis', 'vis_network']      # GENERATED
 
 
     @wraps_builtin
@@ -447,10 +454,11 @@ def _hack_io_stuff():
     copyFromServer: `
 @auto_run
 def _hack_copy_from_server():
+    from pathlib import Path
 
     @as_builtin
     async def copy_from_server(
-        src: str,
+        src: str|Path,
         dest: str = ".",
         name: str = "",
     ):
@@ -458,8 +466,7 @@ def _hack_copy_from_server():
         from pathlib import Path
         from urllib.error import URLError
 
-
-
+        src = str(src)      # convert potential arguments as Path
         response = await pyfetch(src)
         if not response.ok:
             raise URLError(f"Failed request for { src }.")
@@ -468,6 +475,7 @@ def _hack_copy_from_server():
         target   = Path(dest) / (name or Path(src).name)
             # Note: Path(src).name works to extract the name file on urls, but the path
             #       is actually invalid as an url: "http://xx" givers "http:/xx".
+
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(content)
 `,
@@ -951,17 +959,38 @@ __builtins__._stdout_value
 `,
     }
 
-    return (option, repl=null)=>{
+    const validReplString = (r) => (r??null) !== null
+
+    /**@replacements: content to use in place of `{FORMAT_TOKEN}` (one arg only), or an array
+     * of two elements, `[target, repl]`, target being the target string to replace in the code,
+     * and repl being the data to insert.
+     *
+     * WARNING: pass the repl values as JS objects: they are converted with `JSON.stringify(...)`.
+     * */
+    return (option, ...replacements)=>{
         LOGGER_CONFIG.ACTIVATE && jsLogger('[CheckPoint] - Pyodide feature:', option)
         let code = PYODIDE_SNIPPETS[option]
-        if(code===undefined) throw new Error(`Unknown snippet: ${option}`)
-        if(repl!==null){
-            code = code.split("{FORMAT_TOKEN}").join(JSON.stringify(repl))
-            /* WARNING!! DO NOT use string.replace here, because if ever the repl contains some
-               specific RegExp characters (like... `$`), those will cause a mess in the replacement
-               (even if they are escaped first). */
+        if(code===undefined){
+            throw new Error(`Unknown snippet: ${option}`)
         }
-        return code+"\n"
+        replacements.filter( r=>validReplString(!Array.isArray(r) ? r : r[1]) )
+                    .forEach((data,i)=>{
+            const isArr = Array.isArray(data)
+            if(i && !isArr){
+                throw new Error(
+                    "`pyodideFeatureCode` replacement values must be arrays after the first one: [to_replace,replacement]."
+                )
+            }
+            const [token,repl] = isArr ? data : ["{FORMAT_TOKEN}", data]
+
+            /* WARNING: DO NOT use string.replace here, because if ever the repl contains some
+                        specific RegExp characters (like... `$`), those will cause a mess in
+                        the replacement (even if they are escaped first).
+            */
+            const joiner = typeof(repl)=='boolean' ? _.capitalize(''+repl) : JSON.stringify(repl)
+            code = code.split(token).join(joiner)
+        })
+        return code + "\n"
     }
 })()
 
@@ -985,13 +1014,18 @@ export const pyodideFeatureRunCode=(name, repl=null)=>{
 }
 
 
+
 export const pyodideFeatureSetupRedirections=(relUrlRedirection, withJsMock)=>{
 
+    const withRedirection = Boolean(relUrlRedirection)
+
+    CONFIG.relUrlRedirect = `${ CONFIG.baseUrl }/${ relUrlRedirection||"" }/`.replace(/[/]{2}/g, '/')
     // Replace "//"" to ease the way for the user: no need to care about adding or not trailing
     // or leading slashes.
-    CONFIG.relUrlRedirect = `${ CONFIG.baseUrl }/${ relUrlRedirection||"" }/`.replace(/[/]{2}/g, '/')
 
-    const code = pyodideFeatureCode("relUrlsRedirections", withJsMock ? "True":"False")
+    const code = pyodideFeatureCode(
+        "relUrlsRedirections", withJsMock, ['{WITH_REDIRECT}', withRedirection]
+    )
     pyodide.runPython(code)
 }
 

@@ -20,13 +20,12 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { jsLogger } from 'jsLogger'
 import {
-  decompressAndConvert,
   PythonError,
-  txtFormat,
   waitForPyodideReady,
   RunningProfile,
 } from 'functools'
-import { clearPyodideScope, pyodideFeatureSetupRedirections } from '0-generic-python-snippets-pyodide'
+import { decompressAndConvert, txtFormat } from 'functoolsTxt'
+import { clearPyodideScope } from '0-generic-python-snippets-pyodide'
 import { IdeRunner } from '4-ideRunner-ide'
 
 

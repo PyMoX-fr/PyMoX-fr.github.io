@@ -21,14 +21,16 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { jsLogger } from 'jsLogger'
 import {
-  getIdeDataFromStorage,
-  freshStore,
   PythonError,
   sleep,
-  PMT_LOCAL_STORAGE_KEYS_WRITE,
   RunningProfile,
 } from 'functools'
-import { RUNNERS_MANAGER } from '4-0-idesManager-ide'
+import {
+  PMT_LOCAL_STORAGE_KEYS_WRITE,
+  getIdeDataFromStorage,
+  freshStore,
+} from 'functoolsStorage'
+import { RUNNERS_MANAGER } from '4-0-idesManager-ide' // Needed to actually load the module
 import { TerminalRunner } from '3-terminalRunner-term'
 
 
@@ -78,39 +80,34 @@ class IdeStorageManager extends TerminalRunner {
   get hasTerminal(){ return true }
   get isTerminal(){ return false }
 
-  /**Process to "re-initiate" the internal state of the IDE (useful for testing) */
+
+  // (wut??) callInit = false: process to "re-initiate" the internal state of the IDE (useful for testing) */
   constructor(editorId, callInit=false){
     super(editorId, callInit)
     this.storage = this.getStorage()
   }
 
-  // First class, making sure the change of argument is handled
   build(){
+    // First IDE class overload, making sure the change of argument is handled, so that the
+    // terminal constructor receives the id of the expected div:
     super.build(this.termId)
   }
 
-
-
-  getStorage(editorId=null){
-    editorId ??= this.id
-    const extractForThis = editorId==this.id
-    const [storage,upToDate] = getIdeDataFromStorage(editorId, extractForThis?this:null)
-    this.updateGenericStorageData(storage)
-    return storage
+  lastValidationWasSuccess(){
+    return this.storage.done > 0
   }
+
 
   getCodeFromStorage(){
     return this.storage.code
   }
 
-
-  updateGenericStorageData(storage){
-    storage.name   = this.pyName
-    storage.hash ??= this.srcHash   // Only if undefined, so that no alert shown for ALL updated
-                                    // IDEs that are still using the default code.
+  getStorage(editorId=null){
+    editorId ??= this.id
+    const extractForThis = editorId==this.id
+    const storage = getIdeDataFromStorage(editorId, extractForThis?this:null)
+    return storage
   }
-
-
 
   setStorage(changes={}){
     this._updateInternalStorage(changes)
@@ -119,16 +116,16 @@ class IdeStorageManager extends TerminalRunner {
 
   resetElement(){
     super.resetElement()
-    this.storage = freshStore("", {}, this)
+    this.storage = freshStore({ide: this})
     localStorage.removeItem(this.id)
   }
 
   _updateInternalStorage(changes){
     if(changes){
+      if(!this.storage) this.storage = {}
       for(const k in changes) this.storage[k] = changes[k]
     }
   }
-
 
 
   //-------------------------------------------------------------------------
@@ -136,7 +133,15 @@ class IdeStorageManager extends TerminalRunner {
 
   announceCodeChangeBasedOnSrcHash(){
     if(this.storage.hash !== this.srcHash){
-      this.terminalEcho(CONFIG.lang.refresh.msg)
+      const current = this.getCodeToTest()
+      const startContent = this.getStartCode(false)
+      if(current == startContent){
+        // Update the srcHash value (may happen that the content does not change, but an
+        // old hash calculation is there...)
+        this.setStorage({hash: this.srcHash})
+      }else{
+        this.terminalEcho(CONFIG.lang.refresh.msg)
+      }
     }
   }
 
@@ -231,6 +236,9 @@ class IdeStorageManager extends TerminalRunner {
 
 class IdeZipManager extends IdeStorageManager {
 
+  /**Build and return the callback to export IDEs contents as zip, and also put in place the zip
+   * importation elements.
+   * */
   buildZipExportsToolsAndCbk(jBtn){
     // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
     // https://stackoverflow.com/questions/43180248/firefox-ondrop-event-datatransfer-is-null-after-update-to-version-52
@@ -239,15 +247,7 @@ class IdeZipManager extends IdeStorageManager {
     jBtn.on("dragenter dragstart dragend dragleave dragover drag", e=>e.preventDefault())
 
     // Doesn't work using jQuery... (again... x/ ):
-    jBtn[0].addEventListener('drop', this.dropArchiveFactory(
-      this.lockedRunnerWithBigFailWarningFactory(
-        RunningProfile.PROFILE.zipImport,
-        this.setupRuntimeZip,
-        async(_e, zipFile)=>{ RUNNERS_MANAGER.readZipContentAndUpdateIdes(zipFile) },
-        this.teardownRuntimeZip,
-        true,
-      )
-    ))
+    jBtn[0].addEventListener('drop', this.dropArchiveFactory())
 
     return this.lockedRunnerWithBigFailWarningFactory(
       RunningProfile.PROFILE.zipExport,
@@ -261,7 +261,7 @@ class IdeZipManager extends IdeStorageManager {
   async setupRuntimeZip(){
     this.terminal.pause()           // Deactivate user actions in the terminal until resumed
     this.terminal.clear()           // To do AFTER pausing...
-    const runtime = await this._baseSetupRuntime()
+    const runtime = await this._setupPyodideFeatures()
     return runtime
   }
 
@@ -274,19 +274,30 @@ class IdeZipManager extends IdeStorageManager {
 
   async zipExport(_runtime){
     this.terminalEcho('Generate zip for '+location.href)
-    RUNNERS_MANAGER.exportIdesAsZip()
+    this._manager.exportIdesAsZip()
     this.focusEditor()
   }
 
 
-  dropArchiveFactory(asyncLockedZipDropper){
+  dropArchiveFactory(){
+
+    const asyncLockedZipDropper = this.lockedRunnerWithBigFailWarningFactory(
+      RunningProfile.PROFILE.zipImport,
+      this.setupRuntimeZip,
+      async(_e, zipFile)=>{ this._manager.readZipContentAndUpdateIdes(zipFile) },
+      this.teardownRuntimeZip,
+      true,
+    )
     return async dropEvent=>{
       this.giveFeedback("Loading archive content, please wait...")
 
       // Files _HAVE_ to be extracted here, because the locked runner is automatically calling
       // e.preventDefault(), which _SEEMS_ to remove the files (... it _MIGHT_ also be related
       // to the async aspects...).
-      const zipFiles = RUNNERS_MANAGER.getArchiveFiles(dropEvent)
+      const zipFiles = this._manager.getArchiveFiles(dropEvent)
+        // NOTE: during selenium tests, this routine might be called with dropEvent being undefined,
+        //       when the tests are simulating the zip upload (but avoiding the drag&dropé stuff...)
+        //       See tests/selenium_hooks.py to see the changes done to the code.
 
       if(!zipFiles.length){
         this.giveFeedback("No archive file found.")
@@ -298,6 +309,7 @@ class IdeZipManager extends IdeStorageManager {
         CONFIG.loadIdeContent = this.loadIdeContent.bind(this)
         await asyncLockedZipDropper(dropEvent, zipFiles[0])
       }
+      this.seleniumRunningFlag = false    // In case the runner is not executed
     }
   }
 
@@ -314,7 +326,7 @@ class IdeZipManager extends IdeStorageManager {
       )
     }else{
       ace.edit(editorId).getSession().setValue(code);
-      // No save/localStorage handling at this point (I don't have the IdeRunner object in hand :p )
+      // No save/localStorage handling at this point (I don't have the IdeRunner object at hand :p )
       this.giveFeedback(`Loaded ${ editorId }${ CONFIG.ZIP.pySep }${ name }.`, "none")
     }
   }
@@ -377,17 +389,15 @@ export class IdeGuiManager extends IdeZipManager {
     this.counterH  = "#compteur_" + editorId
     this.solutionH = "#solution_" + editorId
 
-    // Various flags OR data related to split.full screen modes management (only)
+    // Various flags OR data related to split&full screen modes management (only)
     this.guiIdeFlags = {
       gutter: false,                  // Ensured the minIdeLines are written in IDE the gutter
       resizedVertTerm: !this.isVert,  // Flag to know if the terminal size dimensions have already been enforced or not.
       splittedLines: 0,               // nLines (gutter) of the IDE in split mode (0 if not splitted)
-      splitSlider: null,              // jQuery object
+      splitSlider: null,              // jQuery object to manage the width of the IDE in split screen
       initTermH: 0,                   // Initial height of the terminal, before entering any screen mode
       initGlobH: 0,                   // Initial height of this.global, before entering any screen mode
-      hasObserver: false,             // (should be actually useless, now) Has already built auto-completion MutationObserver or not
-      escapeIdeSearch: false,         // Stroke Esc while the search/replace IDE tool was on focus
-      viewport: window.screen.height,
+      escapeIdeSearch: false,         // Stroke Esc while the search/replace IDE tool had the focus
       ideMinWidth: cssPx(this.global,'min-width'),
       fullScreenPadPx: 15,            // Padding added in full screen mode
       internalIsFullScreen: false,    // Inner flag to handle mixed requests between full and split screen.
@@ -480,8 +490,9 @@ export class IdeGuiManager extends IdeZipManager {
   }
 
 
-  /**Fill the entire gutter with minIdeLines line numbers: those won't disappear when the
-   * user is deleting lines (probably because they use "remove first match" kind of logic).
+  /**Fill the entire gutter with nLines line numbers (default: this.minIdeLines).
+   * Those won't disappear when the user is deleting lines (probably because they use "remove
+   * first match" kind of logic).
    * */
   fillAceGutter(nLines=null){
     const model = this.gutter.children().first().clone()
@@ -496,21 +507,16 @@ export class IdeGuiManager extends IdeZipManager {
       return
     }
 
-    nLines      ??= this.minIdeLines
-    const height  = cssPx(model)
-    const numbers = this.gutter.find('.pmt-gutter')
-    const first_missing = numbers.length
+    nLines ??= this.minIdeLines
+    const height = cssPx(model)
 
-    // Remove extra line numbers:
-    for(let i=nLines ; i<first_missing ; i++){
-      numbers[i] && numbers[i].remove()
-    }
+    // Destroy all previously added elements:
+    this.gutter.find('.pmt-gutter').remove()
 
-    // Add needed line numbers:
-    for(let i=first_missing ; i<=nLines ; i++){
+    // Recreate all elements:
+    for(let i=1 ; i<=nLines ; i++){
       const elt = model.clone().css('top', (i-1)*height+'px').text(i)
-      elt.append(IdeGuiManager.INNER_LINE_NUMS.clone())
-      this.gutter.append(elt)
+      elt.append(IdeGuiManager.INNER_LINE_NUMS.clone()).appendTo(this.gutter)
     }
   }
 
@@ -520,17 +526,17 @@ export class IdeGuiManager extends IdeZipManager {
    * May adapt the terminal height on the fly, if "required", to make the UI "nicer".
    *
    * @param options: object with optional properties:
-   *    - goingFullScreen:    Flag to know how to compute the height of the global div.
+   *    - viewFullScreen:    Flag to know how to compute the height of the global div.
    *    - minLines, maxLines: Resulting values to set on the ACE editor. If not given, computed
    *                          automatically on the fly.
    *    - setup:              default=true (is setting up the mode or not)
    *    - topDivH:            default=Infinity. The max height space currently available for the
-   *                          #pmt-top-div element.
+   *                          #pmt-top-div element (when in split screen mode).
    * */
   ideScreenModeVerticalResize(options={}){
 
-    let {goingFullScreen, minLines, maxLines, setup, topDivH} = {
-      goingFullScreen:false, setup:true, topDivH:Infinity, ...options
+    let {viewFullScreen, minLines, maxLines, lockTermResize, topDivH} = {
+      viewFullScreen:false, lockTermResize:true, topDivH:Infinity, ...options
     }
     const exitingScreenMode = minLines !== undefined
 
@@ -547,9 +553,8 @@ export class IdeGuiManager extends IdeZipManager {
       const lineH = cssPx( this.global.find('div.ace_gutter-layer').children().first() )
       const btnsH = cssPx(btns) + cssPx(btns,'margin-top') + cssPx(btns,'margin-bottom')
 
-      const globH = -2 * this.guiIdeFlags.fullScreenPadPx + ( goingFullScreen
-        ? this.guiIdeFlags.viewport
-        : Math.min(cssPx(this.global), topDivH)
+      const globH = -2 * this.guiIdeFlags.fullScreenPadPx + (
+        viewFullScreen ? window.screen.height : Math.min(cssPx(this.global), topDivH)
       )
 
       // Do not allow terminal + buttons to fill more than half the height:
@@ -563,7 +568,7 @@ export class IdeGuiManager extends IdeZipManager {
       // slider). So, reduce the number of lines by 1 for the editor _and_ the terminal.
       const availableH = globH - btnsH - termH * !this.isVert
       const nLines     = Math.max(
-        3,  // So that screen modes & "commenting tests" buttons stay on different lines
+        3,    // Make sure the "###" button and the view modes buttons stay on different lines.
         Math.floor( availableH/lineH ) - isWin
       )
 
@@ -583,8 +588,8 @@ export class IdeGuiManager extends IdeZipManager {
     this.fillAceGutter(minLines)
     this.editor.resize()
 
-    term.css('resize', setup||this.isVert ? 'unset' : 'vertical')
-    term.css("height", (setup ? termH : this.guiIdeFlags.initTermH)+'px')
+    term.css('resize', lockTermResize||this.isVert ? 'unset' : 'vertical')
+    term.css("height", (lockTermResize ? termH : this.guiIdeFlags.initTermH)+'px')
 
     LOGGER_CONFIG.ACTIVATE && jsLogger(
       '[ScreenMode]', "IDE resizing done -",
@@ -611,8 +616,12 @@ export class IdeGuiManager extends IdeZipManager {
 export class IdeFullScreenGlobalManager extends IdeGuiManager {
 
   static currentIde = null
+
   static someMenuOpened = false
 
+  /**Store any pending someMenuOpened cancellation (this is the setTimeout identifier)
+   * */
+  static pendingTimeout = null
 
   /**Identify if the given jQuery node is one related to a context menu (ACE menu, commands or
    * auto-completion), and returns a string representing which one it is (undefined otherwise).
@@ -629,23 +638,27 @@ export class IdeFullScreenGlobalManager extends IdeGuiManager {
   /**Globally keep track of any IDE menu currently opened.
    * */
   static setMenusFlag(isVisible) {
+    LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "Set someMenuOpened to ", isVisible)
     if(isVisible){
-      IdeFullScreenGlobalManager.someMenuOpened=true
+      this.someMenuOpened=true
     }else{
       // The menu flag has to be unset with a significant delay, otherwise the keydown event sees
       // the updated status. Note that the delay only applies to an internal state, so it doesn't
       // have any visible effect on the user's side.
-      setTimeout(()=>{
-        IdeFullScreenGlobalManager.someMenuOpened=false
+      this.pendingTimeout = setTimeout(()=>{
+        if(this.pendingTimeout!==null){   // extra security (shouldn't be needed, but... just in case)
+          this.pendingTimeout = null
+          this.someMenuOpened = false
+        }
       }, 150)
     }
   }
 
 
   /**Handling the various context menus, to try to forbid going full screen when the auto-
-   * completion tool, ace settings or ace command window are opened and the user stroke ESC
-   * to exit them. This requires to keep track of what is currently or has been added to
-   * the body tag.
+   * completion tool, ace settings, ace search bar or a command window are opened and the
+   * user stroke ESC to exit them. This requires to keep track of what is currently or has
+   *  been added to the body tag.
    *
    * Notes:
    *  - The same logic _while_ in full screen cannot be applied because there is no control
@@ -654,16 +667,25 @@ export class IdeFullScreenGlobalManager extends IdeGuiManager {
    *    closes the menu before the fullscreen related key event is triggered...
    *  - The MutationObserver is added _once only_ per page (hence, "static").
    * */
-  static buildBodyObserver(){
+  static buildBodyFullScreenObserver(){
     new MutationObserver((records)=>{
-      if(!this.currentIde) return
+      if(!this.currentIde){
+        LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "No currentIde")
+        return
+      }
+
+      let setOpened = false
 
       for(const record of records) {
 
         for (const node of record.removedNodes) {
           const kind = this.isSomeAceMenu($(node))
-          if(kind && kind!='auto-complete') this.setMenusFlag(false)
-          // The auto-complete window will be extracted as soon as it's added, so ignore it.
+          // The auto-completion window is extracted by the code (see below), so its removal from
+          // the body is not a user operation and must be ignored.
+          if(kind && kind!='auto-complete'){
+            LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "Node removal, kind =", kind)
+            this.setMenusFlag(false)
+          }
         }
 
         for(let node of record.addedNodes) {
@@ -671,44 +693,55 @@ export class IdeFullScreenGlobalManager extends IdeGuiManager {
           const kind = this.isSomeAceMenu(node)
           if(!kind) continue
 
-          this.setMenusFlag(true)
-          switch(kind){
+          LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "Node addition, kind =", kind)
+          this.setMenusFlag(setOpened=true)
 
+          switch(kind){
             case 'menu':
-              node.find('table')
-                  .addClass('dummyclass')     // To deactivate a css background rule of pmt
-                  .css('font-size','10px')
+              // Fix visual troubles for table elements, because of another PMT's css rule:
+              node.find('table').addClass('dummyclass').css('font-size','10px')
               break
 
             case 'auto-complete':
-              if(!this.currentIde.guiIdeFlags.hasObserver){
-                this.currentIde.guiIdeFlags.hasObserver = true
-                // Creating one observer per instance is suboptimal, but there aren't many IDEs
-                // per page, and ofr the sake of simplicity... (tracking the ide instance against
-                // the html target) => "whatever"...)
-                new MutationObserver(records=>{
-                  for(const record of records){
-                    const isVisible = $(record.target).css('display')!='none'
-                    this.setMenusFlag(isVisible)
-                  }
-                }).observe(node[0], {attributeFilter:['style']})
-              }
+              // By default, the auto-complete window is attached to the body, so it must be moved
+              // if in full screen mode, BUT, since each IDE has its own auto-complete element, it
+              // is moved anyway to the IDE so that the next auto-completion tool can be spotted
+              // when a mutation on the body occurs. Note these elements are NOT removed from the
+              // DOM, they are just hidden (display: none). This also means the MutationObserver
+              // will never "see" twice the same auto-completion element.
+              node.detach().appendTo(this.currentIde.global)
+
+              // Creating one observer per instance is suboptimal, but there aren't many IDEs
+              // per page, and for the sake of simplicity... (tracking the ide instance against
+              // the html target) => "whatever"...)
+              new MutationObserver(records=>{
+                for(const record of records){
+                  const isVisible = $(record.target).css('display')!='none'
+                  LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "Auto-completion observation")
+                  this.setMenusFlag(isVisible)
+                }
+              }).observe(node[0], {attributeFilter:['style']})
               break
           }
 
-          if(somethingFullScreen() || kind=='auto-complete'){
+          // Commands window (F1) or ace settings window are  always attached to and removed from
+          // the <body>. So if an IDE is in full screen, the window/menu must be reattached to the
+          // IDE itself to become visible. These are removed from the DOM when closed.
+          if(somethingFullScreen()){
             node.detach().appendTo(this.currentIde.global)
-            /* Always move the auto-complete window because:
-                  - each IDE has its own auto-completion div element
-                  - this allows to add one single style observer the first time the auto-completion
-                    tool is used for that IDE
-             */
           }
         }
       }
+
+      // The delayed flag cancellation must be... cancelled if one window was closed to open
+      // another one (typically: closing the ace command window to open the ace settings):
+      if(setOpened && this.pendingTimeout!==null){
+        clearTimeout(this.pendingTimeout)
+        this.pendingTimeout=null
+      }
+
     }).observe(document.body, {childList: true})
   }
-
 
 
   makeUpYourGui(){        // Cap overload
@@ -736,6 +769,7 @@ export class IdeFullScreenGlobalManager extends IdeGuiManager {
 
         search.on('keydown', (e)=>{
           if(e.key!='Escape') return;
+          LOGGER_CONFIG.ACTIVATE && jsLogger('[ESCAPE]', "IDE search keydown")
           this.guiIdeFlags.escapeIdeSearch = true
         })
 
@@ -747,7 +781,7 @@ export class IdeFullScreenGlobalManager extends IdeGuiManager {
 }
 
 
-IdeFullScreenGlobalManager.buildBodyObserver()
+IdeFullScreenGlobalManager.buildBodyFullScreenObserver()
 
 
 
@@ -760,8 +794,23 @@ IdeFullScreenGlobalManager.buildBodyObserver()
 
 
 
+/**Warning about the browser's full screen behavior:
+ *
+ * It actually visually extract the element and displays it full screen, but the element
+ * actually stays in it's current place in the DOM. This means the css rules are still
+ * applied as if the element wasn't in full screen mode.
+ * The consequence of this, is that if the IDE was in split screen mode, the css it is
+ * seeing might might be different, leading to slightly different behaviors.
+ *
+ * (for instance, up to 5.5.0, zooming in full screen mode was auto-adaptative when the
+ * IDE was in split screen mode before, but not when it wasn't...)
+ */
 class IdeFullScreenManager extends IdeFullScreenGlobalManager {
 
+
+  get isFullScreen(){
+    return this.global[0] === document.fullscreenElement
+  }
 
   switchFullScreenFromButton(){
     if(!somethingFullScreen()){
@@ -782,16 +831,20 @@ class IdeFullScreenManager extends IdeFullScreenGlobalManager {
     const focused = document.activeElement
     const floatingTip = $("#floating-tip").detach()
 
-    this.global[0].requestFullscreen().then(async _=>{
+    this.global[0]
+        .requestFullscreen()
+        .then(async _=>{
       LOGGER_CONFIG.ACTIVATE && jsLogger('[ScreenMode]', "Full screen ready")
 
       const splitScreenBtn = this.global.find(".ide-split-screen")
 
       IdeFullScreenGlobalManager.currentIde = this
         // (just in case the user used a button without typing anything in the editor yet)
+
+      this.global.css('height', '100vh')
       this.guiIdeFlags.internalIsFullScreen = true
       splitScreenBtn.addClass('deactivated')
-      this.ideScreenModeVerticalResize({goingFullScreen: true})
+      this.ideScreenModeVerticalResize({viewFullScreen: true})
       this.global.append(floatingTip)
 
       focused.focus()   // Always give back the focus to the element which had it before.
@@ -811,9 +864,10 @@ class IdeFullScreenManager extends IdeFullScreenGlobalManager {
 
       floatingTip.detach().appendTo('body')
       if(this.splitScreenActivated) splitScreenBtn.removeClass('deactivated')
+      this.global.css('height', 'unset')
       this.guiIdeFlags.internalIsFullScreen = false
       const resizeOption = this.isInSplit ? {topDivH:this.setupTopDivHeight()}
-                                          : {setup:false, minLines, maxLines}
+                                          : {lockTermResize:false, minLines, maxLines}
       this.ideScreenModeVerticalResize(resizeOption)
 
       LOGGER_CONFIG.ACTIVATE && jsLogger('[ScreenMode]', "Full screen reversion - DONE")
@@ -838,10 +892,10 @@ export class IdeSplitScreenManager extends IdeFullScreenManager {
 
   /**Set the pmt-top-div height so that it occupies the whole viewport.
    * */
-  setupTopDivHeight(topDiv, header){
-    topDiv ??= $("#"+CONFIG.element.pmtTopDiv)
+  setupTopDivHeight(){
+    const topDiv = $("#"+CONFIG.element.pmtTopDiv)
     if(!topDiv[0]) return;
-    const headerHpx = ( header ?? $('body > header') ).css('height')
+    const headerHpx = $('body > header').css('height')
     topDiv.css('height', `calc( 100vh - ${ headerHpx })`)
     return cssPx(topDiv)
   }
@@ -919,17 +973,17 @@ export class IdeSplitScreenManager extends IdeFullScreenManager {
     const slider   = this._getSlidingElement(topDiv)
     const headerH  = cssPx(header)
 
-    const changes  = setup ? {
+    const changes = setup ? {
       log: 'Setup',
       rearrangeDom: ()=>{ topDiv.insertAfter(header)
                           const order = [page, slider, this.global]
                           if(swapColumns) order.reverse()
                           topDiv.append(order)
-                          const topDivH = this.setupTopDivHeight(topDiv, header)
+                          const topDivH = this.setupTopDivHeight()
                           srcRepl.insertBefore($(this.solutionH))
                           return {topDivH}
                         },
-      ideResizeArgs:      {setup},
+      ideResizeArgs:      {lockTermResize:setup},
       splitBtnClass:     'remove',
       splitIdeClass:     'add',
       SPLITTED_becomes:   this,
@@ -945,7 +999,7 @@ export class IdeSplitScreenManager extends IdeFullScreenManager {
                           topDiv.remove()
                           return {}
                         },
-      ideResizeArgs:      {setup, minLines:this.minIdeLines, maxLines:this.maxIdeLines},
+      ideResizeArgs:      {lockTermResize:setup, minLines:this.minIdeLines, maxLines:this.maxIdeLines},
       splitBtnClass:     'add',
       splitIdeClass:     'remove',
       SPLITTED_becomes:   null,
@@ -956,13 +1010,12 @@ export class IdeSplitScreenManager extends IdeFullScreenManager {
       initHeight:         this.guiIdeFlags.initGlobH,
     }
 
+    // BEFORE detaching anything
+    let topSrc = changes.scrollRefBefore[0].getBoundingClientRect().top
+
     //------------------------------------------------------------
 
     LOGGER_CONFIG.ACTIVATE && jsLogger('[ScreenMode]', changes.log, "split screen mode")
-
-    // BEFORE detaching anything:
-    let topSrc = changes.scrollRefBefore[0].getBoundingClientRect().top
-
 
     // Reorganize the DOM:
     page.detach()
@@ -1012,7 +1065,7 @@ export class IdeSplitScreenManager extends IdeFullScreenManager {
   }
 
 
-  /**Build or extract the slider element to move the vertical separation (jQuery).
+  /**Build or extract the slider element to move the vertical separation horizontally (jQuery).
    * */
   _getSlidingElement(topDiv){
     const sliderWrapperID = "pmt-slider-div"
