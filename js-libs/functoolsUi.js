@@ -253,6 +253,10 @@ export const aceEditorsDayNightReactivity=()=>{
 */
 
 
+export const resetFloatingTip=()=>{
+  $("#floating-tip").css({display: 'none', width: "unset"}).find("span.tooltiptext").text("")
+}
+
 
 
 /**Logistic for PMT "bare tooltips": They are automatically put in place when an element holds at
@@ -348,14 +352,29 @@ export const handlePmtTooltips=()=>{
     })
   }
 
+  const validTags = '<br> <kbd> <code> <i> <u> <b>'.split(' ')
+
+  const getValidHtml=(html)=>{
+    // In admonitions, tags are escaped somehow (dunno where exactly), so restore them,
+    // if they are allowed:
+    html = html.replace(/\\</g, "<")
+
+    const tags = [...html.replace(/\//g,"").match(/<[^>]*>/g)||[]]
+    const tagsOk = tags.every(s=>validTags.includes(s))
+    return tagsOk ? html :  "<i>(Invalid html code)</i>"
+  }
+
 
   // Add the event listener to all tool tips, and mark them as handled (in case several
   // applications are done-> see MCQ):
   tips.on('mouseleave', function(e){
-    floating.css({display: 'none'})
+    floating.css({display: 'none', width: "unset"})
     tipSpan.text("")
 
   }).on('mouseenter', function(e){
+    if(this.dataset.tipFloat){
+      floating.css({width: this.dataset.tipFloat+"em"})
+    }
     let pos
 
     if(this.dataset.tipMove!==undefined){
@@ -370,7 +389,8 @@ export const handlePmtTooltips=()=>{
 
       pos = getAnchorPoint(rect, pagePos, this)
     }
-    tipSpan.html(this.dataset.tipTxt)
+    const content = getValidHtml(this.dataset.tipTxt)
+    tipSpan.html(content)
     placement(pos)
   }).addClass('tip-done')
 

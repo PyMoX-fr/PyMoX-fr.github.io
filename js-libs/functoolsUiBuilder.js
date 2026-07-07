@@ -17,6 +17,8 @@ along with this program.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { resetFloatingTip } from "functoolsUi"
+
 
 
 /**Build bare divs from the given strings.
@@ -51,7 +53,8 @@ const defaultOptions=(options, prop)=>({
     shift: 50,          // %
     tipWidth: 0,        // em ; 0 => auto
     tipClass: '',       // top bottom left right (default: bottom)
-    tipBare: false,     // If true, use the "bare tooltips" mechanism
+    bareTip: false,     // If true, use the "bare tooltips" mechanism
+    floatingWidth: 0,
 
     autoCbk: true,      // If true, automatic event routine added
     disabled: undefined,
@@ -93,9 +96,10 @@ const stuffWithTooltip = (tag, options, content) =>{
     const tagId    = !options.tagId   ? '':`id="${ options.tagId }"`
     const tagStyle = getTagStyle(options)
     const tipSpan  = buildTipSpan(options)
-    const tagDataTip = !options.bareTip || !options.tipText ? '' : ` data-tip-txt="${ options.tipText }"`+(
-        !options.tipWidth ? '' : `data-tip-width="${ options.tipWidth }"`
-    )
+    const tagDataTip = !(options.bareTip && options.tipText) ? ''
+                            : ` data-tip-txt="${ options.tipText }"`
+                            + (!options.tipWidth ? '' : `data-tip-width="${ options.tipWidth }"`)
+                            + (!options.floatingWidth ? '' : `data-tip-float="${ options.floatingWidth }"`)
 
     const buttonType = ' type="button"'.repeat(tag=='button')
     return $([
@@ -259,6 +263,8 @@ export function buildJqHistoryBtn(                                  // CodCap
 ){
 
     const appendHistory=()=>{
+        resetFloatingTip()
+
         if(!historyArr.length || $('#'+historyId).length) return;
 
         // Use button instead of div, so that focusout and co' are actually working...

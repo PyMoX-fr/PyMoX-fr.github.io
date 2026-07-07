@@ -219,7 +219,7 @@ class IdeHistoryManager extends IdeAceManager {
   }
 
 
-  setupHistoryBtn(jHistItem, [done, time, code]){
+  setupHistoryItem(jHistItem, [done, time, code]){
     jHistItem.text(time)
     jHistItem.on('click', e=>{
       cancelEvent(e)
@@ -953,7 +953,7 @@ export class IdeRunner extends IdeRunnerLogic {
                             btn,
                             `history_${ ideThis.id }`,
                             ideThis.validations,
-                            ideThis.setupHistoryBtn.bind(ideThis),
+                            ideThis.setupHistoryItem.bind(ideThis),
                           )
                           callback = ideThis.runners.validate.asEvent ; break
 

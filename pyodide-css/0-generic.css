@@ -282,7 +282,7 @@ mais sans lien dessus */
 .tooltip.p5-btn > img { width: 24px; }
 
 
-#floating-tip { position: absolute; z-index: 1 }
+#floating-tip { position: absolute; z-index: 10 }
 #floating-tip > span { visibility: unset; }
 
 

@@ -88,7 +88,7 @@ export const chaining=0     // To control imports orders when using overrides (u
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscriptions] - Done waiting: starting subscriptions')
 
     const managerClass = CONFIG.CLASSES_POOL.GlobalRunnersManager
-    const isPageWithRunners = Boolean(managerClass)
+    const isPageWithRunners = "Wait4StartPyodide" in CONFIG.subscriptionReady
     if(isPageWithRunners){
 
       managerClass._defineIdesManagerProxyLikeAndStore_MANAGER_InConfig()
