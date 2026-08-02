@@ -116,7 +116,7 @@ const stuffWithTooltip = (tag, options, content) =>{
 
 /**Create a button with tooltip, just like the python _html_builder one (no event attached).
  * */
-export function buttonWithTooltip(options, content){    // CodCap
+export function buttonWithTooltip(options, content){    // CodCap override
     options = defaultOptions(options)
     options.noLabel = true
     return stuffWithTooltip('button', options, content)
@@ -127,7 +127,7 @@ export function buttonWithTooltip(options, content){    // CodCap
 /**Create a jQuery button WITHOUT bound event, holding the svg of one of the IDE's buttons.
  * No event attached.
  * */
-export const makeIdeJqButton = (kind, options) => {     // CodCap
+export const makeIdeJqButton = (kind, options) => {     // CodCap override
     const img = `<img src="${ CONFIG.buttonIconsDirectory }/icons8-${ kind }-64.png" />`
     return buttonWithTooltip(options, img)
 }
@@ -254,7 +254,7 @@ export const cancelEvent=(e)=>{
 
 
 
-export function buildJqHistoryBtn(                                  // CodCap
+export function buildJqHistoryBtn(                                  // CodCap override
     jHolder,        // jQuery element holding the contextmenu
     historyId,      // Id if the "contextmenu" element
     historyArr,     // [data]
@@ -267,11 +267,9 @@ export function buildJqHistoryBtn(                                  // CodCap
 
         if(!historyArr.length || $('#'+historyId).length) return;
 
-        // Use button instead of div, so that focusout and co' are actually working...
         const jHist = $(
-            `<button id="${ historyId }" class="history-box"></button>`
+            `<div id="${ historyId }" class="history-box" tabindex="0"></div>`
         )
-
         jHist.append(
             historyArr.map(data=>{
                 const btn = $(`<button class="history-btn">${ itemSetupCbk?"":data }</button>`)

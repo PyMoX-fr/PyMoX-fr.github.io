@@ -282,8 +282,14 @@ mais sans lien dessus */
 .tooltip.p5-btn > img { width: 24px; }
 
 
-#floating-tip { position: absolute; z-index: 10 }
-#floating-tip > span { visibility: unset; }
+#floating-tip {
+  position: absolute;
+  z-index: 10;
+}
+#floating-tip > span {
+  visibility: unset;
+  box-shadow: 2px 3px 5px var(--hover-fg-color,#555);
+}
 
 
 input#playground-url {

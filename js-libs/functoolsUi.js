@@ -257,6 +257,7 @@ export const resetFloatingTip=()=>{
   $("#floating-tip").css({display: 'none', width: "unset"}).find("span.tooltiptext").text("")
 }
 
+const DEBUG_TOOLTIP = false
 
 
 /**Logistic for PMT "bare tooltips": They are automatically put in place when an element holds at
@@ -367,9 +368,9 @@ export const handlePmtTooltips=()=>{
 
   // Add the event listener to all tool tips, and mark them as handled (in case several
   // applications are done-> see MCQ):
-  tips.on('mouseleave', function(e){
-    floating.css({display: 'none', width: "unset"})
-    tipSpan.text("")
+  tips.on('mouseleave', function(){
+    if(DEBUG_TOOLTIP) return
+    resetFloatingTip()
 
   }).on('mouseenter', function(e){
     if(this.dataset.tipFloat){

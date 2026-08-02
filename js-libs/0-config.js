@@ -37,9 +37,6 @@ const SqBs = {
 
 const CONFIG = {
 
-    /**Number of entries kept in validations history. */
-    N_IDE_VALIDATIONS: 10,
-
     /* The following values are passed from python to JS through the main.html,
        once this script got loaded */
     //JS_CONFIG_DUMP

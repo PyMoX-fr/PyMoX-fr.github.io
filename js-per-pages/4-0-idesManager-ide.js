@@ -33,6 +33,8 @@ export { RUNNERS_MANAGER }
 
 
 class GlobalZipExportIdesManager extends CONFIG.CLASSES_POOL.GlobalRunnersManager {
+  // Extension done this way to avoid the need to export the partent class...
+  // (a bit dirty, but helps a bit to actually encapsulate the actual Manager object)
 
   exportIdesAsZip(){
 

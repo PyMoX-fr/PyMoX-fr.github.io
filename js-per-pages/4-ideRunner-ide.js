@@ -174,20 +174,15 @@ class IdeHistoryManager extends IdeAceManager {
   }
 
 
-  getTime(){
+  getTime(){     // CodCap override
     return (Date()+'').split(' GMT')[0].slice(-8)
   }
 
   /**Store the data of the current run/validation to this.validations.
    * */
-  pushValidation(code, done){     // CodCap
+  pushValidation(code, done){     // CodCap override
     const time = this.getTime()
     this.validations.push([done, time, code])
-
-    // Suppress entries that are too old:
-    if(this.validations.length > CONFIG.N_IDE_VALIDATIONS){
-      this.validations.splice(0, this.validations.length-CONFIG.N_IDE_VALIDATIONS)
-    }
   }
 
 
@@ -209,7 +204,7 @@ class IdeHistoryManager extends IdeAceManager {
   }
 
 
-  getIdeStateColor(done){     // CodCap
+  getIdeStateColor(done){     // CodCap override
     return !done ? "unset" : done<0 ? 'red' : 'green'
   }
 
@@ -403,7 +398,7 @@ class IdeFeedbackManager extends IdeHistoryManager {
    *  .show (=false):
    *      If true, deploy the admonition.
    * */
-  revealSolutionAndRems(options={}){    // CodCap
+  revealSolutionAndRems(options={}){    // CodCap override
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - Enter revealSolutionAndRems")
 
     const {waitForMathJax, show} = {
@@ -609,7 +604,7 @@ class IdeRunnerLogic extends IdeFeedbackManager {
 
 
 
-  async playThroughRunner(runtime){   // CodCap
+  async playThroughRunner(runtime){   // CodCap override
     const code = this.getCodeToTest()
     await this.runPythonCodeWithOptionsIfNoStdErr(code, runtime, CONFIG.section.editor)
   }
@@ -1006,7 +1001,7 @@ export class IdeRunner extends IdeRunnerLogic {
 
 
   // Doesn't work to catch the Esc applying "exit full screen"... :/
-  respondToKeyDown(_event){   // CodCap
+  respondToKeyDown(_event){   // CodCap override
     this.activateIde()
   }
 
@@ -1084,7 +1079,7 @@ export class IdeRunner extends IdeRunnerLogic {
   }
 
 
-  upload(){           // CodCap
+  upload(){           // CodCap override
     uploader( txt=>{
       this.applyCodeToEditorAndSave(txt)
       this.makeDirty()
@@ -1094,7 +1089,7 @@ export class IdeRunner extends IdeRunnerLogic {
 
   /**Download the current content of the editor to the download folder of the user.
    * */
-  download(content=null){   LOGGER_CONFIG.ACTIVATE && jsLogger("[Download]")    // CodCap
+  download(content=null){   LOGGER_CONFIG.ACTIVATE && jsLogger("[Download]")    // CodCap override
 
     let ideContent = content ?? this.getCodeToTest() + "" // enforce stringification in any case
     downloader(ideContent, this.pyName)
@@ -1114,7 +1109,7 @@ export class IdeRunner extends IdeRunnerLogic {
    *
    * @returns; true if the user confirmed the reset.
    * */
-  restart(){                                                      // CodCap
+  restart(){
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Restart]")
 
     const doReset = window.confirm(CONFIG.lang.restartConfirm.msg)
@@ -1124,8 +1119,13 @@ export class IdeRunner extends IdeRunnerLogic {
     return doReset
   }
 
-  resetElement(doFocus=true){
-    super.resetElement()    // This marks the runner as dirty
+
+  /**Actually apply the logic to reset/restart an IDE.
+   * @doFocus can be seen as "triggered by the user?", hence, when it is false, some extra
+   * steps should be avoided, like autofocus of the element.
+   * */
+  resetElement(doFocus=true){   // CodCap override: if @doFocus is true, send notifications to Capytale).
+    super.resetElement()        // This marks the runner as dirty
     // Cancel the orange box on resets (coming with this.makeDirty() in the super call)
     this.setOrangeBox(false)
     this.setStartingCode({extractFromLocalStorage: false, saveOnceApplied: false})
@@ -1137,9 +1137,9 @@ export class IdeRunner extends IdeRunnerLogic {
     $("#solution_" + this.id).addClass('py_mk_hidden')
     this.hiddenDivContent = true
     if(doFocus) this.focusEditor()
-    // clearPyodideScope()    // v4.2.0+: no scope cleaning anymore.
-    this.takesGroupPriority() // Keep this one because the method may be triggered from some code
-                              // during the tests, without clicking on the IDE
+    // clearPyodideScope()      // PMT 4.2.0+: no scope cleaning anymore.
+    this.takesGroupPriority()   // Keep this one because the method may be triggered from some code
+                                // during the tests, without clicking on the IDE
   }
 }
 

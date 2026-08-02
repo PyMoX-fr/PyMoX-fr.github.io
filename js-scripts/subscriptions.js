@@ -132,7 +132,7 @@ export const chaining=0     // To control imports orders when using overrides (u
     handlePmtTooltips()
 
 
-    subscribeWhenReady("QCM", function(){
+    subscribeWhenReady("QCM", function(){             // Will always update CONFIG.subscriptionDone.QCM
       if(CONFIG.CLASSES_POOL.Qcm){                    // Building qcms only if the class is defined in the page
         LOGGER_CONFIG.ACTIVATE && jsLogger('[QCM]')
         CONFIG.CLASSES_POOL.Qcm.buildQcms()
@@ -144,7 +144,7 @@ export const chaining=0     // To control imports orders when using overrides (u
     // Done _LATE_ because of chrome troubles in Capytale: subscribing after everything has been
     // set/updated will avoid useless calls/reactions to DOM mutations (IDEs & co).
     LOGGER_CONFIG.ACTIVATE && jsLogger('[MathJax] - subscribe to document$ after pyodide started')
-    subscribeWhenReady(
+    subscribeWhenReady(                               // Will always update CONFIG.subscriptionDone.MathJax
       'MathJax',
       perennialMathJaxUpdate,
       {

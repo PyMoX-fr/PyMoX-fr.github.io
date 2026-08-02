@@ -78,7 +78,7 @@ export const showIdCollisionsIfAny=()=>{
  *  1) Redactors might store extra fields in the LocalStorage, so DO NOT cleanup the thing...
  *  2) This function is used in CodEx.
  * */
-export function getIdeDataFromStorage(editorId, ide=null){      // CodCap
+export function getIdeDataFromStorage(editorId, ide=null){      // CodCap override
 
   // Originally, the storage value was just the user's code, so keep extracting as this:
   let codeOrStorageAsStr = localStorage.getItem(editorId) || ""

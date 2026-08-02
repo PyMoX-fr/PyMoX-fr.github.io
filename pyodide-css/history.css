@@ -27,13 +27,17 @@ If not, see <https://www.gnu.org/licenses/>.
   border-radius: 10px;
   padding: var(--hist-size);
   display: grid;
-  grid-auto-rows: 1fr;
+  /* grid-auto-rows: 1fr; */
   gap: calc(var(--hist-size) / 1.6);
   cursor: auto;
   font-size: 90%;
+  max-height: 400px;
+  width: max-content;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .history-btn {
-  width: max-content;
+  width: 100%;
   padding: 2px 8px;
   cursor: pointer;
 }
