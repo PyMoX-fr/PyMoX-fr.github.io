@@ -266,12 +266,9 @@ const DEBUG_TOOLTIP = false
  * - The width of the tooltip can be set using "data-tip-width" (value in em)
  * - The text cannot contains any html code, only text.
  * */
-export const handlePmtTooltips=()=>{
+export const handlePmtTooltips=(()=>{
 
-  const tips = $(".tooltip[data-tip-txt]:not(.tip-done)")
-
-  if(!tips.length) return;
-
+  const TIP_RULE = ".tooltip[data-tip-txt]:not(.tip-done)"
   const DELTA  = 10
   let floating = $("#floating-tip")
   let tipSpan  = $("#floating-tip > span.tooltiptext")
@@ -366,6 +363,10 @@ export const handlePmtTooltips=()=>{
   }
 
 
+  return (collection=null)=>{
+    const tips = collection ? collection.find(TIP_RULE) : $(TIP_RULE)
+
+    if(!tips.length) return;
   // Add the event listener to all tool tips, and mark them as handled (in case several
   // applications are done-> see MCQ):
   tips.on('mouseleave', function(){
@@ -373,6 +374,7 @@ export const handlePmtTooltips=()=>{
     resetFloatingTip()
 
   }).on('mouseenter', function(e){
+    if(!this.dataset.tipTxt) return;
     if(this.dataset.tipFloat){
       floating.css({width: this.dataset.tipFloat+"em"})
     }
@@ -404,4 +406,5 @@ export const handlePmtTooltips=()=>{
         placement(pos)
       })
     })
-}
+  }
+})()

@@ -124,6 +124,16 @@ mais sans lien dessus */
 */
 
 
+
+
+#floating-tip {
+  position: absolute;
+  z-index: 10;
+}
+#floating-tip > span {
+  visibility: unset;
+  box-shadow: 2px 3px 5px var(--hover-fg-color,#555);
+}
 .tooltip {
   position: relative;
   /* display: grid;  FIX - py_btn in span not working anymore */
@@ -131,13 +141,11 @@ mais sans lien dessus */
   align-items: center;
   text-decoration: underline dashed gray;
 }
-.tooltip[data-tip-txt] {
-  cursor:unset;
-}
+.tooltip.no_tip_decoration{ text-decoration:unset; }
 
-.tooltip .tooltiptext code {
-  color: white;
-}
+.tooltip[data-tip-txt] { cursor:default; }
+
+.tooltip .tooltiptext code { color: white; }
 
 /*The tooltip itself (bottom position by default)*/
 .tooltip .tooltiptext {
@@ -280,16 +288,6 @@ mais sans lien dessus */
 .p5_btns_wrapper.p5_bottom { flex-direction: row; }
 
 .tooltip.p5-btn > img { width: 24px; }
-
-
-#floating-tip {
-  position: absolute;
-  z-index: 10;
-}
-#floating-tip > span {
-  visibility: unset;
-  box-shadow: 2px 3px 5px var(--hover-fg-color,#555);
-}
 
 
 input#playground-url {

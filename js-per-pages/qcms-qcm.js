@@ -305,7 +305,7 @@ class Question {
         }
         Object.entries(this.byId).forEach(([itemId,it])=>{
             const classes = []
-            if(it.checked) classes.push(it.correct ? CONFIG.qcm.ok : CONFIG.qcm.wrong)
+            if(it.checked) classes.push(it.correct ? CONFIG.qcm.correct : CONFIG.qcm.incorrect)
             else if(it.correct) classes.push(CONFIG.qcm.missed)
 
             if(classes.length){

@@ -21,9 +21,13 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { jsLogger } from 'jsLogger'
 import {
+  IS_WIN,
+  cssPx,
   PythonError,
-  sleep,
   RunningProfile,
+  sleep,
+  somethingFullScreen,
+  useCtrl,
 } from 'functools'
 import {
   PMT_LOCAL_STORAGE_KEYS_WRITE,
@@ -36,23 +40,6 @@ import { TerminalRunner } from '3-terminalRunner-term'
 
 
 ace.require("ace/ext/language_tools");
-
-export const isWin   = navigator.userAgent.includes('Windows')
-export const isMacOs = navigator.userAgent.includes('Macintosh')
-
-/**Tell if the given event (original, of jQuery) is using Ctrl or Cmd.
- * */
-export const useCtrl =(e)=> e.ctrlKey || isMacOs && e.metaKey
-
-export const somethingFullScreen =()=> Boolean(document.fullscreenElement)
-
-/**Extract the height, as a number, from the css property (by default)
- * */
-export const cssPx =(jObj,prop='height')=> +jObj.css(prop).slice(0,-2)
-
-
-
-
 
 
 
@@ -569,12 +556,12 @@ export class IdeGuiManager extends IdeZipManager {
       const availableH = globH - btnsH - termH * !this.isVert
       const nLines     = Math.max(
         3,    // Make sure the "###" button and the view modes buttons stay on different lines.
-        Math.floor( availableH/lineH ) - isWin
+        Math.floor( availableH/lineH ) - IS_WIN
       )
 
       // Fix the exact terminal height so that the bottom space is always consistent:
       if(!this.isVert){
-        termH = Math.max(termH, globH - btnsH - lineH * (nLines-isWin) )
+        termH = Math.max(termH, globH - btnsH - lineH * (nLines-IS_WIN) )
       }
 
       // Set the actual number of lines to "lock" for the ACE editor:

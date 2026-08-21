@@ -17,38 +17,49 @@ along with this program.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 import { jsLogger } from 'jsLogger'
 import {
-  PythonError,
+  cssPx,
   waitForPyodideReady,
   RunningProfile,
 } from 'functools'
 import { decompressAndConvert, txtFormat } from 'functoolsTxt'
+import { storeConfWithProxy, VirtualizedDomManager } from '5-2-virtualizer-ides_test'
 import { clearPyodideScope } from '0-generic-python-snippets-pyodide'
 import { IdeRunner } from '4-ideRunner-ide'
 
 
 
-const TEST_OUTCOME = Object.freeze([CONFIG.qcm.failTest, CONFIG.qcm.passBad, CONFIG.qcm.ok, CONFIG.qcm.failOk])
 
 
 
-const confWithProxy=(conf, parent=undefined)=>{
-  return new Proxy(conf, {
-    get(o, prop, prox){
-      switch(prop){
-        case "__conf_updated": return o.__conf_updated      // No proxy transmission here...
-        case "isIde":          return !parent
-        case "hasSubCases":    return !parent && Boolean(o.subcases.length)
-        default:               return o[prop] ?? (parent && parent[prop])
-      }
-    },
-    has(o, prop){
-      return (prop in o) || Boolean(parent) && (prop in parent)
-    }
-  })
-}
+
+
+// Finalize the layout...
+;(()=>{
+
+  // Remove the SIDE nav in the general view if a nav exists IN THE HEADER:
+  if($('nav.md-tabs').is('*')){
+      $('div.md-sidebar--primary').remove()
+  }
+
+  // Compute the min width of the results table, to limit horizontal squeezing:
+  const filtering    = $('#py_mk_tests_filters')
+  const filters      = [...filtering.find('button')]
+  const filtersWidth = filters.reduce((s,o)=>s + cssPx($(o),'width'), 0)
+  const gridGap      = cssPx(filtering, 'grid-gap') * (filters.length-1)
+  const width        = Math.round(filtersWidth + gridGap) + 'px'
+  $('#py_mk_tests_right_column').css('min-width', width)
+
+})()
+
+
+
+
+
+
+
+
 
 
 
@@ -64,262 +75,218 @@ class IdeTesterGuiManager extends IdeRunner {
    * */
   get revealCorrRems(){ return this.conf.reveal_corr_rems }
 
+  get ctrlAll(){ return !this.jCtrlAll.prop('checked') }
+
 
   constructor(editorId){
     super(editorId)
     this.globalTestsJq = $("#py_mk_test_global_wrapper")
-    this.delay       = 0     // Override: no pause when starting the executions
-    this.conf        = null
-    this.testing     = false
-    this.toSwap      = [this.data, ()=>""]      // nothing to swap, by default...
-    this.ides_cache  = {}                       // To cache the URL requests
-    this.test_cases  = []                       // All the Conf/ConfProxy objects for all the tests (in order)
-    this.std_capture = []   // Full stdout+stdErr capture. Considering jQTerm formatting:
-                            //    * any content coming from pyodide stdout is NOT FORMATTED YET
-                            //    * any content coming from JS logistic IS ALREADY FORMATTED.
-    this.stopTests   = false
-    this.fullCode    = ""   // Initial loaded code (associated to one conf/test)
-
+    this.delay         = 0     // Override: no pause when starting the executions
+    this.conf          = null
+    this.testing       = false
+    this.toSwap        = [this.data, ()=>""]      // nothing to swap, by default...
+    this.ides_cache    = {}                       // To cache the URL requests
+    this.test_cases    = []                       // All the Conf/ConfProxy objects for all the tests (in order)
+    this.std_capture   = []   // Full stdout+stdErr capture. Considering jQTerm formatting:
+                              //    * any content coming from pyodide stdout is NOT FORMATTED YET
+                              //    * any content coming from JS logistic IS ALREADY FORMATTED.
+    this.stopTests     = false
+    this.pauseTests    = false
+    this.jCtrlAll      = $("#py_mk_tests_ctrl_box")
+    this.fullCode      = ""   // Initial loaded code (associated to one conf/test)
+    this.visibilities  = Object.values(CONFIG.qcm).reduce( (o,k)=>(o[k]=1,o), {})
+    this.virtuose      = new VirtualizedDomManager(this)
     this._extractJsData()
+    this.virtuose.initiateTestsResults()
   }
-
 
   _extractJsData(){
-    const test_cases = decompressAndConvert(CASES_DATA)
+    // Array of arrays: [IdeTestDump, proxy], to debug troubles with auto extractions or conversions.
     const debug = []
+    if(CONFIG._devMode){
+      window._CASES_DATA = debug
+    }
+
+    const testCasesData = decompressAndConvert(CASES_DATA)
 
     // Linearize test_cases and build all proxies:
-    for(const ideConf of test_cases){
-
-      const proxIde = confWithProxy(ideConf)
-      this._finalizeConf(proxIde)
-      this.test_cases.push(proxIde)
-      debug.push([ideConf, proxIde])
-
+    for(const ideConf of testCasesData){
+      const ide_proxy = storeConfWithProxy(this.test_cases, debug, ideConf)
+      this.virtuose.register(ide_proxy)
       const subcases = ideConf.subcases??[]
       subcases.forEach( (sub,i)=>{
-        const proxSub = confWithProxy(sub, ideConf)
-        this._finalizeConf(proxSub, i)
-        this.test_cases.push(proxSub)
-        debug.push([sub, proxSub])
+        const proxy = storeConfWithProxy(this.test_cases, debug, sub, ideConf, i, ide_proxy)
+        this.virtuose.register(proxy)
       })
-      if(CONFIG._devMode){
-        window._CASES_DATA = debug
-      }
     }
   }
-
-  /**Initial conversion steps, to finalize the python->JS transfer of the tests data.
-   * Also define composed values that are specific to this tests.
-   *
-   * WARNING: these composed values MUST NEVER override some original properties, otherwise the
-   * finalization of the parent may occasionally mess up the finalization of some of the children.
-   * */
-  _finalizeConf(conf, iCase=null){
-    conf.doFail = Boolean(conf.fail || conf.in_error_msg || conf.not_in_error_msg)
-    conf.doSkip = Boolean(conf.skip || conf.human)
-    conf.reveal_corr_rems = false
-
-    if(iCase!==null && iCase>0){
-      conf.no_clear ??= true
-    }
-
-    // Convert regexps patterns to RegExp objects:
-    const regexps = 'std_capture_regex not_std_capture_regex'.split(' ')
-    regexps.forEach( prop=>{
-      try{
-        // Warning: subcases may hold an empty string that is cancelling the use of the parent
-        // pattern. In that case, keep the empty string instead of a RegExp, to avoid applying
-        // the regexp check of the parent on the child test:
-        const pattern = conf[prop]
-        if(typeof(pattern)=='string'){
-          conf[prop] = pattern && new RegExp(pattern, 'si')
-        }
-      }catch(e){
-        throw new PythonError(`Invalid Regex generation for ${ prop }, using ${ conf[prop] }`)
-      }
-    })
-
-    if(Array.isArray(conf.assertions)) return;
-
-    // Convert assertions string to a list of predicates:
-    conf.assertions = conf.assertions && conf.assertions.split(' ').map(rule=>{
-      const prop = _.camelCase( rule.replace(/^!/, '') )
-      const revExpected = rule.startsWith('!')  // Reversing to enforce booleans everywhere
-      return (obj) =>{
-        if( obj[prop]===undefined ) return prop+' is undefined...'
-        return!obj[prop] == revExpected ? "" : `${ prop }: should be ${ !revExpected }\n`
-      }
-    })
-  }
-
-  // @Override
-  announceCodeChangeBasedOnSrcHash(){}
-
 
   // @Override
   build(){
     super.build()
-    const playBtns = $(".py_mk_test_element > [btn_kind=test_1_ide]")
-
-    this.bindLoadButtons(playBtns)
-    this.bindPlayButtons(playBtns, this)
-    this.bindDivSvgCheckboxesAndFillConfs(playBtns, this)
-    const updateIdesVisibility = this.buildIdeRowVisibilityUpdateRoutine(playBtns, this)
-    this.bindFilters(updateIdesVisibility, this)
-    this.bindGlobalPlayStopButtons()
-    this.bindGlobalSelectorButtons(updateIdesVisibility)
+    this.bindFilters()
+    this.buildTxtFilters()
+    this.bindGlobalGlobalButtons()
+    this.bindGlobalSelectors()
+    this._updateAllCounters()
   }
 
-  bindLoadButtons(playBtns){
-    // Bind load buttons (if they exist):
-    playBtns.prev("[btn_kind=load_ide]").on('click', async (e)=>{
+
+  async _loadButtonBinding(proxy){
       if(this.testing) return;    // Deactivated during tests (otherwise, big troubles...)
 
       // Do NOT use the pyodideAsyncLock utility here, so that the call is just cancelled
-      // if occurring during a test session (see above), instead of being delayed until
-      // the tests are done.
+      // if occurring during a test session (see condition above), instead of being delayed
+      // until the tests are done.
       await waitForPyodideReady()
 
-      const plyBtn = $(e.currentTarget).next()
-      const iIde   = +plyBtn.data('iIde')
-      this.conf    = this.test_cases[iIde]
-      this.data    = await this.getIdeData(this.conf)   // Update first (see getters)
+      this.conf = proxy
+      this.data = await this.getIdeData(this.conf)   // Update this.conf first! (see getters)
 
       this.getCodeToTest =()=> this.editor.getSession().getValue()
       this.applyCodeToEditorAndSave(this.conf.loadedCode)
       this._applyConfAndData(true)
-    })
   }
 
-
-  bindPlayButtons(playBtns, ideThis){
-    playBtns.on('click', async function(){
-      const iIde    = +this.dataset.iIde
-      const iRow    = +this.dataset.iRow
-      const confIde = ideThis.test_cases[iIde]
-      const conf    = ideThis.test_cases[iRow]
-      const iLast   = conf.hasSubCases ? iIde+confIde.subcases.length : iRow
-      await ideThis.runAllTests(iIde, iLast+1, true)
-    })
-  }
-
-  bindDivSvgCheckboxesAndFillConfs(playBtns, ideThis){
-
-    const iRowOnPlayBtnFromSvgDiv =(jSvgDiv)=> +jSvgDiv.parent().next().find('[btn_kind=test_1_ide]').data('iRow')
-
-    // Associate the jSvg holders with the related conf object:
-    const svgDivs = playBtns.parent().prev().find('[data-state]')
-    svgDivs.on('click', (e)=>{
-      const jSvg = e.currentTarget
-      const iRow   = iRowOnPlayBtnFromSvgDiv($(jSvg))
-      const conf   = this.test_cases[iRow]
-      this.setSvgAndCounters(conf)
-    })
-
-    // Assign iRow values and archive the related jDiv holding the svg for each test/conf:
-    svgDivs.each(function(){
-      const jSvgDiv = $(this)
-      const iRow    = iRowOnPlayBtnFromSvgDiv(jSvgDiv)
-      const conf    = ideThis.test_cases[iRow]
-      conf.jSvg   = jSvgDiv
-      conf.iRow     = iRow
-    })
-  }
-
-  buildIdeRowVisibilityUpdateRoutine(playBtns, ideThis){
-    const playBtnsArr = [...playBtns].map(o=>$(o))
-    const idesWithChildren = [];
-    _.zip(this.test_cases, playBtnsArr).forEach( ([conf, jDiv], iRow) => {
-      if(conf.hasSubCases){
-        idesWithChildren.push( [jDiv, playBtnsArr.slice(iRow+1, iRow+1+conf.subcases.length)] )
-      }
-    })
-
-    const updateIdesVisibility=()=>{
-      idesWithChildren.forEach(([jIde, jChildren])=>{
-        const visible = jChildren.some(jDiv=>jDiv.css('display')!='none')
-        ideThis.globalTestsJq.css(`--item-${ jIde[0].dataset.iRow }`, visible ? 'unset':'none')
-      })
-    }
-    return updateIdesVisibility
-  }
-
-  bindFilters(updateIdesVisibility, ideThis){
+  bindFilters(){
+    const ideThis = this
     $(".filter-btn").on('click', function(){
       const active = 1 ^ +this.getAttribute('active')
       this.setAttribute('active', active)
       for(const state of this.dataset.states.split('|')){
-        ideThis.globalTestsJq.css(`--display-${ state }`, active?'unset':'none')
+        ideThis.visibilities[state] = active
       }
-      updateIdesVisibility()
+      ideThis.virtuose.filterChange()
     })
   }
 
-  bindGlobalPlayStopButtons(){
-    // Configure "run all" and "stop" buttons:
-    this.global.parent()
-               .find('button[btn_kind=test_ides]')
-               .on('click', ()=>{ this.runAllTests() })
-               .parent()
-               .find('button[btn_kind=test_stop]')
-               .on('click', ()=>{ this.stopTests=true })
+  buildTxtFilters(){
+    const box   = $('#py_mk_tests_regex_box')
+    const input = $('#py_mk_tests_txt_search')
+
+    box.on('click', ()=>{
+      this._applySearch(input, input.prop('value'), box.prop('checked'))
+    })
+    input.on('keydown', _.debounce(()=>{
+      this._applySearch(input, input.prop('value'), box.prop('checked'))
+    }, 300))
   }
 
-  bindGlobalSelectorButtons(updateIdesVisibility){
+  _applySearch(input, txt, useReg){
+    let predicate = null
+    if(txt){
+      if(!useReg){
+        predicate = (str)=>str.includes(txt)
+      }else{
+        try{
+          const reg = new RegExp(txt)
+          predicate = (src)=>Boolean(reg.exec(src))
+          input.attr('data-tip-txt', "")
+        }catch(e){
+          input.addClass("blink-error").attr('data-tip-txt', "Invalid regexp")
+          setTimeout(()=>input.removeClass("blink-error"), 400)
+        }
+      }
+    }
+    this.virtuose.txtPredicate = predicate
+    this.virtuose.filterChange()
+  }
 
+  // Configure "run all" and "stop" buttons:
+  bindGlobalGlobalButtons(){
+    $('button[btn_kind=test_ides]' ).on('click', ()=>{ this.runAllTests() })
+    $('button[btn_kind=test_pause]').on('click', ()=>{
+      this.pauseTests = !this.pauseTests ;
+      $('button[btn_kind=test_pause]>img').css('--ide-btn-color', this.pauseTests?'gray':'orange')
+    })
+    $('button[btn_kind=test_stop]' ).on('click', ()=>{
+      this.stopTests=true
+      $('button[btn_kind=test_pause]>img').css('--ide-btn-color', 'orange')
+    })
+    this.jCtrlAll.on('click', ()=>{
+      const txt = this.ctrlAll ? 'all':'visible'
+      $('button#select-all').text('Select '+txt)
+      $('button#unselect-all').text('Unselect '+txt)
+      $('button[btn_kind=test_ides]').attr('data-tip-txt', `Run ${ txt } tests...`)
+    })
+  }
+
+  getCasesToHandle(){
+    return this.ctrlAll ? this.virtuose.lines : [...this.virtuose.mayBeInDom]
+  }
+
+
+  bindGlobalSelectors(){
     // Configure global buttons (select-all, unselect-all):
     ;[
-      [false, ''],
-      [true, 'un']
-    ].forEach( ([skipped,prefix]) => {
-      $(`button#${ prefix }select-all`).on('click', _=>{
-        this.test_cases.forEach(conf=>{
-          if(conf.hasSubCases) return;
-          conf.doSkip = skipped
-          this.setSvgAndCounters(conf, prefix+'checked', false)
+      '', 'un'
+    ].forEach( (prefix) => {
+      $(`button#${ prefix }select-all`).on('click', ()=>{
+        this.getCasesToHandle().forEach(row=>{
+          if(!row.proxy.isRoot){
+            this.setSvgAndCounters(row.proxy, prefix+'checked', false)
+          }
         })
-        this._updateCounters()
-        updateIdesVisibility()
+        this._updateAllCounters()    // once only!
+        this.virtuose.filterChange()
       })
     })
-
     // Configure "human" toggle button:
     $(`button#toggle-human`).on('click', _=>{
-      this.test_cases.forEach(conf=>{
-        if(!conf.human || conf.hasSubCases) return;
-        conf.doSkip = !conf.doSkip
-        const state = conf.doSkip ? CONFIG.qcm.unchecked : CONFIG.qcm.checked
-        this.setSvgAndCounters(conf, state, false)
+      this.getCasesToHandle().forEach(conf=>{
+        if(!conf.isRoot && conf.human){
+          const state = conf.doSkip ? CONFIG.qcm.checked : CONFIG.qcm.unchecked
+          this.setSvgAndCounters(conf, state, false)
+        }
       })
-      this._updateCounters()
-      updateIdesVisibility()
+      this._updateAllCounters()    // once only!
+      this.virtuose.filterChange()
     })
   }
 
 
 
-  updateDisplayCssVar(conf, state){
-    this.globalTestsJq.css(`--item-${ conf.iRow }`, `var(--display-${ state })`)
-  }
-
-
-
-  /**Update the html class of the svg container with the given id.
-   * If @newState is null, automatically toggle the current element, based on the current conf.doSkip value.
+  /**Update the html class of the svg container with the given id. If @newState is null,
+   * automatically toggle the current element, based on the current conf.doSkip value.
    * */
   setSvgAndCounters(conf, newState=null, updateCounters=true){
     if(!newState){
-      // swapping the state:
+      // swapping the state, if not provided:
       newState = conf.doSkip ? CONFIG.qcm.checked : CONFIG.qcm.unchecked
     }
-    this.updateDisplayCssVar(conf, newState)
-    if(updateCounters) this.updateCounter(conf.jSvg.attr('data-state'), -1)
-    conf.jSvg.attr('data-state', newState)
-    if(updateCounters) this.updateCounter(newState, +1)
+    const parent = conf.parentProxy
+    const visibilityChange = this.visibilities[newState] - this.visibilities[conf.state]
+    const parentSrcVisibility = visibilityChange && parent && this.getRootVisibility(parent)
+
+    if(updateCounters) this.updateCounter(conf.state, -1)
     conf.doSkip = newState==CONFIG.qcm.unchecked
+    conf.state  = newState
+    if(updateCounters) this.updateCounter(newState, +1)
+
+    // Update the UI only if it exists already (otherwise, the proxy state will give it the proper
+    // value on later creation):
+    if(conf.jSvg) conf.jSvg.attr('data-state', newState)
+
+    if(visibilityChange){
+      const parentChange = parent && parentSrcVisibility !== this.getRootVisibility(parent)
+      this.virtuose.rowVisibilityChange(conf.iRow, visibilityChange, parentChange)
+    }
   }
 
+  getRootVisibility(parentConf){
+    return Object.entries(parentConf.state).some( ([state,n]) => n && this.visibilities[state] )
+  }
+
+
+  getCounterProp(state){
+    switch(state){
+      case CONFIG.qcm.correct:
+      case CONFIG.qcm.mustFail: return "success"
+      case CONFIG.qcm.failTest:
+      case CONFIG.qcm.passBad:  return "failed"
+      default:                  return state
+    }
+  }
 
   updateCounter(state, delta){
     let cntProp = this.getCounterProp(state)
@@ -327,37 +294,19 @@ class IdeTesterGuiManager extends IdeRunner {
     cnt.text( +cnt.text() + delta )
   }
 
-  getCounterProp(state){
-    switch(state){
-      case CONFIG.qcm.ok:
-      case CONFIG.qcm.failOk:   return "success"
-      case CONFIG.qcm.failTest:
-      case CONFIG.qcm.passBad:  return "failed"
-    }
-    return state
-  }
-
-
   /**Update the values of each counter, after a global update, analyzing the states of all confs.
    * */
-  _updateCounters(){
+  _updateAllCounters(){
     const counts = { checked:0, unchecked:0, success:0, failed:0 }
     this.test_cases.forEach(conf=>{
-      if(conf.hasSubCases) return;
-      const state = conf.jSvg.attr('data-state')
-      counts[ this.getCounterProp(state) ]++
+      if(!conf.isRoot){
+        const prop = this.getCounterProp(conf.state)
+        counts[prop]++
+      }
     })
     for(const prop in counts){
       $("#cnt-"+prop).text(counts[prop])
     }
-  }
-
-
-  // Override
-  terminalEcho(content, options){
-    const withTail = !options || (options.newline??true) ? content+'\n' : content
-    this.std_capture.push(withTail)
-    super.terminalEcho(content, options)
   }
 
 
@@ -369,35 +318,11 @@ class IdeTesterGuiManager extends IdeRunner {
     ;[this.getCodeToTest, this.toSwap[1]] = [this.toSwap[1], this.getCodeToTest]
   }
 
-
-  // Override
-  terminalDisplayOnIdeStart(){
-    this.announceTest(false)
-    super.terminalDisplayOnIdeStart()
-  }
-
   announceTest(clearTerm){
     if(this.testing){
       if(clearTerm) this.terminal.clear()
       this.terminal.echo(`Testing: ${ this.conf.ide_name }`)
     }
-  }
-
-
-  // @Override
-  /**Reset the content of the editor to its initial content, and reset the localStorage for
-   * the editor on the way.
-   * */
-  restart(){    LOGGER_CONFIG.ACTIVATE && jsLogger("[RestartTester]")
-    let startCode = ""
-    if(this.conf){
-      startCode = this.conf.loadedCode
-      this._applyConfAndData(true)
-    }
-    this.applyCodeToEditorAndSave(startCode)
-    this.updateValidationBtnColor(0)
-    this.terminal.clear()
-    this.focusEditor()
   }
 
 
@@ -429,19 +354,38 @@ class IdeTesterGuiManager extends IdeRunner {
   }
 
 
-  // @Override
-  setAttemptsCounter(n, low=false){
-    n = Number.isFinite(n) ? n : "∞"
-    if(low){
-      $(this.counterH+'-low').text(n)
+  clearLibsIfNeeded(){
+    if(this.conf.clear_libs){
+      pyodide.runPython(`
+def _hack_remove_libs():
+    import sys, shutil
+    from pathlib import Path
+
+    to_clear = ${ JSON.stringify(this.conf.clear_libs) }
+    for name in to_clear:
+        sys.modules.pop(name, None)
+        p = Path(name)
+        if p.exists():
+            shutil.rmtree(p)
+_hack_remove_libs()
+del _hack_remove_libs`)
     }
-    super.setAttemptsCounter(n)
   }
 
 
-  save(_){}
+  /**Note: Do NOT clear the scope in teardownRuntime: this would forbid
+   * playing with the terminal afterward.
+   * */
+  _clearStateIfNeededAndReinit(force=false){
+    if(force || !this.conf.no_clear){
+      clearPyodideScope()
+      this._init()
+    }
+  }
 
-  async runAllTests(start, end, forceRun=false){ throw new Error('Not implemented') }
+  async runAllTests(rowProxy){
+    throw new Error('Not implemented')
+  }
 
 
 
@@ -477,55 +421,27 @@ class IdeTesterGuiManager extends IdeRunner {
     )
 
     // Update the global values, once only:
-    if(1 || !conf.__conf_updated){
-      conf.__conf_updated = 1
-
-      ;`decrease_attempts_on_user_code_failure
-        deactivate_stdout_for_secrets
-        show_only_assertion_errors_for_secrets
-      `.trim()
-        .split(/\s+/).forEach(prop=>{
-        if(prop in conf) data[prop] = conf[prop]
-      })
-
-      if('set_max_and_hide' in conf){
-        conf.set_max_and_hide = conf.set_max_and_hide==1000 ? Infinity : conf.set_max_and_hide
-      }
-      conf.srcAttemptsLeft = data.attempts_left
-
-      const sections = [
-        this._toSection('env',       data.env_content),
-        this._toSection('env_term',  data.env_term_content),
-        this._toSection('code',      data.user_content),
-        this._toSection('corr',      data.corr_content),
-        this._toSection('tests',     data.public_tests),
-        this._toSection('secrets',   data.secret_tests),
-        this._toSection('post_term', data.post_term_content),
-        this._toSection('post',      data.post_content),
-      ]
-      // Extract the section used during the tests (based on the main conf object...):
-      const [codeToTest] = sections.splice(2 + !conf.code, 1)
-      const others       = sections.join('').replace(/'''/g, "\\'\\'\\'").trim()
-      const commented    = others && `\n\n\n'''\n${ others }\n\n'''\n`
-      conf.loadedCode    = codeToTest.trim() + commented
+    if(!conf.data){
+      conf.registerData(data)
     }
 
     // Send back a copy, to allow runtime mutation while keeping a clean initial state
     // (no need for a deep copy, so far...)
     const freshData = {...data}
+
+    // Must be done each time:
+    ;[
+      'decrease_attempts_on_user_code_failure',
+      'deactivate_stdout_for_secrets',
+      'show_only_assertion_errors_for_secrets',
+    ].forEach(prop=>{
+      if(prop in conf) freshData[prop] = conf[prop]
+    })
     if('set_max_and_hide' in conf){
       freshData.attemptsLeft = conf.set_max_and_hide
     }
     return freshData
   }
-
-
-  /**Build a sub section of the original python file.
-   * */
-  _toSection(py_section, content){
-    return content && `\n\n# --- PMT:${ py_section } --- #\n${ content }`
-  }
-
 }
 
 
@@ -557,67 +473,39 @@ export class IdeTester extends IdeTesterGuiManager {
   }
 
 
-  async runAllTests(start, end, forceRun=false){
-    if(this.testing) return;
+  announceCodeChangeBasedOnSrcHash(){}        // Override/sink
+  save(_){}                                   // Override/sink
 
-    // Do NOT use the pyodideAsyncLock utility here, so that the call is just cancelled if
-    // occurring during a test session (see above), instead of being delayed until the tests
-    // are done. Note that an unlucky click on the IDE buttons _just in between_ two tests
-    // might cause a mess in the tests results (of just cause weird display in the terminal:
-    // the IDE could be run, then the test, and unless it doesn't clear the scope or the IDE
-    // did install something, the test should run fine...), because the Lock is then available.
-    await waitForPyodideReady()
 
-    this.terminal.clear()
-    const startTime = Date.now()
-    this.testing    = true
-    this.stopTests  = false
-
-    start ??= 0
-    end ??= this.test_cases.length
-
-    /* Running everything in order: it's actually a bit faster (probably because not queueing again
-       and again while waiting in getIdeData...?). So don't bother with Promise.all anymore...  */
-    let errOrNull = null
-    try{
-      for(let i=start;i<end;i++){
-        if(this.stopTests) break
-
-        const conf    = this.test_cases[i]
-        const skipped = conf.doSkip && !forceRun || conf.hasSubCases
-        if(skipped){
-          continue
-        }
-
-        this.conf = conf
-        LOGGER_CONFIG.ACTIVATE && jsLogger('[Testing] - start', conf.ide_name)
-
-        const hasCmd      = conf.term_cmd !== undefined
-        const runningKind = conf.auto_run ? (hasCmd ? RunningProfile.PROPS.testingCmd : RunningProfile.PROPS.testingRun)
-                          : hasCmd        ? RunningProfile.PROPS.testingCmd
-                          : conf.run_play ? RunningProfile.PROPS.testingPlay
-                          : conf.run_corr ? RunningProfile.PROPS.testingCorr
-                                          : RunningProfile.PROPS.testingValid
-
-        await this.runners[ runningKind ]()
-        LOGGER_CONFIG.ACTIVATE && jsLogger('[Testing] - done', conf.ide_name, '\n')
-      }
-    }catch(e){
-      errOrNull = e
-    }finally{
-      this._endTests(startTime, errOrNull)
-    }
+  // Override, to capture the 'stdout' from JS
+  terminalEcho(content, options){
+    const withTail = !options || (options.newline??true) ? content+'\n' : content
+    this.std_capture.push(withTail)
+    super.terminalEcho(content, options)
   }
 
 
-  _endTests(start, error=null){
-    this.testing   = false
-    this.stopTests = false
-    this.conf      = null
-    const txt      = !error ? CONFIG.lang.testsDone.msg : txtFormat.error(String(error))
-    const elapsed  = ((Date.now() - start) / 1000).toFixed(1)
-    this.terminal.echo(txt)
-    this.terminal.echo(txtFormat.info(`(Elapsed time: ${ elapsed }s)`))
+  // Override
+  terminalDisplayOnIdeStart(){
+    this.announceTest(false)
+    super.terminalDisplayOnIdeStart()
+  }
+
+
+  // @Override
+  /**Reset the content of the editor to its initial content, and reset the localStorage for
+   * the editor on the way.
+   * */
+  restart(){    LOGGER_CONFIG.ACTIVATE && jsLogger("[Testing]", 'Restart IDE')
+    let startCode = ""
+    if(this.conf){
+      startCode = this.conf.loadedCode
+      this._applyConfAndData(true)
+    }
+    this.applyCodeToEditorAndSave(startCode)
+    this.updateValidationBtnColor(0)
+    this.terminal.clear()
+    this.focusEditor()
   }
 
 
@@ -638,18 +526,7 @@ export class IdeTester extends IdeTesterGuiManager {
     this._applyConfAndData()
   }
 
-
-  /**Note: Do NOT clear the scope in teardownRuntime: this would forbid
-   * playing with the terminal afterward.
-   * */
-  _clearStateIfNeededAndReinit(force=false){
-    if(force || !this.conf.no_clear){
-      clearPyodideScope()
-      this._init()
-    }
-  }
-
-
+  static TEST_OUTCOME = Object.freeze([CONFIG.qcm.failTest, CONFIG.qcm.passBad, CONFIG.qcm.correct, CONFIG.qcm.mustFail])
 
   async teardownRuntimeTests(runtime){
     if(!this.testing) return;
@@ -658,7 +535,7 @@ export class IdeTester extends IdeTesterGuiManager {
     const failedTestMsg    = this._analyzeTestOutcome(runtime)
 
     const iClass   = 2 * !failedTestMsg + this.conf.doFail
-    const newState = TEST_OUTCOME[iClass]
+    const newState = IdeTester.TEST_OUTCOME[iClass]
     this.setSvgAndCounters(this.conf, newState)
 
     this.swapConfAndData()        // must always occur
@@ -715,6 +592,24 @@ export class IdeTester extends IdeTesterGuiManager {
   }
 
 
+  // @Override
+  setAttemptsCounter(n, low=false){
+    n = Number.isFinite(n) ? n : "∞"
+    if(low){
+      $(this.counterH+'-low').text(n)
+    }
+    super.setAttemptsCounter(n)
+  }
+
+
+  // Override
+  revealSolutionAndRems(){
+    if(!this.conf) return;
+    this.conf.reveal_corr_rems = true
+    this.hiddenDivContent = false      // Mimic actual behavior, logic-wise (only...)
+  }
+
+
 
 
   // ------------------------------------------------------------
@@ -722,11 +617,80 @@ export class IdeTester extends IdeTesterGuiManager {
 
 
 
-  // Override
-  revealSolutionAndRems(){
-    if(!this.conf) return;
-    this.conf.reveal_corr_rems = true
-    this.hiddenDivContent = false      // Mimic actual behavior, logic-wise
+  async runAllTests(rowProxy=null){
+    if(this.pauseTests){
+      $('button[btn_kind=test_pause]>img').css('--ide-btn-color', 'orange')
+      this.pauseTests = false
+    }
+    if(this.testing) return;
+
+    // Do NOT use the pyodideAsyncLock utility here, so that the call is just cancelled if it
+    // occurs during a test session (see above), instead of being delayed until the tests are
+    // done. Note that an unlucky click on the IDE buttons _just in between_ two tests might
+    // cause a mess in the tests results (of just cause weird display in the terminal: the IDE
+    // could be run, then the test, and unless it doesn't clear the scope or the IDE did install
+    // something, the test should run fine...), because the Lock is then available.
+    await waitForPyodideReady()
+
+    this.terminal.clear()
+    const startTime = Date.now()
+    this.testing    = true
+    this.stopTests  = false
+    this.pauseTests = false
+
+    // When the play button is hit directly by the user, the test has to be run even if it is not
+    // currently selected:
+    const manualRun = Boolean(rowProxy)
+    const start     = manualRun && rowProxy.proxy.iStart
+    const end       = manualRun && rowProxy.proxy.iEnd
+    const range     =!manualRun  ? this.getCasesToHandle()
+                    : this.ctrlAll ? this.virtuose.lines.slice(start, end)
+                                   : [...this.virtuose.mayBeInDom.iterRows(start, end)]
+    let errOrNull   = null
+    try{
+      for(const row of range){
+        if(this.pauseTests){
+          while(this.pauseTests && !this.stopTests){
+            await sleep(100)
+          }
+        }
+        if(this.stopTests) break
+
+        const conf    = row.proxy
+        const skipped = conf.isRoot || conf.doSkip && !manualRun
+        if(skipped){
+          continue
+        }
+
+        this.conf = conf
+        LOGGER_CONFIG.ACTIVATE && jsLogger('[Testing] - START', conf.ide_name)
+
+        const hasCmd      = conf.term_cmd !== undefined
+        const runningKind = conf.auto_run ? (hasCmd ? RunningProfile.PROPS.testingCmd : RunningProfile.PROPS.testingRun)
+                          : hasCmd        ? RunningProfile.PROPS.testingCmd
+                          : conf.run_play ? RunningProfile.PROPS.testingPlay
+                          : conf.run_corr ? RunningProfile.PROPS.testingCorr
+                                          : RunningProfile.PROPS.testingValid
+
+        await this.runners[ runningKind ]()
+        LOGGER_CONFIG.ACTIVATE && jsLogger('[Testing] - DONE', conf.ide_name, '\n')
+      }
+    }catch(e){
+      errOrNull = e
+    }finally{
+      this._endTests(startTime, errOrNull)
+    }
+  }
+
+
+  _endTests(start, error=null){
+    const txt      = !error ? CONFIG.lang.testsDone.msg : txtFormat.error(String(error))
+    const elapsed  = ((Date.now() - start) / 1000).toFixed(1)
+    this.terminal.echo(txt)
+    this.terminal.echo(txtFormat.info(`(Elapsed time: ${ elapsed }s)`))
+    this.conf      = null
+    this.testing   = false
+    this.stopTests = false
   }
 
 
@@ -788,8 +752,9 @@ export class IdeTester extends IdeTesterGuiManager {
 
     if(!msg.length && runtime.stopped === this.conf.doFail){
       return ""
+    }else{
+      return this._formatErrMsgArray(runtime, msg)
     }
-    return this._formatErrMsgArray(runtime, msg)
   }
 
 
@@ -800,25 +765,6 @@ ${ runtime.stdErr || "No error raised, but..." }
 
 ${ msg.join('\n') }`
     return msg
-  }
-
-
-  clearLibsIfNeeded(){
-    if(this.conf.clear_libs){
-      pyodide.runPython(`
-def _hack_remove_libs():
-    import sys, shutil
-    from pathlib import Path
-
-    to_clear = ${ JSON.stringify(this.conf.clear_libs) }
-    for name in to_clear:
-        sys.modules.pop(name, None)
-        p = Path(name)
-        if p.exists():
-            shutil.rmtree(p)
-_hack_remove_libs()
-del _hack_remove_libs`)
-    }
   }
 }
 

@@ -81,8 +81,9 @@ class IdePlayground extends IdeRunner {
     const url = $('input#playground-url').prop("value")
     this.setupFetchers(url, false)
 
-    // WARNING: this.getCodeToTest may have been rotated by the corrBtn already, but not a problem...
-    this.archiveCodeGetter = this.getCodeToTest;
+    // NOTE: `this.getCodeToTest` might already have been rotated by the corrBtn, but that's
+    // not a problem...
+    this.archiveCodeGetter = this.getCodeToTest
     this.getCodeToTest = ()=>{
       const code  = this.archiveCodeGetter()
       const tests = get(fromSectionName.tests)

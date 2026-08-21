@@ -54,13 +54,12 @@ globalThis.LOGGER_CONFIG = CONFIG.loggerOptions = {
     TrashCan:           false,
     Unsubscribing:      false,
     Validation:         false,
+    Virtualizer:        false,
     Wait4Pyodide:       false,
 }
 
 
 export const jsLogger=(...msgs)=>{
-    // if(!CONFIG.loggerOptions.ACTIVATE) return          // No need anymore
-
     if(CONFIG.loggerOptions.all || msgs[0] && isLoggedOption(msgs[0])){
         console.log(...msgs)
     }

@@ -27,6 +27,7 @@ import {
   PythonError,
   renderMermaidGraphs,
   sleep,
+  somethingFullScreen,
   subscribeWhenReady,
   uploader,
   RunningProfile,
@@ -38,7 +39,6 @@ import { observeResizeOf } from '3-terminalRunner-term'
 import {
   IdeSplitScreenManager,
   IdeFullScreenGlobalManager,
-  somethingFullScreen,
 } from '4-ideLogistic-ide'
 
 

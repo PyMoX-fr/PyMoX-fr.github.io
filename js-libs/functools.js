@@ -24,6 +24,31 @@ import { jsLogger } from 'jsLogger'
 
 
 /*
+-----------------------------------
+ Various runtime infos & utilities
+-----------------------------------
+*/
+
+
+
+export const IS_WIN   = navigator.userAgent.includes('Windows')
+export const IS_MAC_OS = navigator.userAgent.includes('Macintosh')
+
+/**Tell if the given event (original, of jQuery) is using Ctrl or Cmd.
+ * */
+export const useCtrl =(e)=> e.ctrlKey || IS_MAC_OS && e.metaKey
+
+export const somethingFullScreen =()=> Boolean(document.fullscreenElement)
+
+/**Extract the height, as a number, from the css property (by default)
+ * */
+export const cssPx =(jObj,prop='height')=> +jObj.css(prop).slice(0,-2)
+
+
+
+
+
+/*
 -------------------------------------
  Various async synchronization tools
 -------------------------------------

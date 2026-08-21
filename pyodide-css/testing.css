@@ -18,45 +18,94 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 #py_mk_test_global_wrapper {
-  margin: 2em 0;
-}
-
-#py_mk_tests_filters {
   display: grid;
-  grid-template-columns: repeat(4, auto);
-  justify-content: space-around;
-  margin: 1em;
+  grid-template-columns: max-content auto;
+  gap: 2em;
+  margin-bottom: 2em;
 }
 
 #py_mk_tests_controllers {
     display: block;
     width: fit-content;
-    margin-top: 4em;
+}
+#py_mk_tests_controllers > span, #py_mk_tests_controllers > div {
+  margin: 0.5em 0.2em;
+}
+#py_mk_tests_controllers > div {
+  display: flex;
+  justify-content: center;
+}
+#py_mk_tests_controllers > div > div {
+  display: grid;
+  width: 65%;
+  grid-template-columns: repeat(3, auto);
+  justify-items: center;
 }
 
+#py_mk_tests_right_column_wrapper {
+  overflow-x: auto;
+}
 
-#py_mk_tests_table {
+#py_mk_tests_right_column {
+  width: 100%
+  /* min-width computed in JS */
+}
+
+#py_mk_tests_filters {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(4, auto);
+  justify-content: space-around;
+  margin: 1em 0;
+}
+
+#py_mk_tests_txt_filter {
+  display: grid;
+  grid-template-columns: auto min-content max-content;
+  column-gap: 0.5em;
+  margin: 1em 0;
+  align-items: center;
+}
+#py_mk_tests_txt_search {
+  padding: 0.5em;
+  margin-right: 1em;
+  font-size: 1em;
+  text-decoration: unset;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+
+#py_mk_tests_results_view {
   min-height: 10em;
   height: 40em;
-  overflow: auto;
+  overflow-y: auto;
   resize: vertical;
   border: solid 1px var(--main-theme);
   padding: 10px;
 }
 
-#py_mk_tests_results {
+#py_mk_tests_view_height_tracker {
+  width: 100%;
+  height: 100%;
+}
+
+#py_mk_tests_results_filler {
+  width: 100%
+}
+
+#py_mk_tests_results_mounted, #tests-playground {
+  position: relative;
   display: grid;
-  grid-template-columns: auto repeat(3, max-content);
+  grid-template-columns: auto 24px 80px 107px;
   justify-items: baseline;
   align-items: center;
   width: 100%;
   column-gap: 1em;
 }
 
+.cases-btn { width:100%; margin-bottom: 0.5em }
 
 .cases-btn, .filter-btn {
-  border: 0;
-  margin: 0 5px;
   padding: 7px;
   text-align: center;
   border-radius: 10px;
@@ -70,7 +119,6 @@ If not, see <https://www.gnu.org/licenses/>.
     inset 2px 2px 5px rgba(255, 255, 255, 0.6),
     inset -2px -2px 1px rgba(0, 0, 0, 0.6);
 }
-
 
 .cases-btn:hover {
     background-color: rgb(90, 88, 88);
@@ -160,4 +208,11 @@ svg.qcm { margin:0 }  /* override */
 
 .orange-box {
   box-shadow: 0 0 5px orange;
+}
+
+@keyframes blink {
+  50% { opacity: 50%; border-color: red; }
+}
+.blink-error {
+  animation: blink .15s steps(1) 2;
 }
