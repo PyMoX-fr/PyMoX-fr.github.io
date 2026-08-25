@@ -243,6 +243,9 @@ def _hack_auto_run():
 
     # Keep uncleaned elements:
     runner = AutoRunner()
+
+    # Since this snippet will be run for each new section, always transfer existing traced
+    # calls to the new object:
     if hasattr(__builtins__, 'auto_run'):
         runner.run |= __builtins__.auto_run.run
     __builtins__.auto_run = runner
@@ -531,24 +534,10 @@ def _hack_scope_cleaner():
     clearScope: `clear_scope()`,
 
 
-    wantedImports: `
-@auto_run
-def _hack_find_imports():
-    from pyodide.code import find_imports
-    __builtins__.imported_modules = find_imports({FORMAT_TOKEN})
-
-__builtins__.imported_modules
-`,
+    wantedImports: `__import__('pyodide').code.find_imports({FORMAT_TOKEN})`,
 
 
-    alreadyImported: `
-@auto_run
-def _hack_imported():
-    import sys
-    __builtins__.loaded_modules = " ".join(sys.modules.keys())
-
-__builtins__.loaded_modules
-`,
+    alreadyImported: `" ".join(__import__('sys').modules.keys())`,
 
 
     upDownLoader: `
@@ -910,6 +899,16 @@ def _hack_mermaid():
 def _hack_stdout_up():
     import sys, io, js
 
+    # Keep a StringIO object there (this also allows to enforce a flush of the stdout content
+    # in between runs/sections, on user's side, and redactors wanting to test against the user
+    # stdout will also use this:
+    __builtins__.src_stdout = sys.stdout
+    sys.stdout = io.StringIO()
+
+    # Different object allowing to spot what to print exactly, for one single call to print:
+    __builtins__.per_call_std_out = io.StringIO()
+
+
     @wraps_builtin
     def print(*a,**kw):     # Note: wraps doesn't seem to work... Dunno why...)
 
@@ -917,36 +916,22 @@ def _hack_stdout_up():
         __print_src__(*a,**kw)
 
         # Then print to the one used to get proper formatting (according to the generic
-        # behavior of python print function), then extract the formatted content to
-        # transfer to the terminal and empty per_call_stdout:
+        # behavior of python print function):
+        kw['file'] = per_call_std_out
+        __print_src__(*a, **kw)
 
-        kw['file'] = per_call_stdout
-        __print_src__(*a,**kw)
-        properly_formatted = per_call_stdout.getvalue()
-        per_call_stdout.truncate(0)
-        per_call_stdout.seek(0)
-
+        # Then extract the formatted content to write to the terminal and empty per_call_std_out:
+        properly_formatted = per_call_std_out.getvalue()
+        per_call_std_out.truncate(0)
+        per_call_std_out.seek(0)
         js.config().termMessage(None, properly_formatted, 'none', True)
-
-
-    # Different object allowing to spot what to print exactly, for one single call to print:
-    __builtins__.per_call_std_out = per_call_stdout = io.StringIO()
-
-    # Keep a StringIO object there (this also allows to enforce a flush of the stdout content
-    # in between runs/sections, on user's side, and redactors wanting to test against the user
-    # stdout will also use this:
-    __builtins__.src_stdout = sys.stdout
-    sys.stdout = io.StringIO()
 `,
 
 
-    getFullStdIO:`
+    teardownStdIO:`
 @__builtins__.auto_run
 def _hack_stdout_down():
     import sys
-
-    # Store to send the result to JS layer at the end:
-    __builtins__._stdout_value = sys.stdout.getvalue()
 
     sys.stdout.close()
     sys.stdout = __builtins__.src_stdout
@@ -954,8 +939,6 @@ def _hack_stdout_down():
 
     __builtins__.per_call_std_out.close()
     __builtins__.print = __builtins__.__print_src__
-
-__builtins__._stdout_value
 `,
     }
 
@@ -1050,9 +1033,8 @@ export const setupStdIO =_=>{       // WARNING: some arguments may be passed in 
     pyodideFeatureRunCode('setupStdIO')
 }
 
-export const getFullStdIO =_=>{
-    const stdout = pyodideFeatureRunCode('getFullStdIO') || ''
-    return escapeSquareBrackets(stdout)
+export const teardownStdIO =_=>{
+    pyodideFeatureRunCode('teardownStdIO')
 }
 
 export const clearPyodideScope=()=>{

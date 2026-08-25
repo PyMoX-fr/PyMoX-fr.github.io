@@ -170,6 +170,11 @@ class IdeTesterGuiManager extends IdeRunner {
     input.on('keydown', _.debounce(()=>{
       this._applySearch(input, input.prop('value'), box.prop('checked'))
     }, 300))
+
+    // Automatically trigger the filters, if something is there (may happen on reload):
+    if(input.prop('value')){
+      this._applySearch(input, input.prop('value'), box.prop('checked'))
+    }
   }
 
   _applySearch(input, txt, useReg){
@@ -520,7 +525,7 @@ export class IdeTester extends IdeTesterGuiManager {
 
 
   async setupRuntimeTests(){
-    if(!this.testing) return;
+    if(!this.testing) return;   // Using the IDE directly, not running tests
     const data = await this.getIdeData(this.conf)
     this.swapConfAndData(data, this.buildCodeGetter())
     this._applyConfAndData()
@@ -529,7 +534,7 @@ export class IdeTester extends IdeTesterGuiManager {
   static TEST_OUTCOME = Object.freeze([CONFIG.qcm.failTest, CONFIG.qcm.passBad, CONFIG.qcm.correct, CONFIG.qcm.mustFail])
 
   async teardownRuntimeTests(runtime){
-    if(!this.testing) return;
+    if(!this.testing) return;   // Using the IDE directly, not running tests
 
     this.conf.attempts_end = this.attemptsLeft  // Store before swap
     const failedTestMsg    = this._analyzeTestOutcome(runtime)
@@ -671,7 +676,6 @@ export class IdeTester extends IdeTesterGuiManager {
                           : conf.run_play ? RunningProfile.PROPS.testingPlay
                           : conf.run_corr ? RunningProfile.PROPS.testingCorr
                                           : RunningProfile.PROPS.testingValid
-
         await this.runners[ runningKind ]()
         LOGGER_CONFIG.ACTIVATE && jsLogger('[Testing] - DONE', conf.ide_name, '\n')
       }

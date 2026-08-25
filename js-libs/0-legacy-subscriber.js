@@ -24,17 +24,17 @@ const jsLogger =()=> null
 //*
 globalThis.LOGGER_CONFIG = {}
 /*/
-globalThis.LOGGER_CONFIG = {ACTIVATE:true, all:1}
+globalThis.LOGGER_CONFIG = {ACTIVATE:1, all:1}
 //*/
 
 
 
-/**Defined for backward compatibility, incase the user is still using the function from the
- * original synch implementation of subscribeWhenReady.
+/**Defined for backward compatibility, in case the user is still relying on the function from
+ * the original synch implementation of subscribeWhenReady.
  *
  * Facts:
- *  1. MathJax subscription is now done from the js-scripts/subscriptions.js module, so any
- *     call for mathjax coming from a user override is totally useless and can just be skipped.
+ *  1. MathJax subscription is now done from the `js-scripts/subscriptions.js` module, so any
+ *     call for mathjax coming from a user override is totally useless and can just be ignored.
  *  2. If ever another subscription is done, just directly transmit the call to the module
  *     version, to unify the implementations/logics.
  * */
@@ -52,6 +52,5 @@ function subscribeWhenReady(subscriptionId, ...args){
             module.subscribeWhenReady(subscriptionId, ...args)
         })
     }
-
-    return ()=>0        // SINK! (the default mathjax override _will_ call a fonction)
+    return ()=>null   // SINK! (the default mathjax override _will_ call a fonction)
 }

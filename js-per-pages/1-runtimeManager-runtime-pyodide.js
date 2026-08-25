@@ -25,7 +25,7 @@ import {
   youAreInTroubles,
 } from 'functoolsTxt'
 import {
-  getFullStdIO,
+  teardownStdIO,
   pyodideFeatureRunCode,
   setupStdIO,
 } from '0-generic-python-snippets-pyodide'
@@ -363,7 +363,7 @@ export class RuntimeManager {
 
 
   async teardownManager(ctx){
-    getFullStdIO()
+    teardownStdIO()
 
     if(!ctx.err) return;    // nothing to do if no error during the current run.
 

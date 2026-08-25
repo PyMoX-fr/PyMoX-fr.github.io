@@ -31,6 +31,90 @@ import { Avl } from "5-3-avl-ides_test"
 
 
 
+/**Convert the given Conf/Case object (recursive) to a proxy which will automatically extract the
+ * value of the parent, if it is not defined on the current level (if the parent exists).
+ * Also store some other infos needed at runtime:
+ *  - `isIde`: a Case for an IDE itself or a parent of subcases.
+ *  - `isRoot`: an IDE that has subcases.
+ *  - `parentProxy`: ref to the proxy of the root IDE (undefined if not a root).
+ *  - `loadedCode` function (combine the sections to build the IDE contents).
+ *  - `registerData` function: allows to store the ref to the data object coming from the loaded
+ *     page containing the IDEs to test.
+ *  - `state`: track the test feedback. WARNING: the content of this property is completely
+ *     different depending on the object it is defined on:
+ *        - Actual tests (IDE with one single test or one subcase) store the current state of the
+ *          svg box.
+ *        - Root IDEs (aka, with subcases) hold a dict/Counter of states instead.
+ *        - When `state` is set on a subcase, it automatically updates the parent appropriately
+ *          (this is needed to know when to display or not the root IDE RowProxy, when changing
+ *          filters or when a row appear or disappear during the tests, if some filters are
+ *          activated).
+ * */
+export const storeConfWithProxy=(testCases, debug, conf, parent=undefined, iCase=null, parentProxy=null)=>{
+
+  /**True if the current element is an IDE with subcases (hence, no svg for itself). */
+  const isRoot = !parent && Boolean(conf.subcases.length)
+
+  const proxy = new Proxy(conf, {
+    get(o, prop){
+      switch(prop){
+        case "isIde":        return !parent
+        case "isRoot":       return isRoot
+        case 'loadedCode':   return buildCodeToDisplay(proxy)
+        case 'registerData': return registerDataOnParent(o, parent)
+        case 'parentProxy':  return parentProxy
+        default:             return o[prop] ?? (parent && parent[prop])
+      }
+    },
+    set(o, prop, val){
+      // Automatically transmit state changes to the parent proxy when it exists:
+      if(prop=='state' && parentProxy && val!=o.state){
+        parent.state[o.state]--
+        parent.state[val]++
+      }
+      return Reflect.set(o, prop, val)
+    },
+    has(o, prop){
+      return (prop in o) || Boolean(parent) && (prop in parent)
+    },
+  })
+
+  testCases.push(proxy)
+  debug.push([conf, proxy])
+
+  // Redefine some "complex" values for the current level, considering the parent's if needed:
+  proxy.doFail = Boolean(proxy.fail || proxy.in_error_msg || proxy.not_in_error_msg)
+  proxy.doSkip = Boolean(proxy.skip || proxy.human)
+
+  // Initiate some states/values:
+  proxy.reveal_corr_rems = false
+
+  if(isRoot){
+    proxy.state = {
+      [QCM.checked]:0, [QCM.unchecked]:0, [QCM.correct]:0, [QCM.mustFail]:0, [QCM.failTest]:0, [QCM.passBad]:0,
+    }
+  }else{
+    proxy.state = proxy.doSkip ? QCM.unchecked : QCM.checked
+    // WARNING: the state of the parent (if exists) is handled automatically (see proxy set handler)
+  }
+
+  if('set_max_and_hide' in proxy){
+    proxy.set_max_and_hide = proxy.set_max_and_hide==1000 ? Infinity : proxy.set_max_and_hide
+  }
+
+  // Apply the "no clear between subcases" default logic, not overriding existing (falsy)
+  // or parent logic:
+  if(iCase!==null && iCase>0){
+    proxy.no_clear ??= true
+  }
+
+  convertRegexpStringsToPatterns(proxy)
+  convertAssertionsToPredicates(proxy)
+  return proxy
+}
+
+
+const QCM = CONFIG.qcm    // Just to declare `proxy.state` in a shorter way... :p
 
 const registerDataOnParent=(o, parent)=>(data)=>{
   const toUse = parent??o
@@ -97,86 +181,6 @@ const convertAssertionsToPredicates=(proxy)=>{
 }
 
 
-/**Convert the given Conf/Case object (recursive) to a proxy which will automatically
- * extract the value of the parent, if it is not defined on the current level.
- * Also store some other infos needed at runtime:
- *  - isIde
- *  - isRoot
- *  - loadedCode function (combine the sections to build the IDE contents)
- *  - parentProxy: ref to the proxy of the root IDE (undefined/Null on IDEs)
- *  - registerData (ref to the data object coming from the loaded page containing the IDEs to test)
- *  - state: track the test feedback. WARNING: this one behave quite differently depending on the
- *    object that is tracked:
- *        - Actual test store the current state of the svg box.
- *        - Root IDEs (aka, with subcases) hold instead a dict/Counter of states.
- *        - When `state` is set on a subcase, it automatically update appropriately the parent.
- *          (this is needed to know when to display or not the root IDE row, when changing filters
- *          or when a row appear or disappear during the tests, if some filters are activated).
- * */
-export const storeConfWithProxy=(testCases, debug, conf, parent=undefined, iCase=null, parentProxy=null)=>{
-
-  /**True if the current element is an IDE with subcases (hence, no svg for itself). */
-  const isRoot = !parent && Boolean(conf.subcases.length)
-
-  const proxy = new Proxy(conf, {
-    get(o, prop){
-      switch(prop){
-        case "isIde":        return !parent
-        case "isRoot":       return isRoot
-        case 'loadedCode':   return buildCodeToDisplay(proxy)
-        case 'registerData': return registerDataOnParent(o, parent)
-        case 'parentProxy':  return parentProxy
-        default:             return o[prop] ?? (parent && parent[prop])
-      }
-    },
-    set(o, prop, val){
-      // Automatically transmit state changes to the parent proxy when it exists:
-      if(prop=='state' && parentProxy && val!=o.state){
-        parent.state[o.state]--
-        parent.state[val]++
-      }
-      return Reflect.set(o, prop, val)
-    },
-    has(o, prop){
-      return (prop in o) || Boolean(parent) && (prop in parent)
-    },
-  })
-
-  testCases.push(proxy)
-  debug.push([conf, proxy])
-
-  // Redefine some "complex" values for the current level, considering the parent's if needed:
-  proxy.doFail = Boolean(proxy.fail || proxy.in_error_msg || proxy.not_in_error_msg)
-  proxy.doSkip = Boolean(proxy.skip || proxy.human)
-
-  // Initiate some states/values:
-  proxy.reveal_corr_rems = false
-
-  if(isRoot){
-    proxy.state = {
-      [QCM.checked]:0, [QCM.unchecked]:0, [QCM.correct]:0, [QCM.mustFail]:0, [QCM.failTest]:0, [QCM.passBad]:0,
-    }
-  }else{
-    proxy.state = proxy.doSkip ? QCM.unchecked : QCM.checked
-    // WARNING: the state of the parent (if exists) is handled automatically (see proxy set handler)
-  }
-
-  if('set_max_and_hide' in proxy){
-    proxy.set_max_and_hide = proxy.set_max_and_hide==1000 ? Infinity : proxy.set_max_and_hide
-  }
-
-  // Apply the "no clear between subcases" default logic, not overriding existing (falsy)
-  // or parent logic:
-  if(iCase!==null && iCase>0){
-    proxy.no_clear ??= true
-  }
-
-  convertRegexpStringsToPatterns(proxy)
-  convertAssertionsToPredicates(proxy)
-  return proxy
-}
-
-const QCM = CONFIG.qcm
 
 
 
@@ -187,20 +191,18 @@ const QCM = CONFIG.qcm
 
 
 
-
-
-
-/***Wrapper for an actual row in the DOM.
- * This is an abstraction to help building the virtualization, and allowing to keep track
- * of the DOM elements (detach, reattach later) and their states (proxy, test result, ...).
- * Most of the data are stored on the proxy object, to jeep the compatibility with the
- * IdeTester original implementation.
+/***Wrapper for an actual row in the tests results table DOM.
+ * This is an abstraction to help building the virtualization, allowing to keep track of the
+ * DOM elements (detach, reattach later) and their states (proxy, test result, ...). Most of
+ * the data are stored on the proxy object, to jeep the compatibility with the `IdeTester`
+ * original implementation.
  * */
 class RowProxy {
 
-  /**Get the height of the entire row. If not defined compute it from the current state.
-   * NOTE: if not cached, the underlying jQuery element HAS to be mounted somewhere in the
-   * page, otherwise the data will go wrong...
+  /**Get the height of the entire row. If it is not defined yet, compute it for the current
+   * state of the grid (width).
+   * NOTE: the underlying jQuery element HAS to be already mounted somewhere in the page,
+   * otherwise the css data will be wrong...
    * */
   get height(){
     if(!this.isReady()){
@@ -209,7 +211,14 @@ class RowProxy {
     }
     return this._height
   }
-  get iRow()   { return this.proxy.iRow }
+
+  /**Get the index of the current RowProxy in the full list of possible tests (when no filters
+   * are activated).
+   * */
+  get iRow() { return this.proxy.iRow }
+
+  /**Return the parent RowProxy if it exists, or undefined.
+   * */
   get parent() { return this.ideTester.virtuose.lines[ this.proxy.parentProxy.iRow ] }
 
 
@@ -251,9 +260,7 @@ class RowProxy {
   /**If the jquery row collection has not been built already, create it, putting in place
    * the related events listeners.
    * */
-  build(){
-    if(this._jRow) return;
-
+  _build(){
     this._jRow = $(this.proxy.html)
     this._bindLoadButton()
     this._bindPlayButton()
@@ -301,8 +308,10 @@ class RowProxy {
    *    - this method is called ONLY if the predicate exists.
    * */
   hasText(predicate){
+    // Note the predicate is always applied on the whole array of RowProxies, in order, meaning the
+    // parent already knows the "answer" for all its subcases (hence the redirection on the parent).
     if(!this.proxy.isIde){
-      return this.parent._hasText   // the parent already registered the result
+      return this.parent._hasText
     }
     return this._hasText = predicate(this.proxy.text)
   }
@@ -312,7 +321,7 @@ class RowProxy {
    * in the visible part of the DOM (defensive programming).
    * */
   mount(toDom=true){
-    this.build()
+    if(!this._jRow) this._build()
     if(toDom) this.inDom=true
     return this._jRow
   }
@@ -329,6 +338,13 @@ class RowProxy {
 
 
 
+
+
+
+
+
+
+
 /**Helper managing various requests on the Avl, to compute "precise geometry" to build the view.
  * */
 class OkComputer {
@@ -339,7 +355,7 @@ class OkComputer {
    * */
   tops = [0]
 
-  /**Allow quick access to the filler full height, once computed.
+  /**Allow quick access to the filler full height, once all heights have been computed.
    * */
   get fullH(){
     return this.tops[ this.tops.length-1 ]
@@ -364,7 +380,7 @@ class OkComputer {
    * */
   requestMountData(scrollTop, viewH){
     const iFirst   = this._findHeightIndex(scrollTop - 0.5 * viewH)
-    const iLast    = this._findHeightIndex(scrollTop + 1.5 * viewH)
+    const iLast    = this._findHeightIndex(scrollTop + 1.5 * viewH, iFirst)
     const topFirst = this.tops[iFirst]
     return [topFirst, iFirst, iLast + 1]    // +1 because iLast is inclusive (bisect left)
   }
@@ -372,9 +388,9 @@ class OkComputer {
   /**Returns the index of the elements whose the top is the closest to the given scrollTop value.
    * (bisection search).
    * */
-  _findHeightIndex(scroll){
+  _findHeightIndex(scroll, start){
     const size = this.tops.length-1  // The last one does not exist as index, and h is exclusive!
-    let l=0, h=size
+    let l=start ?? 0, h=size
     while(l+1 < h){
       const m = (l+h) >>> 1
       const v = this.tops[m]
@@ -397,13 +413,13 @@ class OkComputer {
 
 
 
-/**Create and manage a hidden div mimicking the test results table, way out of the viewport,
- * to compute in advance rendered heights of the rows, while the user is doing something else.
- * Done using `setInterval`, handling one row every XXms.
+/**Create and manage a hidden <div> mimicking the tests results table (way out of the viewport),
+ * to compute in advance the rendered heights of the rows, while the user is doing something else.
+ * Done using `setInterval`, handling one row every `GATHERING_INTERVAL` ms.
  * */
 class Playground {
 
-  /**Time to wait before beginning to gather the height values (the method called on resize
+  /**Time to wait before beginning to gather the heights values (the method called on resize
    * is debounced so that the user finishes the resize operation, hence the computation only
    * start when that"s actually useful).
    * */
@@ -451,11 +467,11 @@ class Playground {
 
     this._hiddenArea = this.virtuose.testsResults.clone().attr('id', 'tests-playground').css({
       height: "fit-content",
-      left: '4500px', top: '-300px',
-      // left: '500px', top: '300px', background:"red",        // Uncomment to make it visible in the page
+      left: '4500px', top: '-500px',
+      // left: '500px', top: '300px', background:"red",   // Uncomment to make it visible in the page
       display: 'float', position: 'absolute',
     })
-    this._hiddenArea.children().remove()
+    this._hiddenArea.children().remove()  // Cleanup BEFORE mounting in the DOM
     this._hiddenArea.appendTo($('#py_mk_test_global_wrapper').parent())
     this.restart()
   }
@@ -550,7 +566,10 @@ class Playground {
 
 
 
-/**DOM virtualization of the tests results, to avoid any performances troubles.
+
+
+
+/**DOM virtualization of the tests results table, to avoid any performances troubles.
  * */
 export class VirtualizedDomManager {
 
@@ -742,9 +761,8 @@ export class VirtualizedDomManager {
   // -------------------------------------------------------------------------------------------
 
 
-  /**Request a frame update for the current view, choosing the appropriate strategy.
-   * Always update the internal scrollTop position on each call, so that the value used once
-   * the request is resolved, it can use the "proper" scroll position currently stored.
+  /**Request a frame update for the current view, choosing the appropriate strategy (aka:
+   * requesting right now, or just doing nothing if a previous request is already going on).
    * */
   updateView(forceScrollTop){
     if(forceScrollTop!==undefined){
@@ -786,23 +804,24 @@ export class VirtualizedDomManager {
   /**Compute an approximative view to present to the user, while waiting for the exact heights
    * to be all known. This relies on assumptions, and may cause some visual glitches in some
    * unexpected situations, or when the view if fixed once the heights are actually known.
-   *
-   * If there are not that many rows, compute the exact layout with all the rows instead.
+   * If there are not that many rows, compute the exact layout with all the rows instead, so
+   * the glitches should go unnoticed most of the time...
    * */
   updateViewApproxOrFull(scrollTop, view){
+    // Stop automatic computing in cause some heights must be computed
+    this.playground._wait = true
     const fillerH = this.filler.height()
-    const fakeH = fillerH - view
-    const fractionTop = scrollTop / fakeH
-    const fakePos =  fractionTop * this.mayBeInDom.nTree
+    const ratio   = scrollTop / (fillerH - view)
+    const fakePos = ratio * this.mayBeInDom.nTree // Make sure to be at the top if no row displayed
     const fakeIdx = fakePos | 0
     const remains = fakePos - fakeIdx
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Virtualizer]", "Approximate view")
 
-    this.playground._wait = true
     try{
       if(this.mayBeInDom.nTree <= 100){
-        return this.buildFullView(fractionTop)
+        this.buildFullView(ratio)
+        return
       }
-      LOGGER_CONFIG.ACTIVATE && jsLogger("[Virtualizer]", "Approximate view")
 
       const sumH=(i,j) => (
         i===undefined && j===undefined
@@ -829,10 +848,10 @@ export class VirtualizedDomManager {
   }
 
 
-  /**Compute a 'simplified" view with all the rows in it, if there aren't that many.
+  /**Compute a 'simplified" view with all the rows in it, if there aren't too many of them.
    * This avoids the intermediate steps with approximations and present the true final/correct
    * state directly to the user.
-   * NOTE: the `scroll` extra logic will also be deactivated, gaining in performances.
+   * NOTE: the `scroll` extra logic is also deactivated, in this case, gaining in performances.
    * */
   buildFullView(fractionTop){
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Virtualizer]", "Full mounting...")
@@ -842,8 +861,8 @@ export class VirtualizedDomManager {
     this.filler.height(fullH)
     this.scrollTop = fullH * fractionTop
     this.table.scrollTop(this.scrollTop)
-    // `this.scrollTop` updated for "consistency" only, because any scroll handling will be
-    // skipped anyway (everything is mounted already...).
+    // `this.scrollTop` is updated (above) for "consistency" only, because any scroll handling
+    //  will be skipped anyway (everything is mounted already...).
   }
 
 
@@ -877,7 +896,8 @@ export class VirtualizedDomManager {
   /**Modifications to apply (if needed) after the scrollTop value got updated (debounced).
    * */
   _scroll(){
-    // No extra scrolling logic needed: the DOM already handles everything.
+    // No extra scrolling logic needed: the DOM already handles the scroll when all row
+    // are mounted.
     if(!this.allMounted()) this.updateView()
   }
 

@@ -294,7 +294,7 @@ export class Avl {
 
     // Defensive: contract verification
     // if(Math.abs(this.balance) > 2){
-    //   throw new Error(`Balance is too big on iRow=${ this.value.iRow }: ${ balance }`)
+    //   throw new Error(`Balance is too big on iRow=${ this.value.iRow }: ${ this.balance }`)
     // }
     const balance = this.balance
     if(balance == 2){             // Rotate left
