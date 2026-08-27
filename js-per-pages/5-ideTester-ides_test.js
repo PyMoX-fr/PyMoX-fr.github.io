@@ -354,7 +354,7 @@ class IdeTesterGuiManager extends IdeRunner {
 
     this.setAttemptsCounter(this.attemptsLeft, true)
     this._clearStateIfNeededAndReinit(onLoad)
-    this.setupFetchers(this.conf.rel_dir_url, true)
+    this.setupFetchers(this.conf.rel_dir_url, true, this.conf.inputs)
     this.clearLibsIfNeeded()
   }
 

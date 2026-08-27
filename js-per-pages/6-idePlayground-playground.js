@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { IdeRunner } from '4-ideRunner-ide'
+import { getIdeOptions } from 'functoolsUi'
 
 
 const divs =$('.dev-sandbox')
@@ -67,9 +68,27 @@ class IdePlayground extends IdeRunner {
   constructor(id){
     super(id)
     const ide = this
-    window.runValidation = async function(){ await ide.runners.validate() }
-    window.runPlay = async function(){ await ide.runners.play() }
     this.archiveCodeGetter = null
+
+    const options = getIdeOptions()
+
+    $('.dev-sandbox').each(function(){
+      const editor = ace.edit(this.id, options);
+
+      editor.commands.bindKey(
+        { win: "Ctrl-Space", mac: "Cmd-Space" }, "startAutocomplete"
+      )
+      editor.commands.addCommand({
+        name: "runPublicTests",
+        bindKey: { win: "Ctrl-S", mac: "Cmd-S" },
+        exec: async function(){ await ide.runners.validate() },
+      })
+      editor.commands.addCommand({
+        name: "runValidationTests",
+        bindKey: { win: "Ctrl-Enter", mac: "Cmd-Enter" },
+        exec: async function(){ await ide.runners.play() },
+      })
+    })
   }
 
   buildCorrStuff(){ return true }
@@ -79,7 +98,7 @@ class IdePlayground extends IdeRunner {
     this.getAll()
 
     const url = $('input#playground-url').prop("value")
-    this.setupFetchers(url, false)
+    this.setupFetchers(url)
 
     // NOTE: `this.getCodeToTest` might already have been rotated by the corrBtn, but that's
     // not a problem...

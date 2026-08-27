@@ -22,6 +22,7 @@ import { perennialMathJaxUpdate, renderMermaidGraphs } from 'functools'
 import { makeIdeJqButton } from 'functoolsUiBuilder'
 import { decompressLZW } from 'functoolsTxt'
 
+import { chaining } from 'process_and_gui'   // Enforce dependencies order (if ever a runner is needed)
 
 
 

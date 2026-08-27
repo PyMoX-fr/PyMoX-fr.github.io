@@ -38,7 +38,7 @@ const defaultOptions=(options, prop)=>({
     tagClass: "vertical",
     tagId: prop,
     fontSize: "",
-    extraStyles: "",    // For the outer element/tag, as "width:min-content;..."
+    extraStyle: "",    // For the outer element/tag, as "width:min-content;..."
 
     // If a label is used:
     label: prop,
@@ -174,7 +174,6 @@ export function buildJqTextArea(obj, prop, options={}){
  * */
 export function buildJqCheckBox(obj, prop, options={}){
     options.tagClass    = ("horizontal "+(options.tagClass??"")).trim()
-    options.extraStyles = "grid-template-columns: max-content max-content;grid-gap:5px;"
     options.labelFirst ??= false
     options = defaultOptions(options, prop)
     const kls = options.inputClass ? `class="${ options.inputClass }"`:""
@@ -192,7 +191,6 @@ export function buildJqCheckBox(obj, prop, options={}){
  * */
 export function buildJqNumber(obj, prop, options={}){
     options.tagClass    = ("horizontal "+(options.tagClass??"")).trim()
-    options.extraStyles = "grid-template-columns: max-content max-content;grid-gap:5px;"
     options.labelFirst ??= false
     options = defaultOptions(options, prop)
     const kls = options.inputClass ? `class="${ options.inputClass }"`:""

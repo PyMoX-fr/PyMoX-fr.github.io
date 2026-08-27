@@ -23,6 +23,8 @@ import { jsLogger } from 'jsLogger'
 import {
   IS_WIN,
   cssPx,
+  cdnLoader,
+  RessourcesLoader,
   PythonError,
   RunningProfile,
   sleep,
@@ -39,7 +41,20 @@ import { TerminalRunner } from '3-terminalRunner-term'
 
 
 
-ace.require("ace/ext/language_tools");
+
+RessourcesLoader.register({
+    src: "https://cdn.jsdelivr.net/npm/ace-builds@1.44.0/src-min-noconflict/ace.js",
+    integrity: "sha256-By0T5T0R4s7M//4aD6fxXPacVDXYl99T2YxxvhxKLn8=",
+  },
+  async ()=>{
+    // This one need ace available:
+    await cdnLoader({
+      src: "https://cdn.jsdelivr.net/npm/ace-builds@1.44.0/src-min-noconflict/ext-language_tools.js",
+      integrity: "sha256-eZ46N0b3QkDX+7GjjlJfoBuXGKIH86UKJVARHhGzpWA=",
+    })
+    ace.require("ace/ext/language_tools")
+  }
+)
 
 
 

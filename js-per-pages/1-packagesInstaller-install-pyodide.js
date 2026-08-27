@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { jsLogger } from 'jsLogger'
-import { PythonError, sleep } from 'functools'
+import { PythonError, cssLoader, cdnLoader, externalRessourcesLoaderFor } from 'functools'
 import { pyodideFeatureRunCode } from '0-generic-python-snippets-pyodide'
 
 
@@ -102,13 +102,6 @@ export const installPythonPackages=(function(){
   const PMT_TOOLS = ['p5', 'p5v2', 'vis', 'vis_network']      // GENERATED
 
 
-  /**In most cases, installations will be done once only (since no module will be installed
-   * several times!), but just in case (to avoid troubles with later changes... Without that,
-   * a script tag/load could end up loaded at each call of `asyncJsScriptCdnLoader`).
-   * */
-  const CACHE_JS_INSTALLED = new Set()
-
-
 
   const featureRunner = (feature, outputConverter=null) => (repl=null) =>{
     let out = pyodideFeatureRunCode(feature, repl)
@@ -117,8 +110,13 @@ export const installPythonPackages=(function(){
   }
 
 
-  const pyodidePlotRunner = featureRunner('pyodidePlot')
-
+  const postPyodidePlot = async ()=>{
+    await cssLoader({
+        href: "https://cdn.jsdelivr.net/npm/fontawesome-4.7@4.7.0/css/font-awesome.min.css",
+        integrity: "sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=",
+    })
+    pyodideFeatureRunCode('pyodidePlot')
+  }
 
 
   const checkImportAsNamespaceOnly=(name)=>(code, _conf)=>{
@@ -130,69 +128,30 @@ export const installPythonPackages=(function(){
   }
 
 
-  const _multiCdnsLoader = (name, ...cdns)=> async ()=>{
-    cdns = cdns.map(data=>
-      typeof(data)=='string' ? {src:data} : data
-    )
-    const targets = cdns.map(o=>o.src)
-    cdns.forEach(o=>_loadScript(o))
-
-    console.log(`Loading ${ name }...`)
-    while(targets.some(src=> !CACHE_JS_INSTALLED.has(src) )){
-      await sleep(50)
+  const pmtToolConf = (name, codeCheck=null) => ({
+    [name]: {
+      codeCheck: codeCheck ?? checkImportAsNamespaceOnly(name),
+      toImport: name,
+      post: async ()=>{
+        const cdnsUrls = getCdnsUrlsFromPmtTool(name)
+        await externalRessourcesLoaderFor(name, cdnsUrls)
+      }
     }
-    await sleep(50)   // add one more cycle, just in case...
-    console.log(name, 'ready')
-  }
+  })
 
-
-  const _loadScript=(scriptOptions)=>{
-    scriptOptions = {
-      crossorigin:    "anonymous",
-      referrerpolicy: "no-referrer",
-      ...scriptOptions
-    }
-    const script = document.createElement('script')
-    script.addEventListener("load", function(){ CACHE_JS_INSTALLED.add(scriptOptions.src) })
-    for(const k in scriptOptions){
-      if(k=='src') continue             // Always set last...
-      script[k] = scriptOptions[k]
-    }
-    script.src = scriptOptions.src      // Always set LAST (I don't remember why...)
-    document.body.appendChild(script)
-  }
-
-
-  const pmtToolConf=(name, codeCheck=null)=>{
-    if(!PMT_TOOLS.includes(name)){
-      throw new Error(`Invalid PMT tool name: ${ name }.`)
-    }
-    return {
-      [name]: {
-        codeCheck: codeCheck ?? checkImportAsNamespaceOnly(name),
-        toImport: name,
-        post: async ()=>{
-          LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Loading CDN for", name)
-          const cdnsString = pyodide.runPython(`
+  const getCdnsUrlsFromPmtTool=(name)=>{
+    const cdnsString = pyodide.runPython(`
 def __hack_cdns():
     from pathlib import Path
 
     file = Path('${name}/cdns.txt')
     if not file.is_file():
         return ''
-
     return file.read_text(encoding='utf-8')
 __hack_cdns()`)
-          pyodide.runPython('del __hack_cdns')
-          const cdns = cdnsString.replace(/\s+/g, " ").trim().split(' ')
-          if(cdnsString && cdns.length){
-            await (_multiCdnsLoader(name, ...cdns)())
-          }
-
-          LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - CDN loaded", JSON.stringify(cdns))
-        }
-      }
-    }
+    pyodide.runPython('del __hack_cdns')
+    const cdnsUrls = cdnsString.replace(/\s+/g, " ").trim().split(' ')
+    return cdnsString ? cdnsUrls : []
   }
 
 
@@ -200,29 +159,24 @@ __hack_cdns()`)
 
   /**IMPORTS_CONFIG type:
    *
-   *   Record<
-   *     PackageName,                  // (string) Name used in the import statement (user's code)
-   *     {
-   *       codeCheck: Cbk[code,conf]   // Verifications to apply to the code content first
-   *       toInstall: string|string[], // Micropip installation name
-   *       post:      async Cbk,       // Callback to run to apply any kind of extra logic
-   *       toImport:  string,          // Automatic import name, at the very end (in hidden scope)
-   *     }
-   *   >
+   *   Record<PackageName,Config>, where Config is:
+   *
+   *   type Config = {
+   *     codeCheck: Cbk[code,conf]   // Verifications to apply to the code content first
+   *     toInstall: string|string[], // Micropip installation name
+   *     post:      async Cbk,       // Callback to run to apply any kind of extra logic
+   *     toImport:  string,          // Automatic import name, at the very end (in hidden scope)
+   *   }
    * */
   const IMPORTS_CONFIG = {
-    matplotlib: {
-      post: async ()=>{ pyodidePlotRunner() }
-    },
+    matplotlib: {post: postPyodidePlot},
+    PIL: {toInstall: "Pillow"},
     sympy: {
       toInstall: ["matplotlib", "sympy"],
       post: async ()=>{
-        pyodidePlotRunner()
+        await postPyodidePlot()
         pyodide.runPython("PyodidePlot.sympy_backend()")
       }
-    },
-    PIL: {
-      toInstall: "Pillow"
     },
     // GENERATED ->
     ...pmtToolConf('p5'),
@@ -241,7 +195,6 @@ __hack_cdns()`)
    * @returns: the actual config object.
    * */
   const getConfAndSetupImport = (name, code) =>{
-
     const conf = {
       codeCheck: (_)=>undefined,
       toImport:  name,
@@ -249,7 +202,6 @@ __hack_cdns()`)
       post:      async ()=>undefined,
       ...IMPORTS_CONFIG[name] || {}
     }
-
     conf.codeCheck(code, conf)
     enforceImports.push( conf.toImport )
     return conf
@@ -259,12 +211,13 @@ __hack_cdns()`)
   /**Install an available custom python_lib.
    * */
   const installCustomPythonLib = async (libName, code) => {
-    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install", libName)
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install custom", libName)
 
     const conf        = getConfAndSetupImport(libName, code)
     const isPmtTool   = PMT_TOOLS.includes(libName)
     const rootNoSlash = CONFIG.siteUrl.replace(/\/$/, '')
     const archive     = `${ rootNoSlash }${ isPmtTool?"/assets/javascripts":"" }/${ libName }.zip`
+
     let zipResponse, oops=false
     try{
       zipResponse = await fetch(archive)
@@ -288,7 +241,7 @@ __hack_cdns()`)
   /**Install an external python package (through pyodide's default behaviors: micropip+PyPI).
    * */
   const installExternalPackage = async (libName, code) => {
-    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install", libName)
+    LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install external", libName)
 
     if(!micropip){
       await pyodide.loadPackage("micropip");

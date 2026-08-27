@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { jsLogger } from 'jsLogger'
 import {
+  RessourcesLoader,
   RunningProfile,
   renderMermaidGraphs,
   sleep,
@@ -32,12 +33,12 @@ import {
   youAreInTroubles,
 } from 'functoolsTxt'
 
-import { chaining } from 'process_and_gui'   // Enforce dependencies order (if ever a runner is needed)
 import { pyodideFeatureRunCode, pyodideFeatureSetupRedirections } from '0-generic-python-snippets-pyodide'
 import { RuntimeManager } from '1-runtimeManager-runtime-pyodide'
-import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
 
-import { startKernel } from 'start-pyodide'
+// Enforce dependencies executions:
+import { RUNNERS_MANAGER } from '2-0-runnersManager-runners'
+import { startKernel } from 'start-pyodide'   // will import process_and_hui on the way
 
 
 
@@ -145,6 +146,12 @@ class PyodideSectionsRunnerBase {
      * */
     this.data = this._dataPostConversion(PAGE_IDES_CONFIG[id])
 
+    if(CONFIG._devMode)
+      CONFIG.objs[this.id] = this   // Helps testing and debugging during development.
+    else{
+      delete PAGE_IDES_CONFIG[id]   // Hide tuff in prod...
+    }
+
     /** Extract the code to test from the current element. If no editor, nothing to test...
      * */
     this.getCodeToTest = ()=>""
@@ -159,21 +166,16 @@ class PyodideSectionsRunnerBase {
      * */
     this.isGuiCompliant = false
 
-    /** Object storing all the async callbacks related to the various events that may run python
-     * code (but only the part of the logic disconnected from the UI itself).
-     * The routines are stored in an object: {profileName: runner}, and it will also hold a
-     * `default` property which defines the routine to use as default during sequential runs, if
-     * the runner doesn't have the same profile/routine as the triggering runner.
+    /**Build the initial (default) object that will store all the async callbacks related to the
+     * various events that may run python code (but only the part of the logic disconnected from
+     * the UI itself). The routines are stored in an object: {profileName: async cbk}, and it will
+     * also hold a `default` property which defines the routine to use as during sequential runs,
+     * if the runner doesn't have the same profile/routine as the triggering runner.
      * */
-    this.runners = RunningProfile.buildDefaultRunnersObject()
-
-    if(CONFIG._devMode)
-      CONFIG.objs[this.id] = this   // Helps testing and debugging during development.
-    else{
-      delete PAGE_IDES_CONFIG[id]   // Hide tuff in prod...
-    }
+    this.runners = RunningProfile.buildDefaultRunnersObject()     // For now as `{name: undefined}`
 
     if(callInit) this._init()
+
     RUNNERS_MANAGER.registerRunner(this)
   }
 
@@ -311,10 +313,11 @@ class PyodideSectionsRunnerBase {
       if(eventOrCmd && eventOrCmd.preventDefault) eventOrCmd.preventDefault()
       LOGGER_CONFIG.ACTIVATE && jsLogger(loggerName)
 
-      this.takesGroupPriority()   // This one must be kept (see global.on('click'...)) because the click is applied too late.
+      this.takesGroupPriority()     // This one must be kept (see global.on('click'...)) because
+                                    // the click is applied too late.
       CONFIG.calledMermaid = false
       const wasDirty = this.isDirty
-      this.makeDirty(false)       // Assume executions will go well (see note in finally block)
+      this.makeDirty(false)         // Assumes executions will go well (see note in `finally`)
       this.running = runningMan
       let runtime
 
@@ -343,7 +346,7 @@ class PyodideSectionsRunnerBase {
 
         // For isDirty update, DO NOT only rely on `this.isDirty = runtime.stopped`, so that the
         // runner itself can set the value on a success if needed, and it won't be overridden here
-        // (useful if a valid "play" is still considered dirty when a validation exists...).
+        // (useful if a valid "play" is still considered dirty when a validation button exists...):
         const anyError = !runtime || runtime.stopped
         const keepDirtyOnPublicTestsIfCheckBtn = wasDirty && this.data.hasCheckBtn && runningMan.isPlaying
         if(anyError || keepDirtyOnPublicTestsIfCheckBtn){
@@ -593,8 +596,8 @@ class PyodideSectionsRunnerBase {
    *
    * NOTE: this may be run outside of the usual runtime logistic, so no @auto_run decorator used.
    * */
-  setupFetchers(url, withJsMock){
-    pyodideFeatureSetupRedirections(url, withJsMock)
+  setupFetchers(url, withJsMock=false, withInputs=null){
+    pyodideFeatureSetupRedirections(url, withJsMock, withInputs)
   }
 
 
@@ -678,7 +681,7 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
 
   showWillRunThis(previousRunner=null){
     if(this.hasTerminal){
-      const name = previousRunner ? previousRunner.pyName : "current..."
+      const name = previousRunner ? previousRunner.pyName : "current element..."
       this.giveFeedback(`Running: ${ name }`, 'info')
     }
   }
@@ -697,4 +700,12 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
 export class PyodideSectionsRunner extends PyodideSequentialRunner{}
 
 
-startKernel(PyodideSectionsRunner)
+RessourcesLoader.register({
+    src: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js",
+    integrity: "sha256-nHnJmZmZsV3nWHqiIMYdBqoU52urt13FDC+HOqgmrU0=",
+  },
+  async ()=>{
+    console.log('Starting pyodide kernel...')
+    startKernel(PyodideSectionsRunner)
+  }
+)

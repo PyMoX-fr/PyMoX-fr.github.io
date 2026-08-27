@@ -51,8 +51,8 @@ export class BtnRunner extends PyodideSectionsRunner {
 
 
   async setupRuntimeBtn(){
-    // Can get an argument (eventOrCmd), depending on how it's run/called.
-    //    => Override to not transmit it
+    // The original implementation of setupRuntime could receive an argument (eventOrCmd)
+    // depending on how it's run/called. => Override to not transmit it.
     return await this.setupRuntime()
   }
 

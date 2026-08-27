@@ -62,6 +62,12 @@ class GlobalRunnersManagerBase {
     runner._manager = this
   }
 
+  resetAllIdes(){
+    Object.values(this.allRunners).forEach(runner=>{
+      if(runner.isIde) runner.resetElement(false)
+    })
+  }
+
 
   /**Define a global intermediate object transferring silently the calls to the "inner/hidden"
    * RunnerManager, without exposing it directly.

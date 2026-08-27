@@ -23,6 +23,7 @@ import {
   checkMathJaxReady,
   subscribeWhenReady,
   perennialMathJaxUpdate,
+  RessourcesLoader,
 } from 'functools'
 import {
   handlePmtTooltips,
@@ -31,7 +32,6 @@ import {
 } from 'functoolsUi'
 import { showIdCollisionsIfAny } from 'functoolsStorage'
 
-export const chaining=0     // To control imports orders when using overrides (used for Playground)
 
 
 
@@ -41,24 +41,18 @@ export const chaining=0     // To control imports orders when using overrides (u
 
 ;await (async function(){
 
-  /**Elements in tabbed divs, that may need GUI makeup actions when the tab gets clicked on.
-   * */
-  const TABBED_TO_MAKE_UP_GUI = new Set()
-
   /**Storing all the terminals n the current page, to be able to restore any active command
    * they hold, while clicking on "tabs" tend to randomly remove them or parts of them...
    * */
   const ALL_TERMINALS = []
 
+  /**Elements in tabbed divs, that may need GUI makeup actions when the tab gets clicked on.
+   * */
+  const TABBED_TO_MAKE_UP_GUI = new Set()
+
   setupTabbedContentsOnClickFixer(ALL_TERMINALS, TABBED_TO_MAKE_UP_GUI)
 
   setupChromeFixAceGutterInDetailsElements()
-
-
-  setupTabbedContentsOnClickFixer(ALL_TERMINALS, TABBED_TO_MAKE_UP_GUI)
-
-  setupChromeFixAceGutterInDetailsElements()
-
 
   const idePrefixToClass = {
     editor_: "Ide",
@@ -86,6 +80,8 @@ export const chaining=0     // To control imports orders when using overrides (u
       return
     }
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Subscriptions] - Done waiting: starting subscriptions')
+
+    await RessourcesLoader.loadAll()
 
     const managerClass = CONFIG.CLASSES_POOL.GlobalRunnersManager
     const isPageWithRunners = "Wait4StartPyodide" in CONFIG.subscriptionReady

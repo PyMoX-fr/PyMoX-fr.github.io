@@ -20,13 +20,18 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { jsLogger } from 'jsLogger'
-import { withPyodideAsyncLock, RunningProfile } from 'functools'
+import { withPyodideAsyncLock, RessourcesLoader, RunningProfile } from 'functools'
 import { textShortener, txtFormat } from 'functoolsTxt'
 import { PyodideSectionsRunner } from "2-pyodideSectionsRunner-runner-pyodide"
 import { RuntimeManager } from '1-runtimeManager-runtime-pyodide'
 
 
 
+
+RessourcesLoader.register({
+  src: "https://cdn.jsdelivr.net/npm/jquery.terminal@2.43.1/js/jquery.terminal.min.js",
+  integrity: "sha256-pbe5sRZbQRbFX+gVJnAUz0dGepuDvyQXpmqjxpolaoc=",
+})
 
 
 

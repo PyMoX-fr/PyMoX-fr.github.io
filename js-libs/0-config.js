@@ -18,12 +18,6 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-/*
-NOTE: Globals defined somewhere else:
-    * The "ace" variable is defined in the ace library. Everything using it must be called after
-      the libs insertion steps.
-*/
-
 
 const SqBs = {
     '[':'&lsqb;',
@@ -110,6 +104,7 @@ const CONFIG = {
         successTail: null,
         tests: null,
         testsDone: null,
+        tipResetAll: null,
         tipTrash: null,
         titleCorr: null,
         titleRem: null,

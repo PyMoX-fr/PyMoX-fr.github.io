@@ -63,7 +63,7 @@ export const cssPx =(jObj,prop='height')=> +jObj.css(prop).slice(0,-2)
  * is single threaded, and its value is protected be defining it within a scope where the
  * "locking" function is also defined (behaves like a python/TS decorator. Kinda... :p ).
  * */
-export const withPyodideAsyncLock = (_=>{
+export const withPyodideAsyncLock = (()=>{
 
   /**Everything is run async but single threaded, so a global lock can be added, using a simple
    * boolean flag, declared inside a closure to avoid a user messing with the variable...
@@ -327,7 +327,57 @@ export function waitForClassesPoolReady(applyWhenPoolReady=null){
 
 
 
+const LOADED = new Set()
 
+const _ressourceLoaderFactory = (tagName, attr, kind, baseOptions={}) => (options) => new Promise(
+  (resolve,reject)=>{
+    options = (typeof(options)=='string' ? {[attr]: options} : options)
+    options = {crossOrigin: "anonymous", referrerPolicy: "no-referrer", ...baseOptions, ...options}
+
+    if(LOADED.has(options[attr])) return resolve()
+
+    const tag = document.createElement(tagName)
+    tag.addEventListener("load", _=>{ LOADED.add(options[attr]); resolve() })
+    tag.addEventListener("error", _=>reject(console.error(`Could not load ${ options[attr] } ${kind}`)))
+    for(const k in options){
+      if(k==attr) continue      // Always set last...
+      tag[k] = options[k]
+    }
+    tag[attr] = options[attr]   // Always set LAST (something about the script loading triggered whe src is added...)
+    document.head.appendChild(tag)
+  }
+)
+
+
+export const cdnLoader = _ressourceLoaderFactory('script', 'src',  'script')
+export const cssLoader = _ressourceLoaderFactory('link',   'href', 'css', {rel:'stylesheet'})
+
+
+export const externalRessourcesLoaderFor = (name, ressourcesArr)=>{
+  if(name) console.log(`Loading ${ name } utilities...`)
+  const done = Promise.all(ressourcesArr.map(o=>typeof(o)!='string' && ('href' in o) ? cssLoader(o):cdnLoader(o)))
+  if(name) console.log(name, 'ready')
+  return done
+}
+
+
+export class RessourcesLoader {
+
+  static RESSOURCES = []
+  static POST_ACTIONS = []
+
+  static register(options, post=null){
+    RessourcesLoader.RESSOURCES.push(options)
+    if(post) RessourcesLoader.POST_ACTIONS.push(post)
+    return RessourcesLoader
+  }
+
+  static async loadAll(){
+    await externalRessourcesLoaderFor('', RessourcesLoader.RESSOURCES).then(async _=>{
+      await Promise.all(RessourcesLoader.POST_ACTIONS.map(p=>p()))
+    })
+  }
+}
 
 
 
@@ -613,9 +663,9 @@ export class RunningProfile {
    * (done this way to get autocompletion support when coding in js, without
    * breaking the current implementation logic).
    * */
-  static buildDefaultRunnersObject(asProperties=false){
+  static buildDefaultRunnersObject(withValues=false){
     const obj = {...RunningProfile.PROFILE}
-    for(const k in obj) obj[k] = asProperties ? k : undefined
+    for(const k in obj) obj[k] = withValues ? k : undefined
     obj.default = undefined
     return obj
   }
@@ -625,11 +675,11 @@ export class RunningProfile {
 
   static build(profile){
     return Object.freeze({
-      name: profile,
-      isTermCmd:  profile.includes(RunningProfile.PROFILE.cmd),
-      isPlaying:  profile.includes(RunningProfile.PROFILE.play),
+      name:         profile,
+      isTermCmd:    profile.includes(RunningProfile.PROFILE.cmd),
+      isPlaying:    profile.includes(RunningProfile.PROFILE.play),
       isValidating: profile.includes(RunningProfile.PROFILE.validate),
-      isTesting:  profile.includes(RunningProfile.PROFILE.testing),
+      isTesting:    profile.includes(RunningProfile.PROFILE.testing),
     })
   }
 }

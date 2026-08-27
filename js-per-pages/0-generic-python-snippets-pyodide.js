@@ -130,9 +130,10 @@ def __hack_redirection_and_fake_js():
         return
 
     with_js_mock = {FORMAT_TOKEN}
+    inputs       = {HACK_PROMPT}
     pure_pyfetch = http.pyfetch
     pure_import  = __import__
-    js_config = js.config()
+    js_config    = js.config()
 
 
     def get_url(url: str|Path):
@@ -171,6 +172,9 @@ def __hack_redirection_and_fake_js():
 
             # if k in self.ASYNC_CALLS:
             #     return self.async_sink_js
+
+            if k=='prompt' and inputs:
+                return lambda *a,**kw: inputs.pop()
 
             if with_js_mock and (k=='document' or self is sink_js ):
                 return sink_js
@@ -998,7 +1002,7 @@ export const pyodideFeatureRunCode=(name, repl=null)=>{
 
 
 
-export const pyodideFeatureSetupRedirections=(relUrlRedirection, withJsMock)=>{
+export const pyodideFeatureSetupRedirections=(relUrlRedirection, withJsMock, withInputs=null)=>{
 
     const withRedirection = Boolean(relUrlRedirection)
 
@@ -1006,9 +1010,12 @@ export const pyodideFeatureSetupRedirections=(relUrlRedirection, withJsMock)=>{
     // Replace "//"" to ease the way for the user: no need to care about adding or not trailing
     // or leading slashes.
 
-    const code = pyodideFeatureCode(
-        "relUrlsRedirections", withJsMock, ['{WITH_REDIRECT}', withRedirection]
-    )
+    const replacements = [
+        withJsMock,
+        ['{WITH_REDIRECT}', withRedirection],
+        ['{HACK_PROMPT}', (withInputs ? withInputs.reverse():false)]
+    ]
+    const code = pyodideFeatureCode("relUrlsRedirections", ...replacements)
     pyodide.runPython(code)
 }
 

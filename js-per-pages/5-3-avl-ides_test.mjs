@@ -254,10 +254,20 @@ export class Avl {
   }
 
 
-  _rotate(isLeft, A, B, C, D, E){
+  // This method is written as if done for a left rotation. As explained in equilibrium,
+  // rotating right is jst about reverting nodes/properties (hence left holding "right"
+  // and so on...).
+  _rotate(side){
+    const isLeft = side===LEFT
+    const left = SIDE[side], right = SIDE[-side]
+
+    const A=this[left], B=this, C=this[right], D=this[right][left], E=this[right][right]
+
     const b=B.value, c=C.value
-    B.mutate(c, ...(isLeft ? [C,E] : [E,C]) )
-    C.mutate(b, ...(isLeft ? [A,D] : [D,A]) )
+    const childrenB = isLeft ? [C,E] : [E,C]
+    const childrenC = isLeft ? [A,D] : [D,A]
+    B.mutate(c, ...childrenB)
+    C.mutate(b, ...childrenC)
   }
 
   /**Automatically reorganize the tree, enforcing the AVL contracts.
@@ -292,15 +302,15 @@ export class Avl {
   equilibrium(){
     if(this.isEmpty) return this
 
-    // Defensive: contract verification
-    // if(Math.abs(this.balance) > 2){
-    //   throw new Error(`Balance is too big on iRow=${ this.value.iRow }: ${ this.balance }`)
-    // }
+    /* // Defensive: contract verification
+    if(Math.abs(this.balance) > 2){
+      throw new Error(`Balance is too big on iRow=${ this.value.iRow }: ${ this.balance }`)
+    } //*/
     const balance = this.balance
-    if(balance == 2){             // Rotate left
-      this._rotate(true, this.left, this, this.right, this.right.left, this.right.right)
-    }else if(balance == -2){      // Rotate right
-      this._rotate(false, this.right, this, this.left, this.left.right, this.left.left)
+    if(balance == 2){
+      this._rotate(LEFT)
+    }else if(balance == -2){
+      this._rotate(RIGHT)
     }
     this._updateStates()    //*
     return this             /*/
@@ -318,12 +328,14 @@ export class Avl {
   toString(){
     if(this.isEmpty) return '∅'
 
-    const lines = []
+    const lines = [], color="\x1b[33;1m", zero="\x1b[0m"
     const visit = (node, prefix, branch) => {
       if (node.isEmpty) return
       const childPrefix = prefix + '   '
       visit(node.right, childPrefix, '┌─ ')
-      lines.push(`${prefix}${branch}\x1b[33;1m${node.value.iRow}\x1b[0m (h=${node.h}, b=${node.balance}, N=${node.nTree})`)
+      lines.push(
+        `${prefix}${branch}${ color + node.value.iRow + zero } (h=${node.h}, b=${node.balance}, N=${node.nTree})`
+      )
       visit(node.left,  childPrefix, '└─ ')
     }
     visit(this, '', '')

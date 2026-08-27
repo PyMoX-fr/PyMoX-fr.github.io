@@ -91,7 +91,8 @@ const startPyodideSyncWith =(PyodideSectionsRunnerClass)=>()=> {
   LOGGER_CONFIG.ACTIVATE && jsLogger('[Pyodide] - WASM: starting')
   loadPyodide()
     .then(setupPyodideEnvironmentToolsFactory(PyodideSectionsRunnerClass))
-    .catch(e=>console.error(e))
+    .then(_=>console.log('Pyodide kernel ready.'))
+    .catch(console.error)
 }
 
 
