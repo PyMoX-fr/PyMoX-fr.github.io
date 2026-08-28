@@ -33,7 +33,12 @@ import {
 import { showIdCollisionsIfAny } from 'functoolsStorage'
 
 
+/*
+NOTE: This file MUST NOT directly import any runner related module, otherwise they would always
+be started, whatever the elements actually needed in the page.
 
+(side note: if the runners are separated from the general/UI behaviors, this could become a non problem...?)
+*/
 
 
 

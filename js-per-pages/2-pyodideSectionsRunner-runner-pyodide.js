@@ -176,6 +176,9 @@ class PyodideSectionsRunnerBase {
 
     if(callInit) this._init()
 
+    // The actual GlobalRunnersManager object, defined after the below call. This will be the true
+    // object, not the proxy one. WARNING: "_manager" name is used in tests code manipulations.
+    this._manager = null
     RUNNERS_MANAGER.registerRunner(this)
   }
 
@@ -187,7 +190,6 @@ class PyodideSectionsRunnerBase {
     data.python_libs = new Set(data.python_libs)
     return data
   }
-
 
 
   _init(){}         // Super calls sink...
@@ -629,8 +631,7 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
 
     /**Tell if the last run was successful or not, or if the content has been modified without
      * being run (handled unconditionally for all elements, even if they aren't "in sequential
-     * run". The RUNNERS_MANAGER (this._manager once the super.constructor has been called)
-     * handles what is actually to be run or not).
+     * runs". The GlobalRunnersManager handles what is actually to be run or not).
      * */
     this.isDirty = true
   }

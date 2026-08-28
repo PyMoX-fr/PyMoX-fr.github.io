@@ -225,11 +225,20 @@ def _hack_zip_loading():
 
 /** Common top level object.
  * */
-class GlobalRunnersManager extends GlobalZipImportIdesManager {}
+class GlobalRunnersManager extends GlobalZipImportIdesManager {
+
+  static WITH_IDES = true
+
+  resetAllIdes(){
+    Object.values(this.allRunners).forEach(runner=>{
+      if(runner.isIde) runner.resetElement(false)
+    })
+  }
+}
 
 
 // Replace the class in the CONFIG object:
 CONFIG.CLASSES_POOL.GlobalRunnersManager = GlobalRunnersManager
 
-// Forbid a new CLASSES_POOL registration with this character: }
+// Forbid a new CLASSES_POOL registration with this comment/character: }
 // (see python_devops/py_codes_updates/html_deps_and_import_map.py:gather_all_scripts_and_css_kinds_and_rebuild_Deps)

@@ -174,7 +174,9 @@ const CONFIG = {
     },
 
 
+    // Proxy-like object toward the GlobalRunnersManager. Holds only methods, no shared state:
     RUNNERS_MANAGER: null,
+
     pyodideIsReady: false,
     classesPoolIsReady: false,
     overlordIsReady: false,

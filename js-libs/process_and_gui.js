@@ -149,8 +149,8 @@ subscribeWhenReady(
   "TrashCan",
   ()=>{
     LOGGER_CONFIG.ACTIVATE && jsLogger('[TrashCan]')
-    const useIdes = CONFIG.CLASSES_POOL.Ide || CONFIG.overlordClasses.includes("Ide")
-    if(useIdes) resetAllButton()
+    const withIdes = CONFIG.CLASSES_POOL.GlobalRunnersManager && CONFIG.CLASSES_POOL.GlobalRunnersManager.WITH_IDES
+    if(withIdes) resetAllButton()
     if(CONFIG.element.trashCan) trashCanButton()
   },
   {waitFor: CONFIG.element.searchBtnsRight, runOnly:true},

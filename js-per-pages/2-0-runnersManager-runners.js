@@ -44,6 +44,11 @@ const SEQ_MODES = Object.freeze({
  * */
 class GlobalRunnersManagerBase {
 
+  /**If true, the 4-0-... class is used, meaning there are some Ides in the current page.
+   * */
+  static WITH_IDES = false
+
+
   constructor(){
 
     /**Holds all the Runner instances in the page, as `{runnerId: object}`
@@ -62,11 +67,9 @@ class GlobalRunnersManagerBase {
     runner._manager = this
   }
 
-  resetAllIdes(){
-    Object.values(this.allRunners).forEach(runner=>{
-      if(runner.isIde) runner.resetElement(false)
-    })
-  }
+
+  // Sink: nothing to do if called while the 4-0... child class is not used.
+  resetAllIdes(){}        // CodCap override
 
 
   /**Define a global intermediate object transferring silently the calls to the "inner/hidden"
@@ -102,9 +105,8 @@ class GlobalRunnersManagerBase {
     }
 
     // Store the RUNNERS_MANAGER "proxy" on the CONFIG object, to avoid having the subscriptions
-    // script importing pyodide/runners related files directly.
-    // The fact that the GlobalRunnersManager is stored in the CLASSES_POOL will ensure proper
-    // resolution order anyway.
+    // script importing pyodide/runners related files directly (which would automatically trigger
+    // the kernel execution...).
     CONFIG.RUNNERS_MANAGER = RUNNERS_MANAGER
   }
 }
