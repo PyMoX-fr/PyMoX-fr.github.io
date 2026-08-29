@@ -36,6 +36,9 @@ WARNING:  This file HAS to be loaded before the DOM is built, otherwise
   margin: 0;
 }
 
+.md-typeset ol.py_mk_question_qcm.py_mk_questions_list_qcm {
+  margin: 0 0 0 15px;
+}
 
 
 /*
@@ -99,10 +102,25 @@ WARNING:  This file HAS to be loaded before the DOM is built, otherwise
 ---------------------------------------
 */
 
+/* Remove "bullet points" on unique questions with admo_class "no-unique-li" */
+.md-typeset .layout-qcm-wrapper .inner.no-unique-li ol:first-child:last-child,
+.md-typeset .layout-qcm-wrapper .inner.no-unique-li ul:first-child:last-child {
+  list-style-type: none;
+}
+/* Remove all "bullet points" on questions with admo_class "no-li" */
+.md-typeset .layout-qcm-wrapper .inner.no-li ol,
+.md-typeset .layout-qcm-wrapper .inner.no-li ul {
+  list-style-type: none;
+}
+
 .md-typeset input.qcm { display: none; }
 
 .md-typeset li.py_mk_question_qcm {
-  margin: 2.25em 0;
+  margin: 2em 0;
+}
+
+.md-typeset ul.py_mk_item_qcm {
+  margin: 0;
 }
 
 .md-typeset li.py_mk_item_qcm {
