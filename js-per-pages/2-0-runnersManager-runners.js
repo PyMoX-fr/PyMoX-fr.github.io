@@ -44,14 +44,9 @@ const SEQ_MODES = Object.freeze({
  * */
 class GlobalRunnersManagerBase {
 
-  /**If true, the 4-0-... class is used, meaning there are some Ides in the current page.
-   * */
-  static WITH_IDES = false
-
-
   constructor(){
 
-    /**Holds all the Runner instances in the page, as `{runnerId: object}`
+    /**Holds ALL the Runner instances in the page (skipped or not), as `{runnerId: object}`.
      * */
     this.allRunners = {}
 

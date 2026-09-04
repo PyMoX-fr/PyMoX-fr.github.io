@@ -22,7 +22,6 @@ import { subscribeWhenReady } from 'functools'
 import { moveLocalStorageEntriesFromOlderProjectId, trashLocalStorage } from 'functoolsStorage'
 import { applyLangMessagesFormatting } from 'functoolsTxt'
 import {
-  aceEditorsDayNightReactivity,
   createFiguresHeightMutationObserver,
   defineAceColorPaletteThemeData,
   defineCssMainColor,
@@ -63,8 +62,6 @@ if((CONFIG.projectMoveFromOldId??null) !== null){
 //----------------------------------------------------------
 
 
-
-aceEditorsDayNightReactivity()
 
 createFiguresHeightMutationObserver()
 
@@ -149,8 +146,7 @@ subscribeWhenReady(
   "TrashCan",
   ()=>{
     LOGGER_CONFIG.ACTIVATE && jsLogger('[TrashCan]')
-    const withIdes = CONFIG.CLASSES_POOL.GlobalRunnersManager && CONFIG.CLASSES_POOL.GlobalRunnersManager.WITH_IDES
-    if(withIdes) resetAllButton()
+    if(CONFIG.hasIdes) resetAllButton()
     if(CONFIG.element.trashCan) trashCanButton()
   },
   {waitFor: CONFIG.element.searchBtnsRight, runOnly:true},

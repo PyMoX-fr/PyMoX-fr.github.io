@@ -20,8 +20,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 
-
-const getTheme=()=>{
+/**Returns "ace/theme/{ace-(color-theme-name}", depending on the current config of the palette.
+ * */
+export const getTheme=()=>{
   // automatically load current palette
   const palette = __md_get("__palette")
   let curPalette = palette === null
@@ -219,26 +220,6 @@ export const setupChromeFixAceGutterInDetailsElements=()=>{
 
     })
   }
-}
-
-
-
-/**Setup reactivity for the day/night button, repainting ACE editors.
- * */
-export const aceEditorsDayNightReactivity=()=>{
-  // NOTE: yet again, jQuery didn't work on a "change" event...(?)
-  document.querySelector("[data-md-color-scheme]").addEventListener("change", _=>{
-    LOGGER_CONFIG.ACTIVATE && jsLogger("[Paint_ACEs]")
-
-    const theme = getTheme();
-    for(const id of CONFIG.element.allEditors){
-      for (let theEditor of document.querySelectorAll(`div[id^="${ id }"]`)) {
-        let editor = ace.edit(theEditor.id);
-        editor.setTheme(theme);
-        editor.getSession().setMode("ace/mode/python");
-      }
-    }
-  });
 }
 
 

@@ -182,6 +182,7 @@ const CONFIG = {
     overlordIsReady: false,
     overlordClasses: [],
 
+    hasIdes: false,
     needMermaid: false,
     calledMermaid: false,
 

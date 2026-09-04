@@ -19,6 +19,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
 import { escapePyodideCodeForJsTemplates } from 'functoolsTxt'
+import { getTheme } from "functoolsUi"
 
 
 /** Import then reexport, so that Ide modules can import this version: this will enforce proper
@@ -227,7 +228,31 @@ def _hack_zip_loading():
  * */
 class GlobalRunnersManager extends GlobalZipImportIdesManager {
 
-  static WITH_IDES = true
+  constructor(){
+    super()
+    this.allIdes = []
+    this._setupAceAutoPaintOnThemeChange()
+  }
+
+
+  _setupAceAutoPaintOnThemeChange(){
+    document.querySelector("[data-md-color-scheme]").addEventListener("change", _=>{
+      LOGGER_CONFIG.ACTIVATE && jsLogger("[Paint_ACEs]")
+      const theme = getTheme();
+      for(const ide of this.allIdes){
+        let editor = ace.edit(ide.id);
+        editor.setTheme(theme);
+        editor.getSession().setMode("ace/mode/python");
+      }
+    })
+  }
+
+  registerRunner(runner){
+    super.registerRunner(runner)
+    if(runner.isIde){
+      this.allIdes.push(runner)
+    }
+  }
 
   resetAllIdes(){
     Object.values(this.allRunners).forEach(runner=>{
