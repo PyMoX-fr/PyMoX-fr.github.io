@@ -241,7 +241,7 @@ class IdeZipManager extends IdeStorageManager {
   /**Build and return the callback to export IDEs contents as zip, and also put in place the zip
    * importation elements.
    * */
-  buildZipExportsToolsAndCbk(jBtn){
+  buildZipExportsToolsAndCbk(jBtn){   // CodCap
     // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
     // https://stackoverflow.com/questions/43180248/firefox-ondrop-event-datatransfer-is-null-after-update-to-version-52
 

@@ -538,7 +538,7 @@ class _TerminalHandler extends PyodideSectionsRunner {
           e.preventDefault()
           e.stopPropagation()
           await navigator.clipboard.writeText(txt)
-          return
+          return false
         }
 
         let currentCmd = this.terminal.get_command();
