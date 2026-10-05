@@ -404,8 +404,8 @@ class _TerminalHandler extends PyodideSectionsRunner {
   unlockDisplay(){ this.terminal.resume() }
 
 
-  resetElement(){
-    super.resetElement()
+  resetElement(options){
+    super.resetElement(options)
     this.terminal.clear()
   }
 

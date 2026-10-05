@@ -187,7 +187,7 @@ class GlobalZipImportIdesManager extends GlobalZipExportIdesManager{
 
   readZipContentAndUpdateIdes(zipArchive){
 
-    Object.values(this.allRunners).forEach(runner=>runner.resetElement(false))
+    Object.values(this.allRunners).forEach(runner=>runner.resetElement({doFocus:false}))
 
     const reader = new FileReader();
 
@@ -256,7 +256,7 @@ class GlobalRunnersManager extends GlobalZipImportIdesManager {
 
   resetAllIdes(){
     Object.values(this.allRunners).forEach(runner=>{
-      if(runner.isIde) runner.resetElement(false)
+      if(runner.isIde) runner.resetElement({doFocus: false})
     })
   }
 }

@@ -66,11 +66,27 @@ class IdeAceManager extends IdeSplitScreenManager {
   }
 
 
-  makeDirty(isDirty=true){
-    super.makeDirty(isDirty)
-    if(isDirty){
-      this.setOrangeBox(true)
+  makeDirty(options={}){
+
+    if('runtime' in options){
+      const isSuccess = Boolean(options.runtime && !options.runtime.stopped)
+      const isNotValidWithCheckBtn = !this.running.isValidating && this.hasCheckBtn
+      options.isDirty = !isSuccess || isNotValidWithCheckBtn && this.isDirty
+
+      options.box = false
+      if(this.running.isPlaying){
+        const changedState = isSuccess !==  this.lastValidationWasSuccess()
+        options.box = changedState || this.hasOrangeBox()
+
+      }else if(this.running.isTermCmd){   // Retain current state
+        options.box = this.hasOrangeBox()
+      }
     }
+
+    options = super.makeDirty(options)
+
+    this.setOrangeBox(options.box)
+    return options
   }
 
   setOrangeBox(add){
@@ -128,7 +144,7 @@ class IdeAceManager extends IdeSplitScreenManager {
     exerciseCode = exerciseCode.replace(/\n+$/,'')
     if(!exerciseCode) exerciseCode = '\n'
 
-    return exerciseCode+"\n"
+    return exerciseCode + "\n"
   }
 
 
@@ -290,7 +306,7 @@ class IdeFeedbackManager extends IdeHistoryManager {
 
     let msg = `${ intro }${ section }: ${ okMsg }`  // Default section message
     if(!code) msg = ""                              // No default message if no code in the section...
-    if(isPlaying && !this.hasCheckBtn){               // ...but ensure the default ending message is shown, ...
+    if(isPlaying && !this.hasCheckBtn){             // ...but ensure the default ending message is shown, ...
       msg = CONFIG.lang.successMsgNoTests.msg       // ...if this is "playing" and nothing else to do after.
     }
 
@@ -298,11 +314,12 @@ class IdeFeedbackManager extends IdeHistoryManager {
 
     // Prepare a "very final" message if needed:
 
-    // During public tests, if a validation button is present while running the public tests,
-    // remind the user to try the validations if the IDE has the orange box or was not a success
-    // on the last validation (keeping that consistent with the visuals, rather than the isDirty
-    // implementation. This is because, for example, the starting state for isDirty and the box
-    // are not aligned at all, so sequential runs cannot rely on the orange box and vice versa):
+    /* During public tests, if a validation button is present while running the public tests,
+       remind the user to try the validations if the IDE had the orange box or if there was an error
+       on the last validation (keeping that consistent with the visuals, rather than the isDirty
+       implementation. This is because, for example, the starting state for isDirty and the box
+       are not aligned at all, so sequential runs cannot rely on the orange box and vice versa):
+     */
     if(isPlaying && this.hasCheckBtn && (this.hasOrangeBox() || !this.lastValidationWasSuccess())){
       runtime.finalMsg = CONFIG.lang.unforgettable.msg
 
@@ -444,7 +461,6 @@ class IdeFeedbackManager extends IdeHistoryManager {
     }
   }
 
-
   /**If @isDelayed is true, there are no tests/secrets, so:
    *    - Do not congratulate the user
    *    - if something revealable, announce the revelation, otherwise say nothing special
@@ -537,14 +553,11 @@ class IdeRunnerLogic extends IdeFeedbackManager {
   }
 
 
-
-
   /**Things to display in the terminal at the very beginning of the executions.
    * */
   terminalDisplayOnIdeStart(){
     this.terminalEcho(CONFIG.lang.runScript.msg)
   }
-
 
 
   async setupRuntimeIDE() {
@@ -602,12 +615,11 @@ class IdeRunnerLogic extends IdeFeedbackManager {
     )
   }
 
-
-
   async playThroughRunner(runtime){   // CodCap override
     const code = this.getCodeToTest()
     await this.runPythonCodeWithOptionsIfNoStdErr(code, runtime, CONFIG.section.editor)
   }
+
 
 
 
@@ -621,8 +633,6 @@ class IdeRunnerLogic extends IdeFeedbackManager {
       this.teardownRuntimeIDE,
     )
   }
-
-
 
   async validateThroughRunner(runtime){
 
@@ -697,7 +707,6 @@ class IdeRunnerLogic extends IdeFeedbackManager {
     )
   }
 
-
   async setupRuntimeIDECorr() {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - corr_btn start")
 
@@ -711,7 +720,6 @@ class IdeRunnerLogic extends IdeFeedbackManager {
     this.data.profile  = null           // REMINDER: no setter on this.profile!
     return await this.setupRuntimeIDE()
   }
-
 
   async teardownRuntimeIDECorr(runtime) {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - corr_btn validation done")
@@ -1124,10 +1132,9 @@ export class IdeRunner extends IdeRunnerLogic {
    * @doFocus can be seen as "triggered by the user?", hence, when it is false, some extra
    * steps should be avoided, like autofocus of the element.
    * */
-  resetElement(doFocus=true){   // CodCap override: if @doFocus is true, send notifications to Capytale).
-    super.resetElement()        // This marks the runner as dirty
-    // Cancel the orange box on resets (coming with this.makeDirty() in the super call)
-    this.setOrangeBox(false)
+  resetElement(options={doFocus: true}){   // CodCap override: if @doFocus is true, send notifications to Capytale).
+    options.box = false
+    super.resetElement(options)            // This marks the runner as dirty
     this.setStartingCode({extractFromLocalStorage: false, saveOnceApplied: false})
     this.updateValidationBtnColor()
     this.clearValidations()
@@ -1136,7 +1143,7 @@ export class IdeRunner extends IdeRunnerLogic {
     }
     $("#solution_" + this.id).addClass('py_mk_hidden')
     this.hiddenDivContent = true
-    if(doFocus) this.focusEditor()
+    if(options.doFocus) this.focusEditor()
     // clearPyodideScope()      // PMT 4.2.0+: no scope cleaning anymore.
     this.takesGroupPriority()   // Keep this one because the method may be triggered from some code
                                 // during the tests, without clicking on the IDE

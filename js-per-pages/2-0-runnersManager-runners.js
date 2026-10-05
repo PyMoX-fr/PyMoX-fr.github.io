@@ -289,7 +289,7 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
 
     LOGGER_CONFIG.ACTIVATE && jsLogger('[Sequence] - Wrapped', pyoRunner.pyName)
 
-           /**args: generally: [sectionName, Runtime], but might be ["command"] for terminals. */
+           // args: generally: [sectionName, Runtime], but might be ["command"] for terminals.
     return async function sequentialAndNoReturn(...srcArgs){
 
       // Always give the current runner the priority, first, in case it is not "the one"...
@@ -304,11 +304,10 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
       let ranSome = false
 
       let success = true
-
       let previousRunner
 
       pyoRunner.running = runningMan    // Dirty override, but needed here or there... :rolleyes:
-      pyoRunner.allowPrint = !this.deactivateStdoutForSecrets   // Because always used for validations
+      pyoRunner.allowPrint = !this.deactivateStdoutForSecrets
       pyoRunner.lockDisplay()
       pyoRunner.setupTerminalMessageRoutine()
 
@@ -345,7 +344,7 @@ class GlobalSequentialRunner extends GlobalAutoRunManager {
         pyoRunner.unlockDisplay()
         pyoRunner.allowPrint = true
 
-        // Defensive programming: deactivate again, so that it's always done, even on JS errors.
+        // Defensive programming: focus again so that it's always done, even on JS errors.
         if(previousRunner) previousRunner.activateFocus(true)
       }
 

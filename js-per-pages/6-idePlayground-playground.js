@@ -159,7 +159,8 @@ class IdePlayground extends IdeRunner {
   }
 
   getCodeFromStorage(){
-    return this._applyAllCodesFromFileContent(this.storage.code)
+    const store = super.getCodeFromStorage()
+    return this._applyAllCodesFromFileContent(store)
   }
 
   _buildPythonFileContent(){

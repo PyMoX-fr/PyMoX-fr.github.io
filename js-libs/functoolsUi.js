@@ -332,11 +332,14 @@ export const handlePmtTooltips=(()=>{
   }
 
   const validTags = '<br> <kbd> <code> <i> <u> <b>'.split(' ')
+  const unescapeTags = {"&lt;":'<', "&gt;":'>', "\\<": '<'}
 
   const getValidHtml=(html)=>{
     // In admonitions, tags are escaped somehow (dunno where exactly), so restore them,
-    // if they are allowed:
-    html = html.replace(/\\</g, "<")
+    // if they are allowed + handle markdown 3.11:
+    html = html.replace(/&[lg]t;/g, s=>unescapeTags[s])
+               .replace(/\\</g, s=>unescapeTags[s])
+                        // as a separated step, making sure no mixed escaping is missed
 
     const tags = [...html.replace(/\//g,"").match(/<[^>]*>/g)||[]]
     const tagsOk = tags.every(s=>validTags.includes(s))

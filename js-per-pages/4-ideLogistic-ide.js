@@ -82,6 +82,14 @@ class IdeStorageManager extends TerminalRunner {
   get hasTerminal(){ return true }
   get isTerminal(){ return false }
 
+  /**Allow to "unlink" internal behaviors from the actual browser's localStorage.
+   * Keep in mind users "interacting with localStorage from pyodide" actually interact with the
+   * internal storage representation, and not with the true localStorage itself, so the "link"
+   * can be cut safely if desired, without modifying the actual behaviors (...unless the user
+   * also interacts with the localStorage through the JS layer... :-/ )
+   */
+  get useLocalStorage(){ return true }      // CodCap
+
 
   // (wut??) callInit = false: process to "re-initiate" the internal state of the IDE (useful for testing) */
   constructor(editorId, callInit=false){
@@ -99,33 +107,34 @@ class IdeStorageManager extends TerminalRunner {
     return this.storage.done > 0
   }
 
-
   getCodeFromStorage(){
-    return this.storage.code
+    return this.storage.code ?? ""    // `?? ""` as an extra security: should never be used
   }
 
-  getStorage(editorId=null){
-    editorId ??= this.id
-    const extractForThis = editorId==this.id
-    const storage = getIdeDataFromStorage(editorId, extractForThis?this:null)
+  /**Extract the localStorage content for the current IDE.
+   * */
+  getStorage(){
+    const storage = this.useLocalStorage ? getIdeDataFromStorage(this.id, this)
+                                         : freshStore({storage:{code:""}, ide:this})
     return storage
   }
 
+  /**Update the internal storage state, and store in the localStorage itself if needed.
+   * */
   setStorage(changes={}){
-    this._updateInternalStorage(changes)
-    localStorage.setItem(this.id, JSON.stringify(this.storage))
+    if(!this.storage) this.storage = {}                   // Still needed? ('don't think so...)
+    for(const k in changes) this.storage[k] = changes[k]
+
+    if(this.useLocalStorage){
+      localStorage.setItem(this.id, JSON.stringify(this.storage))
+    }
   }
 
-  resetElement(){
-    super.resetElement()
+  resetElement(options){
+    super.resetElement(options)
     this.storage = freshStore({ide: this})
-    localStorage.removeItem(this.id)
-  }
-
-  _updateInternalStorage(changes){
-    if(changes){
-      if(!this.storage) this.storage = {}
-      for(const k in changes) this.storage[k] = changes[k]
+    if(this.useLocalStorage){
+      localStorage.removeItem(this.id)
     }
   }
 

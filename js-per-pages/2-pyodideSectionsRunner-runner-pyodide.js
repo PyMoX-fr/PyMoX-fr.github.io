@@ -57,15 +57,15 @@ class PyodideSectionsRunnerBase {
    * */
   static pyFuncs = {}
 
-    no_undefined = prop =>{
-        const getter = v => {
-          if(v!==undefined) return v
-          throw new Error(`Undefined is not allowed: ${this.constructor.name}.${prop}.`)
-        }
-        return getter
-    }
+  no_undefined = prop =>{
+      const getter = v => {
+        if(v!==undefined) return v
+        throw new Error(`Undefined is not allowed: ${this.constructor.name}.${prop}.`)
+      }
+      return getter
+  }
 
-    // Getters so that the RunnersManager can identify which is what more easily (if ever needed)
+  // Getters so that the RunnersManager can identify which is what more easily (if ever needed)
   get isRunner()   { return true  }   // Always true, so far... Kept just in case
   get isPyBtn()    { return false }
   get hasTerminal(){ return false }
@@ -318,8 +318,6 @@ class PyodideSectionsRunnerBase {
       this.takesGroupPriority()     // This one must be kept (see global.on('click'...)) because
                                     // the click is applied too late.
       CONFIG.calledMermaid = false
-      const wasDirty = this.isDirty
-      this.makeDirty(false)         // Assumes executions will go well (see note in `finally`)
       this.running = runningMan
       let runtime
 
@@ -345,25 +343,7 @@ class PyodideSectionsRunnerBase {
 
       }finally{
         LOGGER_CONFIG.ACTIVATE && jsLogger("[CheckPoint] - finally", actionName)
-
-        // For isDirty update, DO NOT only rely on `this.isDirty = runtime.stopped`, so that the
-        // runner itself can set the value on a success if needed, and it won't be overridden here
-        // (useful if a valid "play" is still considered dirty when a validation button exists...):
-        const anyError = !runtime || runtime.stopped
-        const keepDirtyOnPublicTestsIfCheckBtn = wasDirty && this.data.hasCheckBtn && runningMan.isPlaying
-        if(anyError || keepDirtyOnPublicTestsIfCheckBtn){
-          this.makeDirty() // This is also applying the "orange box", for IDEs
-        }
-
-        // AFTER updating isDirty, FIX the orange box if needed:
-        if(this.isIde){
-          const cancelBox = runningMan.isValidating
-                          || runningMan.isPlaying && !anyError && !wasDirty && this.lastValidationWasSuccess()
-          if(cancelBox){
-            this.setOrangeBox(false)
-          }
-        }
-
+        this.makeDirty({runtime})
         if(runtime){
           await finallyTeardown.call(this, runtime)
         }
@@ -407,9 +387,18 @@ class PyodideSectionsRunnerBase {
   pyodideDelStorage(key)  { noStorage() }   // sink
 
 
-  resetElement(){ throw new Error('Not implemented') }  // sink with security
+  resetElement(options){ throw new Error('Not implemented') }  // sink with security
 
-  makeDirty(){ throw new Error('Not implemented') } // sink with security
+  /**@options `{isDirty?: true, runtime?: RuntimeManager, box?: true, doFocus?:boolean}`
+   *
+   * All fields are optional. May be used at various levels in the class hierarchy.
+   * - When `runtime` is given, this call is the one concluding some executions.
+   * - `doFocus` is related to focusing the IDE's editor during `resetElement`
+   *
+   * @returns: the updated `options` object, so that overloaded method can get back the
+   * concrete/updated state.
+   * */
+  makeDirty(options={}){ throw new Error('Not implemented') } // sink with security
 
   /**The current runner now takes priority in its group, regarding sequential executions.
    * */
@@ -629,20 +618,28 @@ class PyodideSequentialRunner extends PyodideSectionsRunnerBase {
   constructor(id){
     super(id)
 
-    /**Tell if the last run was successful or not, or if the content has been modified without
-     * being run (handled unconditionally for all elements, even if they aren't "in sequential
-     * runs". The GlobalRunnersManager handles what is actually to be run or not).
+    /**This flag DOES NOT track any "un-/saved" related logic, but rather if the runner should
+     * be run or not to know if the current validation state is known or not. This is for example
+     * used in sequential runs (dirty runners have to be run).
+     *
+     * It _can_ often be seen as "modified or not?" flag, but that's not matching the value at
+     * page load time, were no runner has been modified, and yet, they all are in dirty state.
+     *
+     * In a similar way, no "orange boxes" are visible on validation buttons at page load time
+     * while all IDEs are dirty, so both ideas are related but still different...
      * */
     this.isDirty = true
   }
 
 
-  makeDirty(isDirty=true){
-    this.isDirty = isDirty
+  makeDirty(options={}){
+    options = {isDirty: true, box: true, ...options}
+    this.isDirty = options.isDirty
+    return options
   }
 
-  resetElement(){
-    this.makeDirty()
+  resetElement(options){
+    this.makeDirty(options)
   }
 
 
