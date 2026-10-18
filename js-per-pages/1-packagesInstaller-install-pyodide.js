@@ -96,26 +96,14 @@ export const installPythonPackages=(function(){
    * */
 
 
-
-
   const FORBID_EXTERNALS = new Set(['py_lib', 'pylib', 'pylibs', 'py-lib', 'py-libs'])
-  const PMT_TOOLS = ['p5', 'p5v2', 'vis', 'vis_network']      // GENERATED
-
+  const PMT_TOOLS = ['MocodoPmt', 'PyodidePlotPmt', 'foliumPmt', 'p5', 'p5v2', 'vis', 'vis_network']      // GENERATED
 
 
   const featureRunner = (feature, outputConverter=null) => (repl=null) =>{
     let out = pyodideFeatureRunCode(feature, repl)
     if(outputConverter) out = outputConverter(out)
     return out
-  }
-
-
-  const postPyodidePlot = async ()=>{
-    await cssLoader({
-        href: "https://cdn.jsdelivr.net/npm/fontawesome-4.7@4.7.0/css/font-awesome.min.css",
-        integrity: "sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=",
-    })
-    pyodideFeatureRunCode('pyodidePlot')
   }
 
 
@@ -127,32 +115,40 @@ export const installPythonPackages=(function(){
     )}
   }
 
-
-  const pmtToolConf = (name, codeCheck=null) => ({
-    [name]: {
-      codeCheck: codeCheck ?? checkImportAsNamespaceOnly(name),
-      toImport: name,
-      post: async ()=>{
-        const cdnsUrls = getCdnsUrlsFromPmtTool(name)
-        await externalRessourcesLoaderFor(name, cdnsUrls)
-      }
-    }
-  })
-
-  const getCdnsUrlsFromPmtTool=(name)=>{
+  const getExternalRessourcesFromPmtTool=(name)=>{
     const cdnsString = pyodide.runPython(`
 def __hack_cdns():
     from pathlib import Path
 
     file = Path('${name}/cdns.txt')
     if not file.is_file():
+      file = file.with_suffix('.json')
+    if not file.is_file():
         return ''
-    return file.read_text(encoding='utf-8')
+    return file.read_text(encoding='utf-8').strip()
 __hack_cdns()`)
     pyodide.runPython('del __hack_cdns')
-    const cdnsUrls = cdnsString.replace(/\s+/g, " ").trim().split(' ')
-    return cdnsString ? cdnsUrls : []
+
+    if(!cdnsString) return []
+    try{
+      return JSON.parse(cdnsString)
+    }catch(_){
+      return cdnsString.replace(/\s+/g, " ").trim().split(' ')
+    }
   }
+
+
+  const pmtToolConf = (name, options={codeCheck: checkImportAsNamespaceOnly(name)}) => ({
+    [name]: {
+      toImport: name,
+      toInstall: null,    // to avoid external installations with PMT tools
+      post: async ()=>{
+        const cdnsUrls = getExternalRessourcesFromPmtTool(name)
+        await externalRessourcesLoaderFor(name, cdnsUrls)
+      },
+      ...options
+    }
+  })
 
 
 
@@ -163,27 +159,49 @@ __hack_cdns()`)
    *
    *   type Config = {
    *     codeCheck: Cbk[code,conf]   // Verifications to apply to the code content first
-   *     toInstall: string|string[], // Micropip installation name
+   *     toInstall: string|string[], // Micropip installation(s) name(s)
    *     post:      async Cbk,       // Callback to run to apply any kind of extra logic
    *     toImport:  string,          // Automatic import name, at the very end (in hidden scope)
    *   }
    * */
   const IMPORTS_CONFIG = {
-    matplotlib: {post: postPyodidePlot},
+
+    folium: {
+      post: async ()=>{ await installCustomPythonLib('foliumPmt') }
+    },
+
+    matplotlib: {
+      post: async ()=>{ await installCustomPythonLib('PyodidePlotPmt') }
+    },
+
+    mocodo: {
+      post: async ()=>{ await installCustomPythonLib('MocodoPmt') }
+    },
+
     PIL: {toInstall: "Pillow"},
+
     sympy: {
       toInstall: ["matplotlib", "sympy"],
       post: async ()=>{
-        await postPyodidePlot()
-        pyodide.runPython("PyodidePlot.sympy_backend()")
+        await installCustomPythonLib('PyodidePlotPmt')
+        pyodide.runPython(`
+  @__builtins__.auto_run
+  def __hack_sympy():
+    from PyodidePlotPmt import PyodidePlot
+    PyodidePlot.sympy_backend()
+    import sympy
+    sympy.PyodidePlot = PyodidePlot
+`)
       }
     },
-    // GENERATED ->
+
+    ...pmtToolConf('foliumPmt', {toInstall: ['folium']}),
+    ...pmtToolConf('MocodoPmt', {toInstall: ['mocodo', 'bs4', 'markdown', 'ipython']}),
+    ...pmtToolConf('PyodidePlotPmt', {toInstall: ['matplotlib']}),
     ...pmtToolConf('p5'),
     ...pmtToolConf('p5v2'),
     ...pmtToolConf('vis'),
     ...pmtToolConf('vis_network'),
-    // GENERATED <-
   }
 
 
@@ -202,21 +220,25 @@ __hack_cdns()`)
       post:      async ()=>undefined,
       ...IMPORTS_CONFIG[name] || {}
     }
-    conf.codeCheck(code, conf)
+    if(code) conf.codeCheck(code, conf)
     enforceImports.push( conf.toImport )
     return conf
   }
 
 
-  /**Install an available custom python_lib.
+  /**Install an available custom python_lib or PMT tools libs.
    * */
-  const installCustomPythonLib = async (libName, code) => {
+  const installCustomPythonLib = async (libName, codeToCheck) => {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install custom", libName)
 
-    const conf        = getConfAndSetupImport(libName, code)
+    const conf        = getConfAndSetupImport(libName, codeToCheck)
     const isPmtTool   = PMT_TOOLS.includes(libName)
     const rootNoSlash = CONFIG.siteUrl.replace(/\/$/, '')
     const archive     = `${ rootNoSlash }${ isPmtTool?"/assets/javascripts":"" }/${ libName }.zip`
+
+    if(isPmtTool && conf.toInstall){
+      await installWithMicroPip(conf.toInstall)
+    }
 
     let zipResponse, oops=false
     try{
@@ -240,15 +262,10 @@ __hack_cdns()`)
 
   /**Install an external python package (through pyodide's default behaviors: micropip+PyPI).
    * */
-  const installExternalPackage = async (libName, code) => {
+  const installExternalPackage = async (libName, codeToCheck) => {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install external", libName)
-
-    if(!micropip){
-      await pyodide.loadPackage("micropip");
-      micropip = pyodide.pyimport("micropip");
-    }
-    const conf = getConfAndSetupImport(libName, code)
-    await micropip.install(conf.toInstall)   // Nothing done if already installed element(s) => no check needed.
+    const conf = getConfAndSetupImport(libName, codeToCheck)
+    await installWithMicroPip(conf.toInstall)   // Nothing done if already installed element(s) => no check needed.
     await conf.post()
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Installed", libName)
   }
@@ -333,9 +350,16 @@ del _hack_imports`  // (not using the auto_run decorator because it might not be
 
 
 
-  let   micropip
   const enforceImports = []   // python lib names to import at the end (in hidden scope)
+  let   micropip
 
+  const installWithMicroPip=async (toInstall)=>{
+    if(!micropip){
+      await pyodide.loadPackage("micropip");
+      micropip = pyodide.pyimport("micropip");
+    }
+    await micropip.install(toInstall)
+  }
 
 
   return async (runtime, ctx)=>{

@@ -84,8 +84,8 @@ export const withPyodideAsyncLock = (()=>{
    *
    * @runnerManager=null: if given, this is the RUNNERS_MANAGER instance. See @runner argument.
    *
-   * @runner=null: if @runnerManager is given, this is the runner opbject currently "asking for
-   * permission" to run. The RUNNERS_MANAGER qill auhorize the execution or not, depending on
+   * @runner=null: if @runnerManager is given, this is the runner object currently "asking for
+   * permission" to run. The RUNNERS_MANAGER will authorize the execution or not, depending on
    * AUTO_RUNs being completed or not (and if AUTO_RUNs are going on, authorize the current
    * runner).
    * */
@@ -353,11 +353,24 @@ export const cdnLoader = _ressourceLoaderFactory('script', 'src',  'script')
 export const cssLoader = _ressourceLoaderFactory('link',   'href', 'css', {rel:'stylesheet'})
 
 
+/**@ressourcesArr: Array of json objects, with href or src alongside other values (integrity, ...).
+ * If an element is a simple string, assume it's a `src` value.
+ * */
 export const externalRessourcesLoaderFor = (name, ressourcesArr)=>{
   if(name) console.log(`Loading ${ name } utilities...`)
-  const done = Promise.all(ressourcesArr.map(o=>typeof(o)!='string' && ('href' in o) ? cssLoader(o):cdnLoader(o)))
+  const done = Promise.all( ressourcesArr.map(
+    o => typeof(o)!='string' && ('href' in o) ? cssLoader(o) : cdnLoader(o)
+  ))
   if(name) console.log(name, 'ready')
   return done
+}
+
+
+/**Used only with mocodo + mcd/sql display */
+export const highlightElement=(htmlId)=>{
+  setTimeout(()=>{
+    hljs.highlightElement(document.getElementById(htmlId))
+  })
 }
 
 
@@ -710,9 +723,10 @@ globalThis.subscribeWhenReady = subscribeWhenReady
 LOGGER_CONFIG.ACTIVATE && console.log("async subscriber updated")
 
 // Access from pyodide + IdeZipManager logistic + backward compatibility:
-globalThis.config        = config
-globalThis.isDark        = isDark
-globalThis.downloader    = downloader
-globalThis.uploader      = uploader
-globalThis.uploaderAsync = uploaderAsync
+globalThis.config           = config
+globalThis.isDark           = isDark
+globalThis.downloader       = downloader
+globalThis.uploader         = uploader
+globalThis.uploaderAsync    = uploaderAsync
+globalThis.highlightElement = highlightElement
 // globalThis.fileContentToDom = fileContentToDom
