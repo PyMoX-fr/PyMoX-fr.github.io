@@ -107,8 +107,8 @@ export const installPythonPackages=(function(){
   }
 
 
-  const checkImportAsNamespaceOnly=(name)=>(code, _conf)=>{
-    const badImport = new RegExp(`from +${ name }\\S* +import`).test(code)
+  const checkImportAsNamespaceOnlyFactory =(name)=> async (code)=>{
+    const badImport = code && new RegExp(`from +${ name }\\S* +import`).test(code)
     if(badImport){ throw new PythonError(
       `ImportError: Invalid ${ name } import.\nThe ${ name } module must be used as a namespace.`
       +`Example:\n    import ${ name }\n    ${ name }.functionName(...)`
@@ -138,7 +138,7 @@ __hack_cdns()`)
   }
 
 
-  const pmtToolConf = (name, options={codeCheck: checkImportAsNamespaceOnly(name)}) => ({
+  const pmtToolConf = (name, options={pre: checkImportAsNamespaceOnlyFactory(name)}) => ({
     [name]: {
       toImport: name,
       toInstall: null,    // to avoid external installations with PMT tools
@@ -158,13 +158,20 @@ __hack_cdns()`)
    *   Record<PackageName,Config>, where Config is:
    *
    *   type Config = {
-   *     codeCheck: Cbk[code,conf]   // Verifications to apply to the code content first
+   *     pre:       async Cbk[code]  // Verifications to apply to the code content first
    *     toInstall: string|string[], // Micropip installation(s) name(s)
    *     post:      async Cbk,       // Callback to run to apply any kind of extra logic
    *     toImport:  string,          // Automatic import name, at the very end (in hidden scope)
    *   }
    * */
   const IMPORTS_CONFIG = {
+
+    binarytree: {             // FIX setuptools-scm dependency vs pyodide 0.25
+      pre: async ()=>{
+        await getMicropip()               // Importing micropip installs packaging on the way
+        micropip.uninstall('packaging')   // Uninstall packaging to allow the proper version to be installed from binarytree
+       }
+    },
 
     folium: {
       post: async ()=>{ await installCustomPythonLib('foliumPmt') }
@@ -178,15 +185,17 @@ __hack_cdns()`)
       post: async ()=>{ await installCustomPythonLib('MocodoPmt') }
     },
 
-    PIL: {toInstall: "Pillow"},
+    PIL: {
+      toInstall: "Pillow"
+    },
 
     sympy: {
       toInstall: ["matplotlib", "sympy"],
       post: async ()=>{
         await installCustomPythonLib('PyodidePlotPmt')
         pyodide.runPython(`
-  @__builtins__.auto_run
-  def __hack_sympy():
+@__builtins__.auto_run
+def __hack_sympy():
     from PyodidePlotPmt import PyodidePlot
     PyodidePlot.sympy_backend()
     import sympy
@@ -212,15 +221,14 @@ __hack_cdns()`)
    *
    * @returns: the actual config object.
    * */
-  const getConfAndSetupImport = (name, code) =>{
+  const getConfAndSetupImport = (name) =>{
     const conf = {
-      codeCheck: (_)=>undefined,
+      pre:       async (code)=>undefined,
       toImport:  name,
       toInstall: name,
       post:      async ()=>undefined,
       ...IMPORTS_CONFIG[name] || {}
     }
-    if(code) conf.codeCheck(code, conf)
     enforceImports.push( conf.toImport )
     return conf
   }
@@ -231,10 +239,12 @@ __hack_cdns()`)
   const installCustomPythonLib = async (libName, codeToCheck) => {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install custom", libName)
 
-    const conf        = getConfAndSetupImport(libName, codeToCheck)
+    const conf        = getConfAndSetupImport(libName)
     const isPmtTool   = PMT_TOOLS.includes(libName)
     const rootNoSlash = CONFIG.siteUrl.replace(/\/$/, '')
     const archive     = `${ rootNoSlash }${ isPmtTool?"/assets/javascripts":"" }/${ libName }.zip`
+
+    await conf.pre(codeToCheck)
 
     if(isPmtTool && conf.toInstall){
       await installWithMicroPip(conf.toInstall)
@@ -264,7 +274,8 @@ __hack_cdns()`)
    * */
   const installExternalPackage = async (libName, codeToCheck) => {
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Install external", libName)
-    const conf = getConfAndSetupImport(libName, codeToCheck)
+    const conf = getConfAndSetupImport(libName)
+    await conf.pre(codeToCheck)
     await installWithMicroPip(conf.toInstall)   // Nothing done if already installed element(s) => no check needed.
     await conf.post()
     LOGGER_CONFIG.ACTIVATE && jsLogger("[Installer] - Installed", libName)
@@ -353,11 +364,15 @@ del _hack_imports`  // (not using the auto_run decorator because it might not be
   const enforceImports = []   // python lib names to import at the end (in hidden scope)
   let   micropip
 
-  const installWithMicroPip=async (toInstall)=>{
+  const getMicropip=async ()=>{
     if(!micropip){
       await pyodide.loadPackage("micropip");
       micropip = pyodide.pyimport("micropip");
     }
+  }
+
+  const installWithMicroPip=async (toInstall)=>{
+    await getMicropip()
     await micropip.install(toInstall)
   }
 
