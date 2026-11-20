@@ -54,36 +54,22 @@ If not, see <https://www.gnu.org/licenses/>.
   margin-left: auto;
 }
 
+/* FIX material 9.7.X: colored code elements in tabbed labels */
+.md-typeset .tabbed-labels a code { color: unset; }
 
-.md-typeset code,
-.md-typeset pre code,
-.md-typeset .linenos {
-  background-color: var(--background-theme);    /* Override main.css value*/
-  border-radius: 0.2em;
-  box-shadow: 0px 0px 1px var(--code-outline-color);
-  font-size: 0.94em;
-  padding: 0 0.3em;
-  word-break: break-word;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-.md-typeset div.highlight {
-  display: grid;
-}
+/* Override: box-shadow on the "wrong" element */
+.md-typeset .highlighttable tr:has(th.filename) + tr > td.linenos { box-shadow: -.05rem 0 var(--md-default-fg-color--lightest) inset; }
+.md-typeset .highlighttable tr:has(th.filename) + tr > td.linenos .linenodiv { box-shadow:none; }
 
-/* Override */
-.md-typeset div.highlight code,
-.md-typeset div.highlight pre code,
-.md-typeset div.highlight .linenos {
-  box-shadow:none;
-}
+/* Code contents bigger */
+.md-typeset code, .md-typeset pre code, .md-typeset .linenos { font-size: 0.94em; }
 
-[dir="ltr"] .md-header__source {
-  margin-left: 0;
-}
-.md-typeset .highlighttable, .md-typeset div.highlight > pre {  /* so that code blocks do not overflow from admonitions */
-  overflow: auto;
-}
+
+[dir="ltr"] .md-header__source { margin-left: 0; }
+
+/* Code blocks do not overflow out of admonitions */
+.md-typeset div.highlight { display: grid; margin: -1em 0 -.5em 0; }
+.md-typeset .highlighttable, .md-typeset div.highlight > pre { overflow: auto; }
 
 /* Formate "Remarques:" dans l'admonition des solutions comme si c'était un h3,
 mais sans lien dessus */
@@ -94,10 +80,6 @@ mais sans lien dessus */
   font-style: italic;
   font-weight: bold;
   margin-top: 2.5em;
-}
-
-.md-typeset h4.doc-heading.fake-h4 {
-  margin-top: 5em;
 }
 
 
@@ -117,14 +99,14 @@ mais sans lien dessus */
 }
 
 
+
+
+
 /*
 ------------------------
     Tooltips related
 ------------------------
 */
-
-
-
 
 #floating-tip {
   position: absolute;

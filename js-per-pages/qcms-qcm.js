@@ -73,13 +73,12 @@ class QCM {
             const qcmThis        = $(this)
             const classes        =  qcmThis.attr('class').split(' ')
             const shuffle        =  qcmThis.hasClass('qcm_shuffle')
-            const no_admo        =  qcmThis.hasClass('qcm_no_admo')
             const reveal_results = !qcmThis.hasClass('qcm_hidden')
             const multi_behavior =  qcmThis.hasClass('qcm_single') + 2 * qcmThis.hasClass('qcm_multi')
             const qcmId          =  classes.find(kls=>kls.startsWith("py_mk_qcm_id"))
 
             const qcmObj = new CONFIG.CLASSES_POOL.Qcm(qcmId, shuffle, reveal_results)
-            const owner  = qcmObj.createInnerLayoutButtonsAndCounter(no_admo)
+            const owner  = qcmObj.createInnerLayoutButtonsAndCounter()
 
             let iQuest=-1
             owner.find(questions)
@@ -167,18 +166,20 @@ class QCM {
     }
 
 
-    createInnerLayoutButtonsAndCounter(no_admo){
+    createInnerLayoutButtonsAndCounter(){
 
-        const divAdmo    = $('.'+this.qcmClass)
-        const innerDiv   = $(`<div class="inner"></div>`)
-        const classes    = divAdmo.attr('class').replace('admonition ','').split()
-        innerDiv.addClass(classes)
+        const divAdmo = $('.'+this.qcmClass)
+
+        // Duplicate most admonition classes on the inner element (to ease css reasoning on use side
+        // vs the layout wrapper / Also allow no-li classes to work appropriately):
+        const classes    = divAdmo.attr('class').replace('admonition ','')
+        const innerDiv   = $(`<div class="inner ${ classes }"></div>`)
 
         const btnWrapper = $(`<div class="${ CONFIG.element.qcmWrapper.slice(1) } ${ this.reveal?'give-away':'hidden' }"></div>`)
         const counter    = $(`<p class="${ CONFIG.element.qcmCounterCls.slice(1) }"></p>`)
         const mask       = $(createSvgMask(95, 1.1, CONFIG.lang.qcmMaskTip.msg, CONFIG.lang.qcmMaskTip.em))
         const checkBtn   = makeIdeJqButton('check',   {
-            shift:95,
+            shift: 95,
             tipWidth: CONFIG.lang.qcmCheckTip.em,
             tipText: CONFIG.lang.qcmCheckTip.msg,
             tagClass: 'vertical check-btn',
@@ -202,21 +203,15 @@ class QCM {
         const detached   = no_title.map(child => $(child).detach() )
         innerDiv.append(...detached)
 
+        // Add an intermediate level to manage the grid for counter/buttons vs questions:
         const layoutWrapper = $(`<div class="layout-qcm-wrapper"></div>`)
         layoutWrapper.append(innerDiv, btnWrapper)
 
-        // Ths list holding the questions may be ul or ol, so make the request more generic:
+        // The list holding the questions may be ul or ol, so make the request more generic:
         this.jItemsHolder = layoutWrapper.find(".inner > * > li").parent()
         this.jCounter = counter
-
-        if(no_admo){
-            layoutWrapper.addClass('qcm_no_admo')       // To ease testing/finding the element with selenium
-            divAdmo.replaceWith(layoutWrapper)
-            return layoutWrapper
-        }else{
-            divAdmo.append(layoutWrapper)
-            return divAdmo
-        }
+        divAdmo.append(layoutWrapper)
+        return divAdmo
     }
 }
 

@@ -40,6 +40,15 @@ WARNING:  This file HAS to be loaded before the DOM is built, otherwise
   margin: 0 0 0 15px;
 }
 
+.admonition.py_mk_admonition_qcm.qcm_no_admo > p.admonition-title {
+  display: none
+}
+.admonition.py_mk_admonition_qcm.qcm_no_admo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
 
 /*
 ---------------------------------------
