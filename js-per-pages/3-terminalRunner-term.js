@@ -651,9 +651,8 @@ export class TerminalRunner extends _TerminalHandler {
   }
 
   async applyAutoRun(){
-    if(this.prefillTerm){
-      await this.terminal.exec(this.prefillTerm)
-    }
+    // Always execute, even if prefillTerm is `''`, because the env section might contain something useful.
+    await this.terminal.exec(this.prefillTerm)
   }
 
 

@@ -68,7 +68,7 @@ If not, see <https://www.gnu.org/licenses/>.
 [dir="ltr"] .md-header__source { margin-left: 0; }
 
 /* Code blocks do not overflow out of admonitions */
-.md-typeset div.highlight { display: grid; margin: -1em 0 -.5em 0; }
+.md-typeset div.highlight { display: grid; }
 .md-typeset .highlighttable, .md-typeset div.highlight > pre { overflow: auto; }
 
 /* Formate "Remarques:" dans l'admonition des solutions comme si c'était un h3,
